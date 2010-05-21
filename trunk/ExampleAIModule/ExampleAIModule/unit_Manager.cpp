@@ -187,11 +187,10 @@ void unit_Manager::makeRefinery(TilePosition *pos){
 		else{
 			*geyserPos = (*pos);
 		}
-
+	
 		if ((trabajador!=NULL)&&(Broodwar->self()->minerals()>150)) {
 			trabajador->build((*geyserPos), *(new UnitType(110)));
 			cantRefinerias++;
-			//buildingSemaphore++;
 		}
 
 	}
@@ -272,20 +271,57 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 	int encontre=0;
 
 	while (encontre==0){
-		j = i;
-			while((j>=-i) && (encontre == 0)){
-				k = j;
-				while((k>=-i) && (encontre==0)){
-					if ((x+j>=0) && (y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
-						pos = new TilePosition(x + j, y + k);
-						if(Broodwar->isExplored(*pos)){
-							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
-						}
+		j = -i;
+		if (x+j>=0){
+			k = i;
+			while((k>=-i) && (encontre==0)){
+				if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+					pos = new TilePosition(x + j, y + k);
+					if(Broodwar->isExplored(*pos)){
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
 					}
-					k = k-1;
 				}
-				j= j-1;
+				k = k-1;
 			}
+		}
+		k = -i;
+		if (y+k>=0){
+			j = i;
+			while((j>=-i) && (encontre==0)){
+				if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+					pos = new TilePosition(x + j, y + k);
+					if(Broodwar->isExplored(*pos)){
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+					}
+				}
+				j = j-1;
+			}
+		}
+		
+		j = i;
+		k = i;
+		while((k>=-i) && (encontre==0)){
+			if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+				pos = new TilePosition(x + j, y + k);
+				if(Broodwar->isExplored(*pos)){
+					if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+				}
+			}
+			k = k-1;
+		}
+
+		k=i;
+		j = i;
+		while((j>=-i) && (encontre==0)){
+			if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+				pos = new TilePosition(x + j, y + k);
+				if(Broodwar->isExplored(*pos)){
+					if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+				}
+			}
+			j = j-1;
+		}
+
 		i++;
 	}
 
