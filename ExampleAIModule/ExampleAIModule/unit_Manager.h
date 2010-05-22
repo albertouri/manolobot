@@ -12,7 +12,7 @@ public:
 	void resetBuildingSemaphore();
 	void newSupplyDepot();
 	void newBarrack();
-
+	void setGoals(int goals[34]);
 	~unit_Manager(void);
 private:
 	void makeBarrack(TilePosition *pos);
