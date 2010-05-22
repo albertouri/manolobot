@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\strategy_manager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\unit_Manager.cpp"
 				>
 			</File>
@@ -198,6 +202,10 @@
 			</File>
 			<File
 				RelativePath=".\ManoloBot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\strategy_manager.h"
 				>
 			</File>
 			<File

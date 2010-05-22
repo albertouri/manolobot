@@ -1,20 +1,32 @@
 #include "ManoloBot.h"
 #include "unit_Manager.h"
+#include "strategy_manager.h"
 #include <BWAPI.h>
 
 using namespace BWAPI;
 
 unit_Manager *unitManager; // puntero al manager de unidades
+strategy_manager *strategyManager;
+int latency = 50;
+int goals[34];
+
 
 ManoloBot::ManoloBot(void)
 {	
 	unitManager = new unit_Manager();
+	strategyManager = new strategy_manager();
 }
 
-void ManoloBot::checkGoals(void){
-
+void ManoloBot::checkGoals(void){		
+	if(latency >=50){
+		strategyManager->checkGoals();
+		unitManager->setGoals(strategyManager->getGoals());
+		latency=0;
+	}
+	else{
+		latency++;
+	}
 	unitManager->executeActions();
-
 }
 
 void ManoloBot::edificioConstruido(int Id){

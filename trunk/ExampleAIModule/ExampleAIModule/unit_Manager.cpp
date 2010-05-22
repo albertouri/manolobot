@@ -14,6 +14,7 @@ int cantMarine = 0;
 int SCVgatheringMinerals= 0, SCVgatheringGas = 0;
 int frameLatency;
 int buildingSemaphore =0;
+int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
 
 TilePosition *centroComando;	// mantiene la posicion del centro de comando
 Unit *centroDeComando; //puntero a la posicion del centro;
@@ -44,13 +45,13 @@ void unit_Manager::executeActions(){
 	
 	//construye 'goalLimiteSCV' de SCV, este valor deberia ser seteado por una llamada a setGoal
 
-	if((cantSCV < goalLimiteSCV) && (Broodwar->self()->minerals()>100) ) {
+	if((Broodwar->self()->allUnitCount(*(new UnitType(7))) < goalCantUnidades[23]) && (Broodwar->self()->minerals()>100) ) {
 		trainWorker();
 	}
-
+	
 
 	//metodo a corregir, solamente a fin de entrenar marines.
-	if((Broodwar->self()->completedUnitCount(*barraca))&&(cantMarine < 10) && (Broodwar->self()->minerals()>100) ) {
+	if((Broodwar->self()->allUnitCount(*barraca))&&(Broodwar->self()->allUnitCount(*(new UnitType(0))) < goalCantUnidades[16]) && (Broodwar->self()->minerals()>100) ) {
 		trainMarine();
 	}
 
@@ -77,47 +78,23 @@ void unit_Manager::executeActions(){
 		frameLatency++;
 	}
 
-
-/*
-		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
-		{
-			if ((*i)->getType().isRefinery()){
-				closestGeiser = *i;
-			}
-		}
-		if (closestGeiser!=NULL)
-		{
-			for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
-			{
-				if ((*i)->getType().isWorker()){
-					if((*i)->isIdle())
-					{	(*i)->rightClick(closestGeiser);
-						break;
-					}
-				}
-
-	*/
-
-	if((Broodwar->self()->minerals()>100) && (cantRefinerias<goalLimiteGeiser)&&(buildingSemaphore == 0)){
+	if((Broodwar->self()->minerals()>200) && ((Broodwar->self()->allUnitCount(*(new UnitType(110)))) <goalCantUnidades[22])&&(buildingSemaphore == 0)){
 		TilePosition* pos = NULL;
 		makeRefinery(pos);
 		
 	}
 
-	if((Broodwar->self()->minerals()>200) && (cantBarracas<goalLimiteBarracas)&&(buildingSemaphore == 0)){
+	if((Broodwar->self()->minerals()>200) && ((Broodwar->self()->allUnitCount(*(new UnitType(111)))) <goalCantUnidades[2])&&(buildingSemaphore == 0)){
 		UnitType* building = new UnitType(111);
 		TilePosition* posB = getTilePositionAviable(building);
 		makeBarrack(posB);
-		//Broodwar->printf("por hacer una barraca, actualmente %d", cantBarracas);
+
 	}
 
-	if((Broodwar->self()->minerals()>200)&& (cantSupplyDepot<3)&&(buildingSemaphore == 0)){
-		//TilePosition* posB = new TilePosition(centroComando->x()+4, centroComando->y()+9);
+	if((Broodwar->self()->minerals()>200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(109))))<goalCantUnidades[29])&&(buildingSemaphore == 0)){
 		UnitType* building = new UnitType(109);
 		TilePosition* posB = getTilePositionAviable(building);
 		makeSupplyDepot(posB);
-		
-
 	}
 		
 	
@@ -138,7 +115,6 @@ void unit_Manager::makeBarrack(TilePosition *pos){
 			if (trabajador!=NULL) {
 				buildingSemaphore++;
 				trabajador->build((*pos), *(new UnitType(111)));
-				//cantBarracas++;
 				
 			}
 		}
@@ -156,7 +132,6 @@ void unit_Manager::makeSupplyDepot(TilePosition *pos){
 			if ( Broodwar->canBuildHere(trabajador, *(new Position(*pos)), *(new UnitType(109)) )){
 				buildingSemaphore++;
 				trabajador->build((*pos), *(new UnitType(109)));
-				//cantSupplyDepot++;
 
 			}
 		}
@@ -335,4 +310,10 @@ void unit_Manager::newSupplyDepot(){
 
 void unit_Manager::newBarrack(){
 	cantBarracas++;
+}
+
+void unit_Manager::setGoals(int goals[34]){
+	for (int i=0; i<34; i++){
+		goalCantUnidades[i] = goals[i];
+	}
 }
