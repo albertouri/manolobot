@@ -68,9 +68,28 @@ void unit_Manager::executeActions(){
 				trabajador = (*i);
 				if(trabajador->isGatheringMinerals()) SCVgatheringCristal++;
 				else if (trabajador->isGatheringGas())SCVgatheringGas++;
-				else if (trabajador->isIdle()){ sendGatherCristal(trabajador); }
+				else if (trabajador->isIdle()){ sendGatherCristal(trabajador); SCVgatheringCristal++;}
+			}	
+		}
+
+		if ((Broodwar->self()->completedUnitCount(*(new UnitType(110)))>0) && (SCVgatheringCristal+SCVgatheringGas>10)){
+			if (SCVgatheringGas < 4){
+				for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+				{
+					if (SCVgatheringGas<4){
+						if ((*i)->getType().isWorker()){
+							trabajador = (*i);
+							if(trabajador->isGatheringMinerals()) {
+								SCVgatheringCristal--;
+								SCVgatheringGas++;
+								sendGatherGas(trabajador); }
+						}	
+					}
+					else{
+						break;
+					}
+				}
 			}
-	
 		}
 
 	}
@@ -232,6 +251,28 @@ void unit_Manager::sendGatherCristal(Unit* worker){
 	} else Broodwar->printf("el worker es null");
 
 }
+
+void unit_Manager::sendGatherGas(Unit* worker){
+	
+	if (worker != NULL){
+	Unit* closestGeyser=NULL;
+	//busca el mineral más cercano.
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType().isRefinery()){
+				closestGeyser = (*i);
+		}
+	}
+	
+	if (closestGeyser!=NULL) 
+	{
+		worker->rightClick(closestGeyser);
+	}
+	} else Broodwar->printf("el worker es null");
+
+}
+
+
 
 void unit_Manager::resetBuildingSemaphore(){
 	buildingSemaphore=0;

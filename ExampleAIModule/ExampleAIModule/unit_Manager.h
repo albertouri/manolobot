@@ -20,6 +20,7 @@ private:
 	void makeRefinery(TilePosition *pos);
 	Unit* getWorker();
 	void sendGatherCristal(Unit* worker);
+	void sendGatherGas(Unit* worker);
 	void trainWorker();
 	void trainMarine();
 	TilePosition* getTilePositionAviable(UnitType* U);
