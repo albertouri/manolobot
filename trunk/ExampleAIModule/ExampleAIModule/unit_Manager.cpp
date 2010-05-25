@@ -1,5 +1,6 @@
 #include "unit_Manager.h"
 #include <BWAPI.h>
+#include "compania.h"
 
 
 using namespace BWAPI;
@@ -16,6 +17,9 @@ int frameLatency;
 int buildingSemaphore =0;
 int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
 
+compania* Easy;
+
+
 TilePosition *centroComando;	// mantiene la posicion del centro de comando
 Unit *centroDeComando; //puntero a la posicion del centro;
 UnitType *barraca; // puntero a la unidad que actualmente esta construyendo algo
@@ -23,7 +27,7 @@ UnitType *barraca; // puntero a la unidad que actualmente esta construyendo algo
 
 unit_Manager::unit_Manager(void)
 {
-	//centroComando = new Position(100,100);
+	Easy = new compania();
 	cantBarracas=0;
 	barraca = new UnitType(111);
 	cantSCV = Broodwar->self()->completedUnitCount(*(new UnitType(7)));
@@ -358,4 +362,8 @@ void unit_Manager::setGoals(int goals[34]){
 	for (int i=0; i<34; i++){
 		goalCantUnidades[i] = goals[i];
 	}
+}
+
+void unit_Manager::asignarUnidadACompania(Unit* unit){
+	Easy->asignarUnidad(unit);
 }
