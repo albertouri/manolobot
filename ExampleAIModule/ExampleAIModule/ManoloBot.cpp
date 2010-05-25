@@ -37,6 +37,11 @@ void ManoloBot::edificioConstruido(int Id){
 
 }
 
+void ManoloBot::unidadConstruida(Unit* U){
+	
+	unitManager->asignarUnidadACompania(U);
+}
+
 ManoloBot::~ManoloBot(void)
 {
 }

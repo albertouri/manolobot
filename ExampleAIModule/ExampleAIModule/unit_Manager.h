@@ -13,6 +13,7 @@ public:
 	void newSupplyDepot();
 	void newBarrack();
 	void setGoals(int goals[34]);
+	void asignarUnidadACompania(Unit* unit);
 	~unit_Manager(void);
 private:
 	void makeBarrack(TilePosition *pos);
@@ -24,5 +25,7 @@ private:
 	void trainWorker();
 	void trainMarine();
 	TilePosition* getTilePositionAviable(UnitType* U);
+
+
 
 };
