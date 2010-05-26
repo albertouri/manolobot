@@ -11,4 +11,8 @@ public:
 	void asignarUnidad(Unit *U);
 
 	~compania(void);
+
+private:
+	void conteoUnidades(void);
 };
+
