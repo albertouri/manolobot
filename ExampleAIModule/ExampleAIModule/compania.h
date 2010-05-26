@@ -14,5 +14,6 @@ public:
 
 private:
 	void conteoUnidades(void);
+	void ponerACubierto(Unit *U);
 };
 

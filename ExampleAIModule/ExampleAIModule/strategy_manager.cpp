@@ -36,6 +36,7 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[2]=1;
 	}
 	else {
+		GoalUnidades[4]=2;
 		GoalUnidades[16]=10;
 	}
 
