@@ -22,8 +22,11 @@ void compania::asignarUnidad(Unit *U){
 	
 	lista.push_front(U);
 	
-	conteoUnidades();
+
+	//conteoUnidades();
 	if ((unidad1!=NULL)&&(unidad1->exists())) unidad1->rightClick(*(new TilePosition(1,1)));
+	
+	if (i>1) ponerACubierto(U);
 
 }
 
@@ -34,8 +37,21 @@ void compania::conteoUnidades(){
 	while(It1 != lista.end()){
 		if(!(*It1)->exists()) It1 = lista.erase(It1);	
 		else {It1++; j++;}
-
 	}
-	Broodwar->printf("cantidad = %d", j);
+}
+
+void compania::ponerACubierto(Unit* U){
+	Unit* bunker;
 	
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if (((*i)->getType().getID()==125)&&((*i)->getLoadedUnits().size()<4)){
+				bunker = (*i);
+				break;
+		}
+	}
+	
+	if (bunker!=NULL) {bunker->load(U); };
+
+
 }

@@ -110,14 +110,19 @@ void unit_Manager::executeActions(){
 	if((Broodwar->self()->minerals()>200) && ((Broodwar->self()->allUnitCount(*(new UnitType(111)))) <goalCantUnidades[2])&&(buildingSemaphore == 0)){
 		UnitType* building = new UnitType(111);
 		TilePosition* posB = getTilePositionAviable(building);
-		makeBarrack(posB);
-
+		buildUnit(posB, 111);
 	}
 
 	if((Broodwar->self()->minerals()>200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(109))))<goalCantUnidades[29])&&(buildingSemaphore == 0)){
 		UnitType* building = new UnitType(109);
 		TilePosition* posB = getTilePositionAviable(building);
-		makeSupplyDepot(posB);
+		buildUnit(posB, 109);
+	}
+
+	if((Broodwar->self()->minerals()>150)&& ((Broodwar->self()->allUnitCount(*(new UnitType(125))))<goalCantUnidades[4])&&(buildingSemaphore == 0)){
+		UnitType* building = new UnitType(125);
+		TilePosition* posB = getTilePositionAviable(building);
+		buildUnit(posB, 125);
 	}
 		
 	
@@ -129,36 +134,20 @@ unit_Manager::~unit_Manager(void)
 }
 
 
-void unit_Manager::makeBarrack(TilePosition *pos){
+void unit_Manager::buildUnit(TilePosition *pos, int id){
 	Unit* trabajador;
-	if (Broodwar->self()->minerals()>150){
+	UnitType *tipo = new UnitType(id);
+	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>tipo->gasPrice())){
 		trabajador = getWorker();
 		if (trabajador!=NULL) {
-			if ( Broodwar->canBuildHere(trabajador, *(new Position(*pos)), *(new UnitType(111)) )){
+			if ( Broodwar->canBuildHere(trabajador, *(new Position(*pos)), *tipo )){
 				buildingSemaphore++;
-				trabajador->build((*pos), *(new UnitType(111)));
+				trabajador->build((*pos), *tipo);
 				
 			}
 		}
 	}
 
-}
-
-void unit_Manager::makeSupplyDepot(TilePosition *pos){
-	Unit* trabajador;
-	
-	if (Broodwar->self()->minerals()>150){	
-		trabajador = getWorker();
-		
-		if (trabajador!=NULL) {
-			if ( Broodwar->canBuildHere(trabajador, *(new Position(*pos)), *(new UnitType(109)) )){
-				buildingSemaphore++;
-				trabajador->build((*pos), *(new UnitType(109)));
-
-			}
-		}
-
-	}
 }
 
 

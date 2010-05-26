@@ -16,8 +16,7 @@ public:
 	void asignarUnidadACompania(Unit* unit);
 	~unit_Manager(void);
 private:
-	void makeBarrack(TilePosition *pos);
-	void makeSupplyDepot(TilePosition *pos);
+	void buildUnit(TilePosition *pos, int id);
 	void makeRefinery(TilePosition *pos);
 	Unit* getWorker();
 	void sendGatherCristal(Unit* worker);
