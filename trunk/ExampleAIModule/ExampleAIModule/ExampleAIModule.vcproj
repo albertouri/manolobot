@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Scout.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\strategy_manager.cpp"
 				>
 			</File>
@@ -210,6 +214,10 @@
 			</File>
 			<File
 				RelativePath=".\ManoloBot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Scout.h"
 				>
 			</File>
 			<File
