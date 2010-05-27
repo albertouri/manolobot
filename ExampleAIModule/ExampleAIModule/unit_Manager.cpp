@@ -1,6 +1,7 @@
 #include "unit_Manager.h"
 #include <BWAPI.h>
 #include "compania.h"
+#include "Scout.h"
 
 
 using namespace BWAPI;
@@ -18,6 +19,7 @@ int buildingSemaphore =0;
 int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
 
 compania* Easy;
+Scout* magallanes;
 
 
 TilePosition *centroComando;	// mantiene la posicion del centro de comando
@@ -28,6 +30,7 @@ UnitType *barraca; // puntero a la unidad que actualmente esta construyendo algo
 unit_Manager::unit_Manager(void)
 {
 	Easy = new compania();
+	magallanes = new Scout(getWorker());
 	cantBarracas=0;
 	barraca = new UnitType(111);
 	cantSCV = Broodwar->self()->completedUnitCount(*(new UnitType(7)));
@@ -48,7 +51,7 @@ unit_Manager::unit_Manager(void)
 void unit_Manager::executeActions(){
 	
 	//construye 'goalLimiteSCV' de SCV, este valor deberia ser seteado por una llamada a setGoal
-
+	magallanes->explorar();
 	if((Broodwar->self()->allUnitCount(*(new UnitType(7))) < goalCantUnidades[23]) && (Broodwar->self()->minerals()>100) ) {
 		trainWorker();
 	}
