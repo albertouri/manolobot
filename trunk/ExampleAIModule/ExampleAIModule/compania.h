@@ -2,6 +2,8 @@
 #include <BWAPI.h>
 
 
+
+
 using namespace BWAPI;
 
 class compania
