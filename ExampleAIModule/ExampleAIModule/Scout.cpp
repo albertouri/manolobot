@@ -175,7 +175,7 @@ void Scout::explorar(void){
 	if (explorer->exists()){
 		if (cont < cantPosiciones){
 			if (explorer->isIdle()){
-				Broodwar->printf("Me muevo...");
+				//Broodwar->printf("Me muevo...");
 				explorer->rightClick(*posiciones[cont]);
 				cont++;
 			}

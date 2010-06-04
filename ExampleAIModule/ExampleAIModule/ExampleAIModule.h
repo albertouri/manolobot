@@ -7,7 +7,6 @@ static bool analyzed;
 static bool analysis_just_finished;
 static BWTA::Region* home;
 static BWTA::Region* enemy_base;
-DWORD WINAPI AnalyzeThread();
 
 class ExampleAIModule : public BWAPI::AIModule
 {

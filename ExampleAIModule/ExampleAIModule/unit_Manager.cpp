@@ -3,7 +3,6 @@
 #include "compania.h"
 #include "Scout.h"
 
-
 using namespace BWAPI;
 
 int cantBarracas, cantRefinerias = 0; // lleva la cuenta de la cantidad de barracas construidas
@@ -16,10 +15,16 @@ int cantMarine = 0;
 int SCVgatheringMinerals= 0, SCVgatheringGas = 0;
 int frameLatency;
 int buildingSemaphore =0;
+
 int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
+int goalResearch[10] = {0,0,0,0,0,0,0,0,0,0}; // arreglo que mantiene las investigaciones que deben realizarce
+bool researchDone[10] = {false, false, false, false, false, false, false, false, false, false};
 
 compania* Easy;
 Scout* magallanes;
+
+
+int investigue = false;
 
 
 TilePosition *centroComando;	// mantiene la posicion del centro de comando
@@ -31,9 +36,11 @@ unit_Manager::unit_Manager(void)
 {
 	Easy = new compania();
 	magallanes = new Scout(getWorker());
-	cantBarracas=0;
-	barraca = new UnitType(111);
-	cantSCV = Broodwar->self()->completedUnitCount(*(new UnitType(7)));
+	cantBarracas = 0;
+
+	barraca = new UnitType(Utilidades::ID_ACADEMY);
+
+	cantSCV = Broodwar->self()->completedUnitCount(*(new UnitType(Utilidades::ID_SCV)));
 	frameLatency = 0;
 
 	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
@@ -48,20 +55,19 @@ unit_Manager::unit_Manager(void)
 
 }
 
-void unit_Manager::executeActions(){
+void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	
 	//construye 'goalLimiteSCV' de SCV, este valor deberia ser seteado por una llamada a setGoal
 	magallanes->explorar();
-	if((Broodwar->self()->allUnitCount(*(new UnitType(7))) < goalCantUnidades[23]) && (Broodwar->self()->minerals()>100) ) {
+	if((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_SCV))) < goalCantUnidades[Utilidades::INDEX_GOAL_SCV]) && (Broodwar->self()->minerals()>100) ) {
 		trainWorker();
 	}
 	
 
 	//metodo a corregir, solamente a fin de entrenar marines.
-	if((Broodwar->self()->allUnitCount(*barraca))&&(Broodwar->self()->allUnitCount(*(new UnitType(0))) < goalCantUnidades[16]) && (Broodwar->self()->minerals()>100) ) {
+	if((Broodwar->self()->allUnitCount(*barraca))&&(Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_MARINE))) < goalCantUnidades[Utilidades::INDEX_GOAL_MARINE]) && (Broodwar->self()->minerals()>100) ) {
 		trainMarine();
 	}
-
 
 
 	if (frameLatency >= 200){
@@ -69,6 +75,7 @@ void unit_Manager::executeActions(){
 		Unit* trabajador;
 		frameLatency=0;
 		buildingSemaphore=0;
+
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 		{
 			if ((*i)->getType().isWorker()){
@@ -104,31 +111,72 @@ void unit_Manager::executeActions(){
 		frameLatency++;
 	}
 
-	if((Broodwar->self()->minerals()>200) && ((Broodwar->self()->allUnitCount(*(new UnitType(110)))) <goalCantUnidades[22])&&(buildingSemaphore == 0)){
+	if((Broodwar->self()->minerals()>200) && ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_REFINERY)))) <goalCantUnidades[Utilidades::INDEX_GOAL_REFINERY])&&(buildingSemaphore == 0)){
 		TilePosition* pos = NULL;
 		makeRefinery(pos);
 		
 	}
 
-	if((Broodwar->self()->minerals()>200) && ((Broodwar->self()->allUnitCount(*(new UnitType(111)))) <goalCantUnidades[2])&&(buildingSemaphore == 0)){
-		UnitType* building = new UnitType(111);
+
+	if((Broodwar->self()->minerals() > 200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_DEPOT))))<goalCantUnidades[Utilidades::INDEX_GOAL_DEPOT])&&(buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_DEPOT);
 		TilePosition* posB = getTilePositionAviable(building);
-		buildUnit(posB, 111);
+		buildUnit(posB, Utilidades::ID_DEPOT);
 	}
 
-	if((Broodwar->self()->minerals()>200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(109))))<goalCantUnidades[29])&&(buildingSemaphore == 0)){
-		UnitType* building = new UnitType(109);
+
+	if((Broodwar->self()->minerals() > 200) && ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BARRACK)))) <goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK])&&(buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_BARRACK);
 		TilePosition* posB = getTilePositionAviable(building);
-		buildUnit(posB, 109);
+		buildUnit(posB, Utilidades::ID_BARRACK);
 	}
 
-	if((Broodwar->self()->minerals()>150)&& ((Broodwar->self()->allUnitCount(*(new UnitType(125))))<goalCantUnidades[4])&&(buildingSemaphore == 0)){
-		UnitType* building = new UnitType(125);
-		TilePosition* posB = getTilePositionAviable(building);
-		buildUnit(posB, 125);
+	// construye bunker
+	if((Broodwar->self()->minerals() > 150)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))))<goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER])&&(buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
+
+		Position *p = analizador->obtenerCentroChokepoint();
+		TilePosition *t = new TilePosition(p->x() / 32, p->y() / 32);
+		TilePosition* posB = getTilePositionAviable(building, t);
+
+		delete t;
+
+		//TilePosition* posB = getTilePositionAviable(building);
+		buildUnit(posB, Utilidades::ID_BUNKER);
 	}
+
+	// construye academia
+	if((Broodwar->self()->minerals() > 200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_ACADEMY))))<goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY])&&(buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_ACADEMY);
+		TilePosition* posB = getTilePositionAviable(building);
+		buildUnit(posB, Utilidades::ID_ACADEMY);
+	}
+
+	// ----------------------------------------------------------------------------
+	//								Investigaciones
+	// ----------------------------------------------------------------------------
+
+	// stim_pack (se investiga en academia terran)
+	if ((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_STIMPACK] == 1)){
+		Unit *u;
+
+		u = getUnit(Utilidades::ID_ACADEMY);
 		
-	
+		if (u->isCompleted()){
+			Broodwar->printf("FINAL DE CONSTRUCCION ACADEMIA");
+			
+			//TechType *t = new TechType(TechTypes::Stim_Packs);
+			std::string nombre = "Stim_Packs";
+			TechType t = TechTypes::getTechType(nombre);
+
+			u->research(t);
+			//delete t;
+		}
+
+		delete u;
+		investigue = true;
+	}
+
 }
 
 
@@ -142,6 +190,7 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 	UnitType *tipo = new UnitType(id);
 	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>tipo->gasPrice())){
 		trabajador = getWorker();
+
 		if (trabajador!=NULL) {
 			if ( Broodwar->canBuildHere(trabajador, *(new Position(*pos)), *tipo )){
 				buildingSemaphore++;
@@ -179,7 +228,7 @@ void unit_Manager::makeRefinery(TilePosition *pos){
 			}
 		
 			if (Broodwar->self()->minerals()>150) {
-				trabajador->build((*geyserPos), *(new UnitType(110)));
+				trabajador->build((*geyserPos), *(new UnitType(Utilidades::ID_REFINERY)));
 				cantRefinerias++;
 			}
 		}
@@ -190,17 +239,30 @@ void unit_Manager::makeRefinery(TilePosition *pos){
 Unit* unit_Manager::getWorker(){
 	Unit* trabajador = NULL;
 	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
-		{
-			if ((*i)->getType().isWorker()){
-				if (!(*i)->isConstructing()){
-					trabajador = *i;
-					break;
-				}
+	{
+		if ((*i)->getType().isWorker()){
+			if (!(*i)->isConstructing()){
+				trabajador = *i;
+				break;
 			}
 		}
+	}
 	return trabajador;
-
 }
+
+// retorna un puntero a la primera unidad del tipo pasado como parametro que encuentra
+Unit* unit_Manager::getUnit(int IDTipo){
+	Unit* u = NULL;
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType().getID() == IDTipo ){
+				u = *i;
+				break;
+		}
+	}
+	return u;
+}
+
 
 void unit_Manager::trainWorker(){
 	if(centroDeComando->exists()){
@@ -215,13 +277,13 @@ void unit_Manager::trainMarine(){
 	Unit* firstBarrack = NULL;
 	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 	{
-		if ((*i)->getType().getID()==111){
+		if ((*i)->getType().getID() == Utilidades::ID_BARRACK){
 			firstBarrack = (*i);
 		}
 	}
 
 	if((Broodwar->self()->minerals()>50) && (firstBarrack != NULL)){	
-		firstBarrack->train(*(new UnitType(0)));	
+		firstBarrack->train(*(new UnitType(0)));
 	}
 
 }
@@ -274,6 +336,7 @@ void unit_Manager::resetBuildingSemaphore(){
 	buildingSemaphore=0;
 }
 
+// Obtiene un TilePosition disponible en las cercanias del centro de comando
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 	TilePosition* pos;
 	Unit* worker = getWorker();
@@ -342,6 +405,81 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 
 }
 
+
+// Obtiene un TilePosition disponible en las cercanias de la posicion pasada como parametro
+TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t){
+	TilePosition* pos;
+	Unit* worker = getWorker();
+	//int x = centroComando->x();
+	//int y = centroComando->y();
+
+	int x = t->x();
+	int y = t->y();
+
+	int i = 6;
+	int j, k;
+	int encontre=0;
+	if (worker != NULL) {
+		while (encontre==0){
+			j = -i;
+			if (x+j>=0){
+				k = i;
+				while((k>=-i) && (encontre==0)){
+					if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+						pos = new TilePosition(x + j, y + k);
+						if(Broodwar->isExplored(*pos)){
+							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+						}
+					}
+					k = k-1;
+				}
+			}
+			k = -i;
+			if (y+k>=0){
+				j = i;
+				while((j>=-i) && (encontre==0)){
+					if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+						pos = new TilePosition(x + j, y + k);
+						if(Broodwar->isExplored(*pos)){
+							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+						}
+					}
+					j = j-1;
+				}
+			}
+			
+			j = i;
+			k = i;
+			while((k>=-i) && (encontre==0)){
+				if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+					pos = new TilePosition(x + j, y + k);
+					if(Broodwar->isExplored(*pos)){
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+					}
+				}
+				k = k-1;
+			}
+
+			k=i;
+			j = i;
+			while((j>=-i) && (encontre==0)){
+				if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+					pos = new TilePosition(x + j, y + k);
+					if(Broodwar->isExplored(*pos)){
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+					}
+				}
+				j = j-1;
+			}
+
+			i++;
+		}
+	}
+	return pos;
+
+}
+
+
 void unit_Manager::newSupplyDepot(){
 	cantSupplyDepot++;
 }
@@ -353,6 +491,12 @@ void unit_Manager::newBarrack(){
 void unit_Manager::setGoals(int goals[34]){
 	for (int i=0; i<34; i++){
 		goalCantUnidades[i] = goals[i];
+	}
+}
+
+void unit_Manager::setResearchs(int researchs[10]){
+	for (int i=0; i<10; i++){
+		goalResearch[i] = researchs[i];
 	}
 }
 
