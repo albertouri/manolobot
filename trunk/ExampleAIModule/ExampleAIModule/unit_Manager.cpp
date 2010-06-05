@@ -267,7 +267,7 @@ Unit* unit_Manager::getUnit(int IDTipo){
 void unit_Manager::trainWorker(){
 	if(centroDeComando->exists()){
 		if(Broodwar->self()->minerals()>=150){	
-			centroDeComando->train(*Broodwar->self()->getRace().getWorker());
+			centroDeComando->train(Broodwar->self()->getRace().getWorker());
 			cantSCV++;		
 		}
 	}
