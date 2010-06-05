@@ -1,7 +1,7 @@
 #pragma once
 #include <BWAPI.h>
 #include <BWTA.h>
-#include <windows.h>
+#include <windows.h> 
 
 static bool analyzed;
 static bool analysis_just_finished;
