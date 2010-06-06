@@ -2,15 +2,13 @@
 #include "ManoloBot.h"
 #include <stdlib.h>
 
+#include "Utilidades.h"
+
 using namespace BWAPI;
 
-
-/*int cantBarracas = 0; // lleva la cuenta de la cantidad de barracas construidas
-int cantSCV = 4;
-Position *centroComando;	// mantiene la posicion del centro de comando
-Unit *trabajador, *trabajador2; // puntero a la unidad que actualmente esta construyendo algo
-*/
 ManoloBot *agente;
+
+Unit *sambueza = NULL;
 
 
 void ExampleAIModule::onStart()
@@ -51,7 +49,6 @@ void ExampleAIModule::onStart()
 
 	Broodwar->setLocalSpeed(8);
 	agente = new ManoloBot();
-
   }
 }
 
@@ -68,6 +65,12 @@ void ExampleAIModule::onEnd(bool isWinner)
 void ExampleAIModule::onFrame()
 {
 	agente->checkGoals();	
+
+	/*if (sambueza != NULL){
+		if (sambueza->isCompleted()){
+			Broodwar->printf("BARRACA LISTA");
+		}
+	}*/
 }
 
 void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
@@ -78,6 +81,11 @@ void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 			agente->edificioConstruido(unit->getType().getID());
 		}
 		else if(unit->getType().getID()==0) agente->unidadConstruida(unit);
+
+
+		if (unit->getType().getID() == Utilidades::ID_BARRACK){
+			sambueza = unit;
+		}
 	}
 	else
 	{
@@ -107,18 +115,18 @@ void ExampleAIModule::onUnitDestroy(BWAPI::Unit* unit)
 
 void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
 {
-  if (!Broodwar->isReplay())
-    Broodwar->sendText("A %s [%x] has been morphed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+	if (!Broodwar->isReplay()){}
+    //Broodwar->sendText("A %s [%x] has been morphed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
   else
   {
     /*if we are in a replay, then we will print out the build order
     (just of the buildings, not the units).*/
     if (unit->getType().isBuilding() && unit->getPlayer()->isNeutral()==false)
     {
-      int seconds=Broodwar->getFrameCount()/24;
+      /*int seconds=Broodwar->getFrameCount()/24;
       int minutes=seconds/60;
       seconds%=60;
-      Broodwar->sendText("%.2d:%.2d: %s morphs a %s",minutes,seconds,unit->getPlayer()->getName().c_str(),unit->getType().getName().c_str());
+      Broodwar->sendText("%.2d:%.2d: %s morphs a %s",minutes,seconds,unit->getPlayer()->getName().c_str(),unit->getType().getName().c_str());*/
     }
   }
 }
@@ -175,6 +183,11 @@ bool ExampleAIModule::onSendText(std::string text)
     Broodwar->printf("You typed '%s'!",text.c_str());
   }
   return true;
+}
+
+void ExampleAIModule::onSaveGame(std::string gameName)
+{
+  Broodwar->sendText("User just save game with file name %s",gameName.c_str());
 }
 
 

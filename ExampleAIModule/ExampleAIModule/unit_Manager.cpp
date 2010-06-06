@@ -5,7 +5,7 @@
 
 using namespace BWAPI;
 
-int cantBarracas, cantRefinerias = 0; // lleva la cuenta de la cantidad de barracas construidas
+int cantBarracas, cantRefinerias = 0, cantAcademias = 0; // lleva la cuenta de la cantidad de barracas construidas
 int cantSupplyDepot= 0;
 int goalLimiteGeiser = 1;
 int goalLimiteSCV = 8;
@@ -135,6 +135,8 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	if((Broodwar->self()->minerals() > 150)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))))<goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER])&&(buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 
+		// Obtiene la posicion del centro del chokepoint a defender y la convierte a una TilePosition (que se 
+		// mide en build tiles)
 		Position *p = analizador->obtenerCentroChokepoint();
 		TilePosition *t = new TilePosition(p->x() / 32, p->y() / 32);
 		TilePosition* posB = getTilePositionAviable(building, t);
@@ -156,25 +158,30 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	//								Investigaciones
 	// ----------------------------------------------------------------------------
 
+
 	// stim_pack (se investiga en academia terran)
-	if ((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_STIMPACK] == 1)){
+	// TODO: que entre una sola vez al ciclo, sino entra un monton de veces al pedo
+	if ((cantAcademias > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_STIMPACK] == 1)){
 		Unit *u;
 
 		u = getUnit(Utilidades::ID_ACADEMY);
-		
-		if (u->isCompleted()){
-			Broodwar->printf("FINAL DE CONSTRUCCION ACADEMIA");
-			
-			//TechType *t = new TechType(TechTypes::Stim_Packs);
-			std::string nombre = "Stim_Packs";
-			TechType t = TechTypes::getTechType(nombre);
 
-			u->research(t);
-			//delete t;
+		if (u != NULL){
+
+			if (u->isCompleted()){
+				// Construccion de la academia finalizada, se puede investigar mejoras
+
+				//Broodwar->printf("INVESTIGANDO MEJORA...");
+				TechType *t = new TechType(TechTypes::Stim_Packs);
+				//std::string nombre = "Stim_Packs";
+				//TechType t = TechTypes::getTechType(nombre);
+
+				u->research(*t);
+				//delete t;
+			}
+
+			investigue = true;
 		}
-
-		delete u;
-		investigue = true;
 	}
 
 }
@@ -252,14 +259,17 @@ Unit* unit_Manager::getWorker(){
 
 // retorna un puntero a la primera unidad del tipo pasado como parametro que encuentra
 Unit* unit_Manager::getUnit(int IDTipo){
+
 	Unit* u = NULL;
+
 	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 	{
 		if ((*i)->getType().getID() == IDTipo ){
-				u = *i;
+				u = (*i);
 				break;
 		}
 	}
+
 	return u;
 }
 
@@ -354,7 +364,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 					if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
 						if(Broodwar->isExplored(*pos)){
-							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 						}
 					}
 					k = k-1;
@@ -367,7 +377,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 					if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
 						if(Broodwar->isExplored(*pos)){
-							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 						}
 					}
 					j = j-1;
@@ -380,7 +390,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 				if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
 					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 					}
 				}
 				k = k-1;
@@ -392,7 +402,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 				if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
 					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 					}
 				}
 				j = j-1;
@@ -428,7 +438,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 					if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
 						if(Broodwar->isExplored(*pos)){
-							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 						}
 					}
 					k = k-1;
@@ -441,7 +451,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 					if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
 						if(Broodwar->isExplored(*pos)){
-							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 						}
 					}
 					j = j-1;
@@ -454,7 +464,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 				if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
 					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 					}
 				}
 				k = k-1;
@@ -466,7 +476,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 				if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
 					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());}
+						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
 					}
 				}
 				j = j-1;
@@ -486,6 +496,10 @@ void unit_Manager::newSupplyDepot(){
 
 void unit_Manager::newBarrack(){
 	cantBarracas++;
+}
+
+void unit_Manager::newAcademy(){
+	cantAcademias++;
 }
 
 void unit_Manager::setGoals(int goals[34]){

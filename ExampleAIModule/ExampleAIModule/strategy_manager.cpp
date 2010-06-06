@@ -48,21 +48,20 @@ void strategy_manager::checkGoals(void){
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3){
 		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
-		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 10;
+		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 	}
 	else{
 		
-
-		/*if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+		if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
 			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 			// esto deberia setearse una vez que la investigacion se completo, porque quedaria mal si se esta investigando
 			// y el edificio donde se investiga es destruido. Arreglar
 			ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
-		}*/
+		}
 	}
 
 

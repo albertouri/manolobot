@@ -13,8 +13,11 @@ public:
 	unit_Manager(void);
 	void executeActions(AnalizadorTerreno *analizador);
 	void resetBuildingSemaphore();
+	
 	void newSupplyDepot();
 	void newBarrack();
+	void newAcademy();
+
 	void setGoals(int goals[34]);
 	void setResearchs(int researchs[10]); // agregado por mi
 	void asignarUnidadACompania(Unit* unit);
