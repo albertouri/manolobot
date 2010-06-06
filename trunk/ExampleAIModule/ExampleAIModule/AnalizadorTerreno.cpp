@@ -5,7 +5,6 @@
 
 using namespace BWAPI;
 
-bool estocolmo = false;
 Position *uno, *dos;
 
 
@@ -30,11 +29,6 @@ AnalizadorTerreno::~AnalizadorTerreno(void)
 
 
 void AnalizadorTerreno::dibujar(void){
-
-	if (estocolmo){
-		Broodwar->drawBox(CoordinateType::Map, uno->x(), uno->y(), uno->x() + 8, uno->y() + 8, Colors::Red, true);
-		Broodwar->drawBox(CoordinateType::Map, dos->x(), dos->y(), dos->x() + 8, dos->y() + 8, Colors::Red, true);
-	}
 
 	if (show_visibility_data)
 	{    
@@ -200,7 +194,7 @@ BWAPI::Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 		}
 	}
 
-	Broodwar->printf("hay %d chokepoints", chokepoints.size());
+	//Broodwar->printf("hay %d chokepoints", chokepoints.size());
 
 	if (choke == NULL)
 		return NULL;

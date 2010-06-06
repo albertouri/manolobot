@@ -23,6 +23,7 @@ public:
   virtual void onUnitShow(BWAPI::Unit* unit);
   virtual void onUnitHide(BWAPI::Unit* unit);
   virtual void onUnitRenegade(BWAPI::Unit* unit);
+  virtual void onSaveGame(std::string gameName);
   void drawStats(); //not part of BWAPI::AIModule
   void showPlayers();
   void showForces();

@@ -46,6 +46,8 @@ void ManoloBot::edificioConstruido(int Id){
 	
 	if(Id == 109) unitManager->newSupplyDepot();
 	else if(Id == 111) unitManager->newBarrack();
+	else if(Id == Utilidades::ID_ACADEMY) unitManager->newAcademy();
+
 	unitManager->resetBuildingSemaphore();
 
 }
@@ -58,3 +60,4 @@ void ManoloBot::unidadConstruida(Unit* U){
 ManoloBot::~ManoloBot(void)
 {
 }
+
