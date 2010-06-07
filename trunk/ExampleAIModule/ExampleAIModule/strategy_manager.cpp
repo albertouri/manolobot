@@ -1,5 +1,4 @@
 #include "strategy_manager.h"
-#include "Utilidades.h"
 #include <BWAPI.h>
 
 using namespace BWAPI;
@@ -8,14 +7,12 @@ int IdUnidades[34] = {112,123,111,12,125,106,107,115,117,11,122,113,32,1,3,120,0
 int cantUnidades[34];
 int estadoActual = 0;
 
-int GoalUnidades[34];
-int GoalResearch[10];
-bool ResearchDone[10] = {false, false, false, false, false, false, false, false, false, false};
-
-//bool investigar = true;
 
 strategy_manager::strategy_manager(void)
 {
+	for (int x = 0; x < Utilidades::maxResearch; x++){
+		ResearchDone[x] = false;
+	}
 }
 
 strategy_manager::~strategy_manager(void)
@@ -49,22 +46,25 @@ void strategy_manager::checkGoals(void){
 	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3){
 		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
+
+		// Construyo un nuevo scv que se encargara de reparar los bunkers cuando sean atacados...
+		GoalUnidades[Utilidades::INDEX_GOAL_SCV]++;
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 	}
-	else{
-		
-		if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
-			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
+	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
-			// esto deberia setearse una vez que la investigacion se completo, porque quedaria mal si se esta investigando
-			// y el edificio donde se investiga es destruido. Arreglar
-			ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
-		}
+		// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
+		// de completarse la misma, se debera setear esta flag en false desde el evento onUnitDestroy, a menos
+		// que exista mas de un edificio de este tipo
+		ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
 	}
-
-
+	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
+		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
+		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
+	}
 }
 
 int* strategy_manager::getGoals(){
@@ -73,8 +73,4 @@ int* strategy_manager::getGoals(){
 
 int* strategy_manager::getResearchs(){
 	return GoalResearch;
-}
-
-bool *strategy_manager::getResearchsDone(){
-	return ResearchDone;
 }

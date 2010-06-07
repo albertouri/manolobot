@@ -17,15 +17,9 @@ int frameLatency;
 int buildingSemaphore =0;
 
 int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
-int goalResearch[10] = {0,0,0,0,0,0,0,0,0,0}; // arreglo que mantiene las investigaciones que deben realizarce
-bool researchDone[10] = {false, false, false, false, false, false, false, false, false, false};
 
 compania* Easy;
 Scout* magallanes;
-
-
-int investigue = false;
-
 
 TilePosition *centroComando;	// mantiene la posicion del centro de comando
 Unit *centroDeComando; //puntero a la posicion del centro;
@@ -52,6 +46,10 @@ unit_Manager::unit_Manager(void)
 		}
 	}
 
+	for (int x = 0; x < Utilidades::maxResearch; x++){
+		goalResearch[x] = 0;
+		researchDone[x] = false;
+	}
 
 }
 
@@ -131,6 +129,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		buildUnit(posB, Utilidades::ID_BARRACK);
 	}
 
+
 	// construye bunker
 	if((Broodwar->self()->minerals() > 150)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))))<goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER])&&(buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
@@ -147,6 +146,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		buildUnit(posB, Utilidades::ID_BUNKER);
 	}
 
+
 	// construye academia
 	if((Broodwar->self()->minerals() > 200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_ACADEMY))))<goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY])&&(buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_ACADEMY);
@@ -159,28 +159,49 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// ----------------------------------------------------------------------------
 
 
-	// stim_pack (se investiga en academia terran)
-	// TODO: que entre una sola vez al ciclo, sino entra un monton de veces al pedo
-	if ((cantAcademias > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_STIMPACK] == 1)){
-		Unit *u;
+	if (!researchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+		// stim_pack (se investiga en academia terran)
+		if ((cantAcademias > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_STIMPACK] == 1)){
+			Unit *u;
 
-		u = getUnit(Utilidades::ID_ACADEMY);
+			u = getUnit(Utilidades::ID_ACADEMY);
 
-		if (u != NULL){
+			if (u != NULL){
 
-			if (u->isCompleted()){
-				// Construccion de la academia finalizada, se puede investigar mejoras
+				if (u->isCompleted() && (!u->isResearching()) && (!u->isUpgrading())){
+					// Construccion de la academia finalizada, se puede investigar mejoras
 
-				//Broodwar->printf("INVESTIGANDO MEJORA...");
-				TechType *t = new TechType(TechTypes::Stim_Packs);
-				//std::string nombre = "Stim_Packs";
-				//TechType t = TechTypes::getTechType(nombre);
-
-				u->research(*t);
-				//delete t;
+					Broodwar->printf("Investigando mejora...");
+					TechType *t = new TechType(TechTypes::Stim_Packs);
+					u->research(*t);
+					delete t;
+					researchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
+				}
 			}
+		}
+	}
+	
 
-			investigue = true;
+	if (!researchDone[Utilidades::INDEX_GOAL_U238]){
+		// mejora de alcance para marines (se investiga en academia terran)
+		if ((cantAcademias > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_U238] == 1)){
+			Unit *u;
+
+			u = getUnit(Utilidades::ID_ACADEMY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					// Construccion de la academia finalizada, se puede investigar mejoras
+
+					Broodwar->printf("Investigando mejora...");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::U_238_Shells);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_U238] = true;
+				}
+			}
 		}
 	}
 
