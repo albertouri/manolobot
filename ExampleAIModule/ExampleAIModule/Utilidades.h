@@ -27,6 +27,9 @@ public:
 
 	// indice de cada investigacion en el arreglo goalResearch
 	static const int INDEX_GOAL_STIMPACK = 0;
+	static const int INDEX_GOAL_U238 = 1;
 
+	// cantidad de investigaciones que provee el juego
+	static const int maxResearch = 10;
 
 };

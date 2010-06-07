@@ -8,8 +8,6 @@ using namespace BWAPI;
 
 ManoloBot *agente;
 
-Unit *sambueza = NULL;
-
 
 void ExampleAIModule::onStart()
 {
@@ -47,7 +45,8 @@ void ExampleAIModule::onStart()
 
 	//---------------------------------------------
 
-	Broodwar->setLocalSpeed(8);
+	Broodwar->setLocalSpeed(0);
+	//Broodwar->setLocalSpeed(8);
 	agente = new ManoloBot();
   }
 }
@@ -65,12 +64,6 @@ void ExampleAIModule::onEnd(bool isWinner)
 void ExampleAIModule::onFrame()
 {
 	agente->checkGoals();	
-
-	/*if (sambueza != NULL){
-		if (sambueza->isCompleted()){
-			Broodwar->printf("BARRACA LISTA");
-		}
-	}*/
 }
 
 void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
@@ -81,11 +74,6 @@ void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 			agente->edificioConstruido(unit->getType().getID());
 		}
 		else if(unit->getType().getID()==0) agente->unidadConstruida(unit);
-
-
-		if (unit->getType().getID() == Utilidades::ID_BARRACK){
-			sambueza = unit;
-		}
 	}
 	else
 	{

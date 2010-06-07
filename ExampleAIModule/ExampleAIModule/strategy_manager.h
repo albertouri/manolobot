@@ -1,5 +1,6 @@
 #pragma once
 #include <BWAPI.h>
+#include "Utilidades.h"
 
 using namespace BWAPI;
 
@@ -9,7 +10,13 @@ public:
 	strategy_manager(void);
 	void checkGoals(void);
 	int* getGoals(void);
-	int* getResearchs(void); // agregado por mi
-	bool *strategy_manager::getResearchsDone(void); //agregado por mi
+	int* getResearchs(void);
 	~strategy_manager(void);
+
+
+private:
+	int GoalUnidades[34];
+	int GoalResearch[Utilidades::maxResearch];
+	bool ResearchDone[Utilidades::maxResearch];
+
 };
