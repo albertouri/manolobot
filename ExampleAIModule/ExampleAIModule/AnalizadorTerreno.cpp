@@ -122,7 +122,7 @@ void AnalizadorTerreno::dibujar(void){
 // Devuelve la posicion correspondiente al centro del chokepoint que es necesario defender. Por ahora retorna el 
 // chokepoint a defender a partir de la region donde se inicia el juego
 // Deberia pasarse como parametro una unidad para saber la region donde se quieren ubicar las defensas
-BWAPI::Position * AnalizadorTerreno::obtenerCentroChokepoint(){
+Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 	
 	//get the chokepoints linked to our home region
 	std::set<BWTA::Chokepoint*> chokepoints= home->getChokepoints();
@@ -203,6 +203,64 @@ BWAPI::Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 }
 
 
+// Devuelve la posicion correspondiente al centro del chokepoint que es necesario defender. Por ahora retorna el 
+// chokepoint a defender a partir de la region donde se inicia el juego
+// Deberia pasarse como parametro una unidad para saber la region donde se quieren ubicar las defensas
+Chokepoint* AnalizadorTerreno::obtenerChokepoint(){
+	
+	//get the chokepoints linked to our home region
+	std::set<BWTA::Chokepoint*> chokepoints= home->getChokepoints();
+	double min_length=10000;
+	//double min_length = 0;
+	BWTA::Chokepoint* choke=NULL;
+
+	//iterate through all chokepoints and look for the one with the smallest gap (least width)
+	for(std::set<BWTA::Chokepoint*>::iterator c=chokepoints.begin();c!=chokepoints.end();c++){
+		double length=(*c)->getWidth();
+
+		if (length < min_length || choke==NULL){
+
+			//BWTA::Region *r1, *r2;
+			std::pair<BWTA::Region*, BWTA::Region*> p;
+
+			p = (*c)->getRegions();
+
+			if ((p.first->getCenter().x() == home->getCenter().x()) && (p.first->getCenter().y() == home->getCenter().y())){
+				// el primer elemento del par es la region que contiene al centro de comando
+
+				if (p.second->getChokepoints().size() == 1){
+					// la region cuyo limite con la region donde esta ubicado el centro de comando, es el chokepoint en 
+					// cuestion tiene un solo chokepoint, es decir que no se puede acceder por tierra a esa region sin 
+					// pasar por la region que contiene el centro de comando, por lo tanto no es necesario defenderla 
+					// inicialmente					
+				}
+				else{
+					choke=*c;
+				}
+			}
+			else{
+				// el segundo elemento del par es la region que contiene al centro de comando
+
+				if (p.first->getChokepoints().size() == 1){
+					// la region cuyo limite con la region donde esta ubicado el centro de comando, es el chokepoint en 
+					// cuestion tiene un solo chokepoint, es decir que no se puede acceder por tierra a esa region sin 
+					// pasar por la region que contiene el centro de comando, por lo tanto no es necesario defenderla 
+					// inicialmente					
+				}
+				else{
+					choke=*c;
+				}
+			}
+		}
+	}
+
+	if (choke == NULL)
+		return NULL;
+	else
+		return choke;
+}
+
+
 
 DWORD WINAPI AnalyzeThread()
 {
@@ -252,5 +310,10 @@ void AnalizadorTerreno::drawStats()
 // y demas). Retorna false en caso contrario
 bool AnalizadorTerreno::analisisListo(void){
 	return analyzed;
+}
+
+
+Region* AnalizadorTerreno::regionInicial(){
+	return home;
 }
 

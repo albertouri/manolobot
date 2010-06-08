@@ -3,8 +3,6 @@
 #include "compania.h"
 #include "Scout.h"
 
-using namespace BWAPI;
-
 int cantBarracas, cantRefinerias = 0, cantAcademias = 0; // lleva la cuenta de la cantidad de barracas construidas
 int cantSupplyDepot= 0;
 int goalLimiteGeiser = 1;
@@ -20,10 +18,14 @@ int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 compania* Easy;
 Scout* magallanes;
+Player* enemigo;
 
 TilePosition *centroComando;	// mantiene la posicion del centro de comando
 Unit *centroDeComando; //puntero a la posicion del centro;
 UnitType *barraca; // puntero a la unidad que actualmente esta construyendo algo
+
+
+bool seteado = false;
 
 
 unit_Manager::unit_Manager(void)
@@ -51,12 +53,30 @@ unit_Manager::unit_Manager(void)
 		researchDone[x] = false;
 	}
 
+	reparador = NULL;
+
+
+	// supongo que jugamos contra un solo enemigo
+	// TODO: arreglar para que se puede jugar contra varios enemigos
+	enemigo = Broodwar->enemy();
+
 }
 
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	
-	//construye 'goalLimiteSCV' de SCV, este valor deberia ser seteado por una llamada a setGoal
+	// manda al scout a explorar el mapa
 	magallanes->explorar();
+
+	resaltarUnidad(reparador);
+
+	// verifica daños en los bunkers
+	verificarBunkers();
+
+	/*if (seteado){
+		dibujarCuadro(ubicarBunker(analizador->regionInicial(), analizador->obtenerChokepoint()), 3, 2);
+	}*/
+
+	//construye 'goalLimiteSCV' de SCV, este valor deberia ser seteado por una llamada a setGoal
 	if((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_SCV))) < goalCantUnidades[Utilidades::INDEX_GOAL_SCV]) && (Broodwar->self()->minerals()>100) ) {
 		trainWorker();
 	}
@@ -78,24 +98,39 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		{
 			if ((*i)->getType().isWorker()){
 				trabajador = (*i);
-				if(trabajador->isGatheringMinerals()) SCVgatheringCristal++;
-				else if (trabajador->isGatheringGas())SCVgatheringGas++;
-				else if (trabajador->isIdle()){ sendGatherCristal(trabajador); SCVgatheringCristal++;}
+
+				// si el reparador esta seteado se deja ese SCV idle
+				// si el reparador no esta seteado se manda a trabajar a todos los SCV
+				bool condicion = ((reparador != NULL) && (trabajador->getID() != reparador->getID())) || reparador == NULL;
+
+				if (condicion){
+					if(trabajador->isGatheringMinerals()) SCVgatheringCristal++;
+					else if (trabajador->isGatheringGas())SCVgatheringGas++;
+					else if (trabajador->isIdle()){ sendGatherCristal(trabajador); SCVgatheringCristal++;}
+				}
 			}	
 		}
 
-		if ((Broodwar->self()->completedUnitCount(*(new UnitType(110)))>0) && (SCVgatheringCristal+SCVgatheringGas>10)){
+		if ((Broodwar->self()->completedUnitCount(*(new UnitType(Utilidades::ID_REFINERY)))>0) && (SCVgatheringCristal+SCVgatheringGas>10)){
 			if (SCVgatheringGas < 4){
 				for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 				{
 					if (SCVgatheringGas<4){
 						if ((*i)->getType().isWorker()){
 							trabajador = (*i);
-							if(trabajador->isGatheringMinerals()) {
-								SCVgatheringCristal--;
-								SCVgatheringGas++;
-								sendGatherGas(trabajador); }
-						}	
+
+							// si el reparador esta seteado se deja ese SCV idle
+							// si el reparador no esta seteado se manda a trabajar a todos los SCV
+							bool condicion = ((reparador != NULL) && (trabajador->getID() != reparador->getID())) || reparador == NULL;
+
+							if (condicion){
+								if(trabajador->isGatheringMinerals()) {
+									SCVgatheringCristal--;
+									SCVgatheringGas++;
+									sendGatherGas(trabajador); 
+								}
+							}
+						}
 					}
 					else{
 						break;
@@ -136,19 +171,34 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 		// Obtiene la posicion del centro del chokepoint a defender y la convierte a una TilePosition (que se 
 		// mide en build tiles)
-		Position *p = analizador->obtenerCentroChokepoint();
+		/*Position *p = analizador->obtenerCentroChokepoint();
 		TilePosition *t = new TilePosition(p->x() / 32, p->y() / 32);
 		TilePosition* posB = getTilePositionAviable(building, t);
 
-		delete t;
+		delete t;*/
+
+		TilePosition *posB = ubicarBunker(analizador->regionInicial(), analizador->obtenerChokepoint());
 
 		//TilePosition* posB = getTilePositionAviable(building);
-		buildUnit(posB, Utilidades::ID_BUNKER);
+		if (posB != NULL)
+			buildUnit(posB, Utilidades::ID_BUNKER);
 	}
 
 
 	// construye academia
 	if((Broodwar->self()->minerals() > 200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_ACADEMY))))<goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY])&&(buildingSemaphore == 0)){
+		
+		if (reparador == NULL){
+			// setea un SCV para que repare los bunkers
+			for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+				if ((*i)->getType().isWorker()){
+					reparador = (*i);
+					Broodwar->printf("Reparador seteado...");
+					break;
+				}
+			}
+		}
+
 		UnitType* building = new UnitType(Utilidades::ID_ACADEMY);
 		TilePosition* posB = getTilePositionAviable(building);
 		buildUnit(posB, Utilidades::ID_ACADEMY);
@@ -537,4 +587,132 @@ void unit_Manager::setResearchs(int researchs[10]){
 
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	Easy->asignarUnidad(unit);
+}
+
+
+void unit_Manager::repararUnidad(Unit *u){
+
+	if ((reparador != NULL) && (u != NULL)){
+		// si el reparador esta seteado lo utiliza
+		if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
+			reparador->repair(u);
+		}
+		else{
+			Broodwar->printf("No se puede reparar esa unidad");
+		}
+	}
+	else{
+		// sino utiliza cualquier SCV para reparar la unidad bajo ataque
+		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+			if ((*i)->getType().isWorker()){
+				if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
+					(*i)->repair(u);
+				}
+				else{
+					Broodwar->printf("No se puede reparar esa unidad");
+				}
+				break;
+			}
+		}
+	}
+
+}
+
+
+void unit_Manager::verificarBunkers(){
+	Unit *u = NULL; // variable temporal
+	Unit *atacado = NULL; // puntero a la unidad bajo ataque
+
+	for(std::set<Unit*>::const_iterator i=enemigo->getUnits().begin();i!=enemigo->getUnits().end();i++){
+		u = (*i);
+
+		if (u->isAttacking()){
+			atacado = u->getOrderTarget();
+			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
+				// un bunker esta siendo atacado, mando al SCV a repararlo
+				Broodwar->printf("Bunker bajo ataque");
+				repararUnidad(atacado);
+				resaltarUnidad(atacado);
+				break;
+			}
+
+			atacado = u->getTarget();
+			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
+				// un bunker esta siendo atacado, mando al SCV a repararlo
+				Broodwar->printf("Bunker bajo ataque");
+				repararUnidad(atacado);
+				resaltarUnidad(atacado);
+				break;
+			}
+		}
+	}
+}
+
+
+void unit_Manager::resaltarUnidad(Unit *u){
+
+	if (u != NULL){
+		int alto = u->getType().tileHeight() * 32;
+		int ancho = u->getType().tileWidth() * 32;
+		Broodwar->drawBox(CoordinateType::Map, reparador->getTilePosition().x() * 32 + 24, reparador->getTilePosition().y() * 32 + 8, reparador->getTilePosition().x() * 32 + ancho + 24, reparador->getTilePosition().y() * 32 + alto + 8, Colors::Blue, false);
+	}
+
+}
+
+TilePosition* unit_Manager::ubicarBunker(Region *r, Chokepoint *c){
+	// Calculo la posicion relativa del chokepoint respecto al centro de la region a defender
+	// el tamaño de un bunker es 3 x 2 (ancho x alto)
+
+	int offsetX, offsetY;
+	TilePosition *t;
+
+	if (r->getCenter().x() < c->getCenter().x()){
+		// El centro de la region esta mas a la izquierda que el centro del chokepoint
+		offsetX = -1;
+	}
+	else{
+		offsetX = 1;
+	}
+
+	if (r->getCenter().y() < c->getCenter().y()){
+		// El centro de la region esta mas arriba que el centro del chokepoint
+		offsetY = -2;
+	}
+	else{
+		offsetY = 2;
+	}
+
+	t = new TilePosition(c->getCenter().x() / 32 + offsetX, c->getCenter().y() / 32 + offsetY);
+
+	if (Broodwar->unitsOnTile(t->x(), t->y()).size() == 0){
+		seteado = true;
+		return t;
+	}
+	else{
+		delete t;
+		t = new TilePosition(c->getCenter().x() / 32 + offsetX + 1, c->getCenter().y() / 32 + offsetY - 2);
+
+		if (Broodwar->unitsOnTile(t->x(), t->y()).size() == 0){
+			seteado = true;
+			return t;
+		}
+		else{
+
+			delete t;
+			t = new TilePosition(c->getCenter().x() / 32 + offsetX - 1, c->getCenter().y() / 32 + offsetY + 2);
+
+			if (Broodwar->unitsOnTile(t->x(), t->y()).size() == 0){
+				seteado = true;
+				return t;
+			}
+			else{
+				seteado = false;
+				return NULL;
+			}
+		}
+	}
+}
+
+void unit_Manager::dibujarCuadro(TilePosition* p, int tilesAncho, int tilesAlto){
+	Broodwar->drawBox(CoordinateType::Map, p->x() * 32, p->y() * 32, p->x() * 32 + tilesAncho * 32, p->y() * 32 + tilesAlto * 32, Colors::Orange, false);
 }

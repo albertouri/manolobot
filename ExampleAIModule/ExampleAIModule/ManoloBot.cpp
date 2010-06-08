@@ -41,7 +41,6 @@ void ManoloBot::checkGoals(void){
 }
 
 
-
 void ManoloBot::edificioConstruido(int Id){
 	
 	if(Id == 109) unitManager->newSupplyDepot();
@@ -53,11 +52,9 @@ void ManoloBot::edificioConstruido(int Id){
 }
 
 void ManoloBot::unidadConstruida(Unit* U){
-	
 	unitManager->asignarUnidadACompania(U);
 }
 
 ManoloBot::~ManoloBot(void)
 {
 }
-

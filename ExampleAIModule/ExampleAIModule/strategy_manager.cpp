@@ -48,19 +48,19 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 
 		// Construyo un nuevo scv que se encargara de reparar los bunkers cuando sean atacados...
-		GoalUnidades[Utilidades::INDEX_GOAL_SCV]++;
+		//GoalUnidades[Utilidades::INDEX_GOAL_SCV]++;
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 	}
-	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+	/*else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
 		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 		// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
 		// de completarse la misma, se debera setear esta flag en false desde el evento onUnitDestroy, a menos
 		// que exista mas de un edificio de este tipo
 		ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
-	}
+	}*/
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
 		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
