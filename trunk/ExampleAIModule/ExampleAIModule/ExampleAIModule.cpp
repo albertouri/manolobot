@@ -70,8 +70,9 @@ void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay()){
 		Broodwar->sendText("A %s [%x] has been created at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		
 		if (unit->getType().isBuilding()){
-			agente->edificioConstruido(unit->getType().getID());
+			agente->edificioConstruido(unit);
 		}
 		else if(unit->getType().getID()==0) agente->unidadConstruida(unit);
 	}

@@ -7,7 +7,7 @@ public:
 	~Utilidades(void);
 
 
-	// Indice de cada unidad en el arreglo IdUnidades (utilizado para setar las goals)
+	// Indice de cada unidad en el arreglo IdUnidades (utilizado para setear las goals)
 	static const int INDEX_GOAL_ACADEMY = 0;
 	static const int INDEX_GOAL_BARRACK = 2;
 	static const int INDEX_GOAL_BUNKER = 4;
@@ -19,6 +19,7 @@ public:
 	// constantes que representan el ID de cada tipo de unidad terran
 	static const int ID_MARINE = 0;
 	static const int ID_SCV = 7;
+	static const int ID_FIREBAT = 32;
 	static const int ID_DEPOT = 109;
 	static const int ID_REFINERY = 110;
 	static const int ID_BARRACK = 111;

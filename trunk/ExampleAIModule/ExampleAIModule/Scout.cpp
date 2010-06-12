@@ -168,9 +168,9 @@ Scout::~Scout(void)
 
 void Scout::explorar(void){
 
-	for(std::set<Unit*>::iterator i=Broodwar->getSelectedUnits().begin();i!=Broodwar->getSelectedUnits().end();i++){
+	/*for(std::set<Unit*>::iterator i=Broodwar->getSelectedUnits().begin();i!=Broodwar->getSelectedUnits().end();i++){
 		dibujarGrilla();
-	}
+	}*/
 	
 	if (explorer->exists()){
 		if (cont < cantPosiciones){
@@ -182,7 +182,7 @@ void Scout::explorar(void){
 		}
 	}
 
-	dibujarPosiciones();
+	//dibujarPosiciones();
 }
 
 

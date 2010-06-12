@@ -17,15 +17,15 @@ class AnalizadorTerreno
 public:
 	AnalizadorTerreno(void);
 	~AnalizadorTerreno(void);
-	void dibujar(void);
+	
 	Position * obtenerCentroChokepoint();
 	bool analisisListo(void);
 
 	Region* regionInicial(); // devuelve un puntero a la region en la que se inicia el juego
 	Chokepoint* obtenerChokepoint(); // Obtiene el chokepoint que se debe defender desde la posicion inicial
+	void dibujarResultados(void);
 
 private:
-	void drawStats();
 	bool show_visibility_data;
 	
 };

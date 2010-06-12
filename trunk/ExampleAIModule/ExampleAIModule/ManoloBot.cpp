@@ -2,9 +2,8 @@
 #include "unit_Manager.h"
 #include "strategy_manager.h"
 #include "AnalizadorTerreno.h"
-#include <BWAPI.h>
+#include "Graficos.h"
 
-using namespace BWAPI;
 
 unit_Manager *unitManager; // puntero al manager de unidades
 strategy_manager *strategyManager;
@@ -36,18 +35,22 @@ void ManoloBot::checkGoals(void){
 	}
 
 	unitManager->executeActions(analizador);
-	analizador->dibujar();
+	analizador->dibujarResultados();
 
 }
 
 
-void ManoloBot::edificioConstruido(int Id){
+void ManoloBot::edificioConstruido(Unit *u){
+
+	int Id;
+	Id = u->getType().getID();
 	
 	if(Id == 109) unitManager->newSupplyDepot();
 	else if(Id == 111) unitManager->newBarrack();
 	else if(Id == Utilidades::ID_ACADEMY) unitManager->newAcademy();
 
 	unitManager->resetBuildingSemaphore();
+	unitManager->nuevaUnidadConstruccion(u);
 
 }
 
