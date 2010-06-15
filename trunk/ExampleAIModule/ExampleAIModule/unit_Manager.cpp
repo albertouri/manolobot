@@ -7,6 +7,10 @@
 
 int cantBarracas, cantRefinerias = 0, cantAcademias = 0; // lleva la cuenta de la cantidad de barracas construidas
 int cantSupplyDepot= 0;
+int cantMarines = 0;
+int cantMedics = 0;
+int cantFirebats = 0;
+
 int goalLimiteGeiser = 1;
 int goalLimiteSCV = 8;
 int goalLimiteBarracas = 1;
@@ -19,6 +23,7 @@ int buildingSemaphore =0;
 int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
 
 compania* Easy;
+compania* Otra;
 
 Scout* magallanes;
 Player* enemigo;
@@ -36,6 +41,8 @@ Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calc
 unit_Manager::unit_Manager(void)
 {
 	Easy = new compania();
+	Otra = new compania();
+
 	magallanes = new Scout(getWorker());
 	cantBarracas = 0;
 
@@ -72,7 +79,8 @@ unit_Manager::unit_Manager(void)
 }
 
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
-	
+	//Unit *fofo;
+
 	// manda al scout a explorar el mapa
 	magallanes->explorar();
 
@@ -80,11 +88,28 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	Graficos::resaltarUnidad(reparador2);
 
 	// verifica si se termino de construir alguna unidad en este frame
-	ultimaFinalizada = controlarFinalizacion();
+	//ultimaFinalizada = controlarFinalizacion();
+
+	if (ultimaFinalizada != NULL){
+		if (ultimaFinalizada->getType().getID() == Utilidades::ID_MARINE) cantMarines++;
+		else if (ultimaFinalizada->getType().getID() == Utilidades::ID_MEDIC) cantMedics++;
+		else if (ultimaFinalizada->getType().getID() == Utilidades::ID_FIREBAT) cantFirebats++;
+	}
 
 	// verifica daños en los bunkers
 	verificarBunkers();
 
+	/*fofo = grupoB1->getUltimoBunkerCreado();
+	if (fofo != NULL){
+		grupoB1->estrategia1(fofo);
+	}*/
+
+
+	// Si la cantidad de suministros usados es igual a la cantidad maxima, se construye un nuevo deposito
+	/*if (Broodwar->self()->supplyUsed() == Broodwar->self()->supplyTotal()){
+		if (!construyendo(Utilidades::ID_DEPOT))
+			goalCantUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
+	}*/
 
 	//-----------------------------------------------------
 
@@ -97,6 +122,10 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	//metodo a corregir, solamente a fin de entrenar marines.
 	if((Broodwar->self()->allUnitCount(*barraca))&&(Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_MARINE))) < goalCantUnidades[Utilidades::INDEX_GOAL_MARINE]) && (Broodwar->self()->minerals()>100) ) {
 		trainMarine();
+	}
+
+	if((Broodwar->self()->allUnitCount(*barraca))&&(Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_MEDIC))) < goalCantUnidades[Utilidades::INDEX_GOAL_MEDIC]) && (Broodwar->self()->minerals()>= 50) && (Broodwar->self()->gas()>= 25)) {
+		trainMedic();
 	}
 
 
@@ -209,14 +238,14 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			delete posB;
 		}
 	}
-	else if (Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))) == goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]){
+	else if ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))) == goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER] > 0)){
 		if (reparador1 == NULL){
 			// setea un SCV para que repare los bunkers
 			for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
 				if ((*i)->getType().isWorker()){
 					reparador1 = (*i);
 					Broodwar->printf("Reparador1 seteado...");
-					reparador1->rightClick(*(new Position(grupoB1->getUltimoBunkerCreado()->getPosition().x() - 10, grupoB1->getUltimoBunkerCreado()->getPosition().y() - 10)));
+					//reparador1->rightClick(*(new Position(grupoB1->getUltimoBunkerCreado()->getPosition().x() - 10, grupoB1->getUltimoBunkerCreado()->getPosition().y() - 10)));
 					break;
 				}
 			}
@@ -228,7 +257,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				if (((*i)->getType().isWorker()) && ((*i)->getID() != reparador1->getID())){
 					reparador2 = (*i);
 					Broodwar->printf("Reparador2 seteado...");
-					reparador2->rightClick(*(new Position(grupoB1->getUltimoBunkerCreado()->getPosition().x() - 10, grupoB1->getUltimoBunkerCreado()->getPosition().y() - 10)));
+					//reparador2->rightClick(*(new Position(grupoB1->getUltimoBunkerCreado()->getPosition().x() - 10, grupoB1->getUltimoBunkerCreado()->getPosition().y() - 10)));
 					break;
 				}
 			}
@@ -403,13 +432,28 @@ void unit_Manager::trainMarine(){
 	{
 		if ((*i)->getType().getID() == Utilidades::ID_BARRACK){
 			firstBarrack = (*i);
+
+			if ((firstBarrack != NULL) && (Broodwar->canMake(firstBarrack, Utilidades::ID_MARINE)) && (firstBarrack->getTrainingQueue().size() < 5)){
+				firstBarrack->train(*(new UnitType(Utilidades::ID_MARINE)));
+				break;
+			}
 		}
 	}
+}
 
-	if((Broodwar->self()->minerals()>50) && (firstBarrack != NULL)){	
-		firstBarrack->train(*(new UnitType(0)));
+void unit_Manager::trainMedic(){
+	Unit* firstBarrack = NULL;
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType().getID() == Utilidades::ID_BARRACK){
+			firstBarrack = (*i);
+			
+			if ((firstBarrack != NULL) && (Broodwar->canMake(firstBarrack, Utilidades::ID_MEDIC)) && (firstBarrack->getTrainingQueue().size() < 5)){
+				firstBarrack->train(*(new UnitType(Utilidades::ID_MEDIC)));
+				break;
+			}
+		}
 	}
-
 }
 
 void unit_Manager::sendGatherCristal(Unit* worker){
@@ -629,7 +673,17 @@ void unit_Manager::setResearchs(int researchs[10]){
 }
 
 void unit_Manager::asignarUnidadACompania(Unit* unit){
-	Easy->asignarUnidad(unit);
+	
+	if (unit->getType().getID() == Utilidades::ID_MARINE){
+		if (cantMarines > 12) Otra->asignarUnidad(unit);
+		else Easy->asignarUnidad(unit);
+	}
+	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
+		Otra->asignarUnidad(unit);
+	}
+	else if (unit->getType().getID() == Utilidades::ID_FIREBAT){
+		Otra->asignarUnidad(unit);
+	}
 }
 
 
@@ -674,18 +728,27 @@ void unit_Manager::verificarBunkers(){
 			atacado = u->getOrderTarget();
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
-				Broodwar->printf("Bunker bajo ataque");
+				//Broodwar->printf("Bunker bajo ataque");
 				repararUnidad(atacado);
 				Graficos::resaltarUnidad(atacado);
+
+				Otra->atacar(u);
+
+				//grupoB1->estrategia1(atacado);
+
 				break;
 			}
 
 			atacado = u->getTarget();
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
-				Broodwar->printf("Bunker bajo ataque");
+				//Broodwar->printf("Bunker bajo ataque");
 				repararUnidad(atacado);
 				Graficos::resaltarUnidad(atacado);
+
+				Otra->atacar(u);
+				//grupoB1->estrategia1(atacado);
+
 				break;
 			}
 		}
@@ -771,7 +834,7 @@ void unit_Manager::verificarBunkers(){
 	double raiz2 = sqrt(2.0);
 	int rango = marine->seekRange(); // rango es la distancia a la que buscamos ubicar el bunker respecto del chokepoint
 
-	// Cuentita sacada a mano, usando el teorema de pitagoras jeje
+	// Cuentita sacada a mano, usando el teorema de pitagoras
 	offset = rango / raiz2;
 
 	//std::set<TilePosition*> result;
@@ -832,6 +895,7 @@ Unit* unit_Manager::controlarFinalizacion(){
 			Unit *u;
 
 			u = (*It1);
+
 			It1 = unidadesEnConstruccion.erase(It1);
 			return (u);
 		}
@@ -840,4 +904,16 @@ Unit* unit_Manager::controlarFinalizacion(){
 	}
 
 	return NULL;
+}
+
+bool unit_Manager::construyendo(int ID){
+	std::list<Unit*>::iterator It1;
+	It1 = unidadesEnConstruccion.begin();
+
+	while(It1 != unidadesEnConstruccion.end()){
+		if ((*It1)->getType().getID() == ID) return true;
+		else It1++;
+	}
+
+	return false;
 }

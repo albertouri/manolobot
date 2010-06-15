@@ -16,6 +16,7 @@ public:
 
 private:
 	int GoalUnidades[34];
+	int cantUnidades[34];
 	int GoalResearch[Utilidades::maxResearch];
 	bool ResearchDone[Utilidades::maxResearch];
 
