@@ -16,6 +16,9 @@ public:
 	Unit* getUltimoBunkerCreado();
 	int getCantBunkers();
 
+	void estrategia1(Unit *u);
+
 private:
 	std::list<Unit*> bunkers;
+	bool perteneceBunker(Unit *u);
 };

@@ -40,8 +40,10 @@ private:
 	void sendGatherGas(Unit* worker);
 	void trainWorker();
 	void trainMarine();
+	void trainMedic();
 	TilePosition* getTilePositionAviable(UnitType* U);
 	TilePosition* getTilePositionAviable(UnitType* U, TilePosition* t);
+	bool construyendo(int ID); // retorna true si una unidad del tipo pasado como parametro esta en construccion, false en caso contrario
 
 	int goalResearch[Utilidades::maxResearch]; // arreglo que mantiene las investigaciones que deben realizarce
 	bool researchDone[Utilidades::maxResearch]; // arreglo que mantiene informacion sobre si una investigacion se realizo o no

@@ -3,15 +3,21 @@
 
 using namespace BWAPI;
 
-int IdUnidades[34] = {112,123,111,12,125,106,107,115,117,11,122,113,32,1,3,120,0,32,124,14,108,118,110,7,116,9,30,5,114,109,58,2,13,8};
-int cantUnidades[34];
+int IdUnidades[34] = {112,123,111,12,125,106,107,115,117,11,122,113,32,1,3,120,0,34,124,14,108,118,110,7,116,9,30,5,114,109,58,2,13,8};
 int estadoActual = 0;
 
 
 strategy_manager::strategy_manager(void)
 {
+	for (int x = 0; x < 34; x++){
+		this->cantUnidades[x] = 0;
+		this->GoalUnidades[x] = 0;
+		
+	}
+
 	for (int x = 0; x < Utilidades::maxResearch; x++){
-		ResearchDone[x] = false;
+		this->ResearchDone[x] = false;
+		this->GoalResearch[x] = 0;
 	}
 }
 
@@ -32,6 +38,11 @@ void strategy_manager::checkGoals(void){
 		delete tipo;
 	}
 	
+	/*if (Broodwar->self()->supplyUsed() == Broodwar->self()->supplyTotal()){
+		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
+		Broodwar->printf("Usado: %d - Total: %d", Broodwar->self()->supplyUsed(), Broodwar->self()->supplyTotal());
+	}*/
+
 	//no tengo una refineria
 	if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
 		estadoActual = 0;
@@ -52,19 +63,31 @@ void strategy_manager::checkGoals(void){
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
+		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 	}
-	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
-		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
-		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
+	/* ----------------- nuevo -----------------*/
+	/*else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 1){
+		
+	}*/
+	else if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2){
+		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] += 1;
+		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] += 6;
+		GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] += 3;
 	}
-	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+	/* ----------------- fin nuevo -----------------*/
+	/*else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
 		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 		// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
 		// de completarse la misma, se debera setear esta flag en false desde el evento onUnitDestroy, a menos
 		// que exista mas de un edificio de este tipo
 		ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
+
 	}
+	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
+		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
+		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
+	}*/
 }
 
 int* strategy_manager::getGoals(){
