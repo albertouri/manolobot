@@ -37,8 +37,7 @@ void compania::asignarUnidad(Unit *u){
 	//conteoUnidades();
 	//if ((unidad1!=NULL)&&(unidad1->exists())) unidad1->rightClick(*(new TilePosition(1,1)));
 	
-	if (i>1) ponerACubierto(u);
-
+	//if (i>1) ponerACubierto(u);
 }
 
 void compania::conteoUnidades(){
@@ -65,19 +64,19 @@ void compania::ponerACubierto(Unit* U){
 	if (bunker!=NULL) {bunker->load(U); }
 }
 
-void compania::aplicarStim(){
+void compania::aplicarStim(std::list<Unit*> lista){
 
 	if (lista.size() > 0){
 		std::list<Unit*>::iterator It1;
 		It1 = lista.begin();
 
 		while (It1 != lista.end()){
-			if (((*It1)->getType().getID() == Utilidades::ID_MARINE) || ((*It1)->getType().getID() == Utilidades::ID_FIREBAT)){
+			//if (((*It1)->getType().getID() == Utilidades::ID_MARINE) || ((*It1)->getType().getID() == Utilidades::ID_FIREBAT)){
 				
 				// si no esta dentro de un contenedor, se aplica el stim pack a la unidad
 				if (!(*It1)->isLoaded())
 					(*It1)->useTech(*(new TechType(TechTypes::Stim_Packs)));
-			}
+			//}
 			It1++;
 		}
 	}
@@ -115,6 +114,7 @@ int compania::contarUnidades(std::list<Unit*> *lista){
 }
 
 void compania::atacar(Unit *u){
+	Broodwar->printf("Iniciando movimiento de ataque");
 
 	if (listMarines.size() > 0){
 
@@ -123,8 +123,11 @@ void compania::atacar(Unit *u){
 
 		while(It1 != listMarines.end()){
 			if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
-			else {It1++; //(*It1)->attackUnit(u);}
-			(*It1)->attackMove(u->getPosition());}
+			else {
+				It1++; //(*It1)->attackUnit(u);}
+				//aplicarStim(listMarines);
+				(*It1)->attackMove(u->getPosition());
+			}
 		}
 	}
 
@@ -135,7 +138,11 @@ void compania::atacar(Unit *u){
 
 		while(It1 != listFirebats.end()){
 			if(!(*It1)->exists()) It1 = listFirebats.erase(It1);	
-			else {It1++; (*It1)->attackUnit(u);}
+			else {
+				It1++; 
+				//aplicarStim(listFirebats);
+				(*It1)->attackUnit(u);
+			}
 		}
 	}
 

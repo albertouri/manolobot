@@ -54,9 +54,9 @@ void strategy_manager::checkGoals(void){
 		estadoActual = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 	}
-	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3){
-		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
-		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
+	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 1/*3*/){
+		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = /*3*/1;
+		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = /*12*/8;
 
 		// Construyo un nuevo scv que se encargara de reparar los bunkers cuando sean atacados...
 		//GoalUnidades[Utilidades::INDEX_GOAL_SCV]++;
@@ -66,13 +66,10 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 	}
 	/* ----------------- nuevo -----------------*/
-	/*else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 1){
-		
-	}*/
 	else if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2){
-		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] += 1;
-		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] += 6;
-		GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] += 3;
+		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 4;
+		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 14;
+		GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 5;
 	}
 	/* ----------------- fin nuevo -----------------*/
 	/*else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
