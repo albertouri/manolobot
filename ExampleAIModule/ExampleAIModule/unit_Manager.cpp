@@ -675,7 +675,7 @@ void unit_Manager::setResearchs(int researchs[10]){
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	
 	if (unit->getType().getID() == Utilidades::ID_MARINE){
-		if (cantMarines > 12) Otra->asignarUnidad(unit);
+		if (cantMarines > /*12*/8) Otra->asignarUnidad(unit);
 		else Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
@@ -692,8 +692,10 @@ void unit_Manager::repararUnidad(Unit *u){
 	if ((reparador1 != NULL) && (u != NULL)){
 		// si el reparador esta seteado lo utiliza
 		if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
-			reparador1->repair(u);
-			reparador2->repair(u);
+			if (u->exists()){
+				reparador1->repair(u);
+				reparador2->repair(u);
+			}
 		}
 		else{
 			Broodwar->printf("No se puede reparar esa unidad");
@@ -704,7 +706,9 @@ void unit_Manager::repararUnidad(Unit *u){
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
 			if ((*i)->getType().isWorker()){
 				if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
-					(*i)->repair(u);
+					if (u->exists()){
+						(*i)->repair(u);
+					}
 				}
 				else{
 					Broodwar->printf("No se puede reparar esa unidad");
@@ -733,6 +737,7 @@ void unit_Manager::verificarBunkers(){
 				Graficos::resaltarUnidad(atacado);
 
 				Otra->atacar(u);
+				//Easy->atacar(u);
 
 				//grupoB1->estrategia1(atacado);
 
@@ -747,6 +752,7 @@ void unit_Manager::verificarBunkers(){
 				Graficos::resaltarUnidad(atacado);
 
 				Otra->atacar(u);
+				//Easy->atacar(u);
 				//grupoB1->estrategia1(atacado);
 
 				break;
@@ -916,4 +922,38 @@ bool unit_Manager::construyendo(int ID){
 	}
 
 	return false;
+}
+
+// mueve las unidades que estan ubicadas en el build tile pasado como parametro a otro build tile para poder construir ahi
+void unit_Manager::moverUnidades(TilePosition *t){
+
+	if (Broodwar->unitsOnTile(t->x(), t->y()).size() > 0){
+		int x = 1, y = 0;
+		std::set<Unit*>::const_iterator It1;
+		Position *pos = NULL;
+		
+		It1 = Broodwar->unitsOnTile(t->x(), t->y()).begin();
+
+		// los parametros de isWalkable son coordenadas en walk tiles
+		while (!(Broodwar->isWalkable((t->x() - x) * 4, (t->y() - y) * 4)) && (Broodwar->mapWidth() < (t->x() - x)) && (Broodwar->mapHeight() < (t->y() - y))){
+			x ++;
+			y ++;
+		}
+
+		if ((Broodwar->mapWidth() < (t->x() - x)) && (Broodwar->mapHeight() < (t->y() - y))){
+
+			pos = new Position((t->x() - x) * 32, (t->y() - y) * 32);
+
+			while (It1 != Broodwar->unitsOnTile(t->x(), t->y()).end()){
+				// si no es un edificio lo mueve
+				if (!(*It1)->getType().isBuilding()){
+					(*It1)->rightClick(*pos);
+				}
+			}
+
+			delete pos;
+
+		}
+
+	}
 }
