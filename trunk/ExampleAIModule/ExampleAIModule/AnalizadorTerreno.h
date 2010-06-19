@@ -25,6 +25,8 @@ public:
 	Chokepoint* obtenerChokepoint(); // Obtiene el chokepoint que se debe defender desde la posicion inicial
 	void dibujarResultados(void); // hace un dibujito
 
+	TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c); // retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
+
 private:
 	bool show_visibility_data;
 	

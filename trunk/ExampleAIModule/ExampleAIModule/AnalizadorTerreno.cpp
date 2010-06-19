@@ -1,11 +1,6 @@
 #include "AnalizadorTerreno.h"
 #include "Graficos.h"
 
-#include <BWAPI.h>
-#include <BWTA.h>
-
-using namespace BWAPI;
-
 Position *uno, *dos;
 
 
@@ -89,30 +84,6 @@ Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 					choke=*c;
 				}
 			}
-
-			/*if (Broodwar->isWalkable((*c)->getCenter().x() /8, (*c)->getCenter().y() /8)){
-				Broodwar->printf("es walkable y voy para alla");
-			}*/
-
-			/*TilePosition *p1, *p2;
-
-			p1 = new TilePosition((*c)->getCenter().x()/32 - 8, (*c)->getCenter().y()/32  - 8);
-			p2 = new TilePosition((*c)->getCenter().x()/32 + 8, (*c)->getCenter().y()/32  + 8);
-
-			if (BWTA::isConnected(*p1, *p2)){*/
-
-			/*int x, y;
-			x = (*c)->getCenter().x()/ 32;
-			y = (*c)->getCenter().y() /32;
-
-			if (BWTA::isConnected(x-32, y-32, x+32, y+32)){
-				min_length=length;
-				choke=*c;
-
-				uno = new Position(choke->getCenter().x() - 32, choke->getCenter().y() - 32);
-				dos = new Position(choke->getCenter().x() + 32, choke->getCenter().y() + 32);
-				estocolmo = true;
-			}*/
 		}
 	}
 
@@ -215,3 +186,103 @@ Region* AnalizadorTerreno::regionInicial(){
 	return home;
 }
 
+
+
+TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
+	Position *p1 = NULL, *p2 = NULL;
+	
+	// la variable ubicacionCentro tiene 4 valores posibles:
+	// 1- el centro de la region esta ubicado arriba y a la izquierda del centro del chokepoint
+	// 2- el centro de la region esta ubicado arriba y a la derecha del centro del chokepoint
+	// 3- el centro de la region esta ubicado abajo y a la izquierda del centro del chokepoint
+	// 4- el centro de la region esta ubicado abajo y a la derecha del centro del chokepoint
+	int ubicacionCentro = 0; 
+
+	int distanciaX = 128;
+	int distanciaY = 96;
+	Position *res = NULL;
+
+	bool encontre = false;
+	int cont = 0;
+
+	// Inicializo los puntos que representan a los bordes del chokepoint
+	// p1 siempre sera el borde mas a la izquierda del chokepoint
+	// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
+	if (c->getSides().first.x() != c->getSides().second.x()){
+		// la inclinacion del chokepoint no es completamente vertical |, es decir el chokepoint esta inclinado	
+		if (c->getSides().first.x() < c->getSides().second.x()){
+			p1 = new Position(c->getSides().first.x(), c->getSides().first.y());
+			p2 = new Position(c->getSides().second.x(), c->getSides().second.y());
+		}
+		else{
+			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
+			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
+		}
+
+		// si la posicion es totalmente horizontal, no me deberia desplazar sobre el eje X
+		if (c->getSides().first.y() == c->getSides().second.y()){
+			distanciaX = 0;
+			distanciaY *= -1;
+		}
+	}
+	else{
+		// la inclinacion del chokepoint es vertical |
+		if (c->getSides().first.y() < c->getSides().second.y()){
+			p1 = new Position(c->getSides().first.x(), c->getSides().first.y());
+			p2 = new Position(c->getSides().second.x(), c->getSides().second.y());
+		}
+		else{
+			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
+			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
+		}
+
+		// no me desplazo sobre el eje Y
+		distanciaY = 0;
+		distanciaX *= -1;
+	}
+
+	// ubico la posicion del chokepoint respecto al centro de la region a defender
+	if (r->getCenter().x() <= c->getCenter().x()){
+		if (r->getCenter().y() <= c->getCenter().y())
+			ubicacionCentro = 1;
+		else
+			ubicacionCentro = 3;
+	}	
+	else{
+		if (r->getCenter().y() <= c->getCenter().y())
+			ubicacionCentro = 2;
+		else
+			ubicacionCentro = 4;
+	}
+
+	while (!encontre && (cont < 4)){
+
+		if (res != NULL) delete res;
+	
+		// posiblemente esto necesite una mejora...
+		if (ubicacionCentro == 1)
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
+		else if (ubicacionCentro == 2)
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() - distanciaY);
+		else if (ubicacionCentro == 3)
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
+		else if (ubicacionCentro == 4)
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);
+
+		if ((c->getRegions().first->getPolygon().isInside(*res)) || (c->getRegions().second->getPolygon().isInside(*res)))
+			encontre = true;
+
+		cont++;
+
+		/*if (ubicacionCentro = 1)
+			ubicacionCentro = (ubicacionCentro - 2) % 4;
+		else*/
+			ubicacionCentro = (ubicacionCentro + 1) % 4;
+	}
+
+
+	delete p1;
+	delete p2;
+
+	return (new TilePosition(res->x() / 32, res->y() / 32));
+}
