@@ -99,6 +99,15 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// verifica daños en los bunkers
 	verificarBunkers();
 
+	if (analizador->analisisListo()){
+		TilePosition *t111;
+		if (t111 != NULL){
+			t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
+			Graficos::dibujarCuadro(t111, 1, 1);
+			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
+		}
+	}
+
 	/*fofo = grupoB1->getUltimoBunkerCreado();
 	if (fofo != NULL){
 		grupoB1->estrategia1(fofo);
@@ -736,7 +745,7 @@ void unit_Manager::verificarBunkers(){
 				repararUnidad(atacado);
 				Graficos::resaltarUnidad(atacado);
 
-				Otra->atacar(u);
+				//Otra->atacar(u);
 				//Easy->atacar(u);
 
 				//grupoB1->estrategia1(atacado);
@@ -751,7 +760,7 @@ void unit_Manager::verificarBunkers(){
 				repararUnidad(atacado);
 				Graficos::resaltarUnidad(atacado);
 
-				Otra->atacar(u);
+				//Otra->atacar(u);
 				//Easy->atacar(u);
 				//grupoB1->estrategia1(atacado);
 
