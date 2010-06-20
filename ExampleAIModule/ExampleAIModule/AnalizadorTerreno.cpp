@@ -1,5 +1,8 @@
 #include "AnalizadorTerreno.h"
 #include "Graficos.h"
+#include <math.h>
+
+#define PI 3.14159265
 
 Position *uno, *dos;
 
@@ -198,12 +201,34 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 	// 4- el centro de la region esta ubicado abajo y a la derecha del centro del chokepoint
 	int ubicacionCentro = 0; 
 
-	int distanciaX = 128;
+	int cuadrante = 0;
+	int angulo = 0;
+
+	// distancias desde el centro del chokepoint hasta el lugar para ubicar el bunker
+	int distanciaX = 96;
 	int distanciaY = 96;
 	Position *res = NULL;
 
 	bool encontre = false;
 	int cont = 0;
+
+	//****************************************************************
+	// Nuevo
+
+	if (Broodwar->self()->getStartLocation().x() <= (Broodwar->mapWidth() / 2)){
+		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
+			cuadrante = 1;
+		else
+			cuadrante = 3;
+	}
+	else{
+		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
+			cuadrante = 2;
+		else
+			cuadrante = 4;
+	}
+
+	//****************************************************************
 
 	// Inicializo los puntos que representan a los bordes del chokepoint
 	// p1 siempre sera el borde mas a la izquierda del chokepoint
@@ -220,10 +245,10 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 		}
 
 		// si la posicion es totalmente horizontal, no me deberia desplazar sobre el eje X
-		if (c->getSides().first.y() == c->getSides().second.y()){
+		/*if (c->getSides().first.y() == c->getSides().second.y()){
 			distanciaX = 0;
 			distanciaY *= -1;
-		}
+		}*/
 	}
 	else{
 		// la inclinacion del chokepoint es vertical |
@@ -237,8 +262,8 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 		}
 
 		// no me desplazo sobre el eje Y
-		distanciaY = 0;
-		distanciaX *= -1;
+		/*distanciaY = 0;
+		distanciaX *= -1;*/
 	}
 
 	// ubico la posicion del chokepoint respecto al centro de la region a defender
@@ -255,34 +280,109 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 			ubicacionCentro = 4;
 	}
 
-	while (!encontre && (cont < 4)){
+	angulo = calcularAngulo(p1, p2);
+	//Broodwar->printf("cuadrante: %d - angulo: %d", cuadrante, angulo);
+	
+	/*while (!encontre && (cont < 4)){
 
-		if (res != NULL) delete res;
+		if (res != NULL) delete res;*/
 	
 		// posiblemente esto necesite una mejora...
-		if (ubicacionCentro == 1)
+		/*if (ubicacionCentro == 1)
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
 		else if (ubicacionCentro == 2)
 			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() - distanciaY);
 		else if (ubicacionCentro == 3)
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
 		else if (ubicacionCentro == 4)
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);*/
 
-		if ((c->getRegions().first->getPolygon().isInside(*res)) || (c->getRegions().second->getPolygon().isInside(*res)))
-			encontre = true;
-
-		cont++;
-
-		/*if (ubicacionCentro = 1)
-			ubicacionCentro = (ubicacionCentro - 2) % 4;
-		else*/
-			ubicacionCentro = (ubicacionCentro + 1) % 4;
+	if (cuadrante == 1){
+		if ((angulo > 0) && (angulo < 23))
+			// como el angulo del chokepoint es pequeño no inclino la ubicacion del bunker, solo la desplazo en el eje X
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
+		else if ((angulo >= 23) && (angulo < 67))
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
+		else if ((angulo >= 67) && (angulo < 112))
+			res = new Position(c->getCenter().x(), c->getCenter().y() - distanciaY);
+		else if ((angulo >= 112) && (angulo < 157))
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
+		else
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
 	}
+	else if (cuadrante == 2){
+		
+		if ((angulo > 0) && (angulo < 23))
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
+		else if ((angulo >= 23) && (angulo < 67))
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() - distanciaY);
+		else if ((angulo >= 67) && (angulo < 112))
+			res = new Position(c->getCenter().x(), c->getCenter().y() - distanciaY);
+		else if ((angulo >= 112) && (angulo < 157))
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);
+		else
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
+	}
+	else if (cuadrante == 3){
 
-
+		if ((angulo > 0) && (angulo < 23))
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
+		else if ((angulo >= 23) && (angulo < 67))
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
+		else if ((angulo >= 67) && (angulo < 112))
+			res = new Position(c->getCenter().x(), c->getCenter().y() + distanciaY);
+		else if ((angulo >= 112) && (angulo < 157))
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
+		else
+			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
+	}		
+	else{
+		if ((angulo > 0) && (angulo < 23))
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
+		else if ((angulo >= 23) && (angulo < 67))
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() - distanciaY);
+		else if ((angulo >= 67) && (angulo < 112))
+			res = new Position(c->getCenter().x(), c->getCenter().y() + distanciaY);
+		else if ((angulo >= 112) && (angulo < 157))
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);
+		else
+			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
+	}
+		
+	
 	delete p1;
 	delete p2;
 
 	return (new TilePosition(res->x() / 32, res->y() / 32));
+}
+
+
+// retorna el angulo que forma una recta que une los dos puntos con respecto a la vertical
+int AnalizadorTerreno::calcularAngulo(Position *p1, Position *p2){
+	double angulo;
+	double division;
+
+	int restoAngulo; // si el punto p2 tiene menor coordenada Y que el punto p1, se debe sumar 90 al angulo resultante del calculo
+	double segmentoB;
+
+	if (p1->y() > p2->y()){
+		restoAngulo = 90;
+		segmentoB = p1->y() - p2->y();
+	}
+	else{
+		restoAngulo = 0;
+		segmentoB = p2->y() - p1->y();
+	}
+
+	division = segmentoB / p1->getDistance(*p2);
+	angulo = asin(division) * 180.0 / PI;
+
+	/*Broodwar->printf("PUNTO1: x = %d - y = %d", p1->x(), p1->y());
+	Broodwar->printf("PUNTO2: x = %d - y = %d", p2->x(), p2->y());
+	Broodwar->printf("distancia: %lf", p1->getDistance(*p2));
+	Broodwar->printf("division: %lf", division);
+
+	Broodwar->printf("el angulo es: %lf", angulo);*/
+
+	return ((int) (angulo + restoAngulo));
 }

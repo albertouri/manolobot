@@ -29,5 +29,6 @@ public:
 
 private:
 	bool show_visibility_data;
+	int calcularAngulo(Position *p1, Position *p2);
 	
 };
