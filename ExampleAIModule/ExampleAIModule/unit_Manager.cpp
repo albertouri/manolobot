@@ -41,7 +41,7 @@ Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calc
 unit_Manager::unit_Manager(void)
 {
 	Easy = new compania(Colors::Red);
-	Otra = new compania(Colors::Blue);
+	Otra = new compania(Colors::Yellow);
 
 	magallanes = new Scout(getWorker());
 	cantBarracas = 0;
@@ -64,6 +64,13 @@ unit_Manager::unit_Manager(void)
 		goalResearch[x] = 0;
 		researchDone[x] = false;
 	}
+
+	for (int x = 0; x < 34; x++){
+		this->cantUnidades[x] = 0;
+	}
+	
+	cantUnidades[Utilidades::INDEX_GOAL_SCV] = 4;
+	cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 1;
 
 	reparador1 = NULL;
 	reparador2 = NULL;
@@ -88,15 +95,16 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	Graficos::resaltarUnidad(reparador2);
 
 	Easy->onFrame();
+	Otra->onFrame();
 
 	// verifica si se termino de construir alguna unidad en este frame
-	//ultimaFinalizada = controlarFinalizacion();
+	ultimaFinalizada = controlarFinalizacion();
 
-	if (ultimaFinalizada != NULL){
+	/*if (ultimaFinalizada != NULL){
 		if (ultimaFinalizada->getType().getID() == Utilidades::ID_MARINE) cantMarines++;
 		else if (ultimaFinalizada->getType().getID() == Utilidades::ID_MEDIC) cantMedics++;
 		else if (ultimaFinalizada->getType().getID() == Utilidades::ID_FIREBAT) cantFirebats++;
-	}
+	}*/
 
 	// verifica daños en los bunkers
 	verificarBunkers();
@@ -106,15 +114,10 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		
 		t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
 		if (t111 != NULL){
-			Graficos::dibujarCuadro(t111, 1, 1);
+			Graficos::dibujarCuadro(t111, 3, 2);
 			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 		}
 	}
-
-	/*fofo = grupoB1->getUltimoBunkerCreado();
-	if (fofo != NULL){
-		grupoB1->estrategia1(fofo);
-	}*/
 
 
 	// Si la cantidad de suministros usados es igual a la cantidad maxima, se construye un nuevo deposito
@@ -130,7 +133,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		trainWorker();
 	}
 	
-
 	//metodo a corregir, solamente a fin de entrenar marines.
 	if((Broodwar->self()->allUnitCount(*barraca))&&(Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_MARINE))) < goalCantUnidades[Utilidades::INDEX_GOAL_MARINE]) && (Broodwar->self()->minerals()>100) ) {
 		trainMarine();
@@ -229,12 +231,14 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		if (grupoB1->getCantBunkers() == 0){
 			// Obtiene la posicion del centro del chokepoint a defender y la convierte a una TilePosition (que se 
 			// mide en build tiles)
-			Position *p = analizador->obtenerCentroChokepoint();
-			TilePosition *t = new TilePosition(p->x() / 32, p->y() / 32);
-			posB = getTilePositionAviable(building, t);
 			
-			delete t;
-			delete p;
+			//Position *p = analizador->obtenerCentroChokepoint();
+			//TilePosition *t = new TilePosition(p->x() / 32, p->y() / 32);
+			posB = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
+			//posB = getTilePositionAviable(building, t);
+			
+			//delete t;
+			//delete p;
 		}
 		else{
 			// Ubica el nuevo bunker alrededor de la posicion del ultimo bunker creado
@@ -306,7 +310,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				if (u->isCompleted() && (!u->isResearching()) && (!u->isUpgrading())){
 					// Construccion de la academia finalizada, se puede investigar mejoras
 
-					Broodwar->printf("Investigando mejora...");
+					Broodwar->printf("Investigando mejora stim pack en academia...");
 					TechType *t = new TechType(TechTypes::Stim_Packs);
 					u->research(*t);
 					delete t;
@@ -328,7 +332,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
 					// Construccion de la academia finalizada, se puede investigar mejoras
 
-					Broodwar->printf("Investigando mejora...");
+					Broodwar->printf("Investigando mejora U238 en academia...");
 					UpgradeType *t = new UpgradeType(UpgradeTypes::U_238_Shells);
 					u->upgrade(*t);
 					delete t;
@@ -687,7 +691,7 @@ void unit_Manager::setResearchs(int researchs[10]){
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	
 	if (unit->getType().getID() == Utilidades::ID_MARINE){
-		if (cantMarines > 12) Otra->asignarUnidad(unit);
+		if (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 12) Otra->asignarUnidad(unit);
 		else Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
@@ -794,20 +798,22 @@ void unit_Manager::nuevaUnidadConstruccion(Unit *u){
 Unit* unit_Manager::controlarFinalizacion(){
 	// recorre la lista para ver si alguna unidad finalizo su construccion
 
-	std::list<Unit*>::iterator It1;
-	It1 = unidadesEnConstruccion.begin();
+	if (unidadesEnConstruccion.size() > 0){
+		std::list<Unit*>::iterator It1;
+		It1 = unidadesEnConstruccion.begin();
 
-	while(It1 != unidadesEnConstruccion.end()){
-		if ((*It1)->isCompleted()){
-			Unit *u;
+		while(It1 != unidadesEnConstruccion.end()){
+			if ((*It1)->isCompleted()){
+				Unit *u;
 
-			u = (*It1);
+				u = (*It1);
 
-			It1 = unidadesEnConstruccion.erase(It1);
-			return (u);
+				It1 = unidadesEnConstruccion.erase(It1);
+				return (u);
+			}
+			else 
+				It1++;
 		}
-		else 
-			It1++;
 	}
 
 	return NULL;
@@ -859,19 +865,73 @@ void unit_Manager::moverUnidades(TilePosition *t){
 	}
 }
 
-void unit_Manager::onUnitDestroy(Unit *u){
-	
-}
-
 void unit_Manager::onUnitCreate(Unit *u){
-	int Id;
-	Id = u->getType().getID();
-	
-	if (Id == Utilidades::ID_DEPOT) newSupplyDepot();
-	else if (Id == Utilidades::ID_BARRACK) newBarrack();
-	else if (Id == Utilidades::ID_ACADEMY) newAcademy();
-	else if (Id == Utilidades::ID_MARINE) asignarUnidadACompania(u);
+
+	switch (u->getType().getID()){
+		case Utilidades::ID_ACADEMY:
+			cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]++;
+			break;
+		case Utilidades::ID_BARRACK:
+			cantUnidades[Utilidades::INDEX_GOAL_BARRACK]++;
+			break;
+		case Utilidades::ID_BUNKER:
+			cantUnidades[Utilidades::INDEX_GOAL_BUNKER]++;
+			break;
+		case Utilidades::ID_DEPOT:
+			cantUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
+			break;
+		case Utilidades::ID_FIREBAT:
+			cantUnidades[Utilidades::INDEX_GOAL_FIREBAT]++;
+			asignarUnidadACompania(u);
+			break;
+		case Utilidades::ID_MARINE:
+			cantUnidades[Utilidades::INDEX_GOAL_MARINE]++;
+			asignarUnidadACompania(u);
+			break;
+		case Utilidades::ID_MEDIC:
+			cantUnidades[Utilidades::INDEX_GOAL_MEDIC]++;
+			asignarUnidadACompania(u);
+			break;
+		case Utilidades::ID_REFINERY:
+			cantUnidades[Utilidades::INDEX_GOAL_REFINERY]++;
+			break;
+		case Utilidades::ID_SCV:
+			cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
+			break;
+	}
 
 	resetBuildingSemaphore();
 	nuevaUnidadConstruccion(u);
+}
+
+void unit_Manager::onUnitDestroy(Unit *u){
+	switch (u->getType().getID()){
+		case Utilidades::ID_ACADEMY:
+			cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]--;
+			break;
+		case Utilidades::ID_BARRACK:
+			cantUnidades[Utilidades::INDEX_GOAL_BARRACK]--;
+			break;
+		case Utilidades::ID_BUNKER:
+			cantUnidades[Utilidades::INDEX_GOAL_BUNKER]--;
+			break;
+		case Utilidades::ID_DEPOT:
+			cantUnidades[Utilidades::INDEX_GOAL_DEPOT]--;
+			break;
+		case Utilidades::ID_FIREBAT:
+			cantUnidades[Utilidades::INDEX_GOAL_FIREBAT]--;
+			break;
+		case Utilidades::ID_MARINE:
+			cantUnidades[Utilidades::INDEX_GOAL_MARINE]--;
+			break;
+		case Utilidades::ID_MEDIC:
+			cantUnidades[Utilidades::INDEX_GOAL_MEDIC]--;
+			break;
+		case Utilidades::ID_REFINERY:
+			cantUnidades[Utilidades::INDEX_GOAL_REFINERY]--;
+			break;
+		case Utilidades::ID_SCV:
+			cantUnidades[Utilidades::INDEX_GOAL_SCV]--;
+			break;
+	}
 }

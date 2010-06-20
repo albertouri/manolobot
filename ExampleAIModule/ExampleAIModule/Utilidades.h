@@ -14,6 +14,7 @@ public:
 	static const int INDEX_GOAL_ACADEMY = 0;
 	static const int INDEX_GOAL_BARRACK = 2;
 	static const int INDEX_GOAL_BUNKER = 4;
+	static const int INDEX_GOAL_COMMANDCENTER = 5;
 	static const int INDEX_GOAL_FIREBAT = 12;
 	static const int INDEX_GOAL_MARINE = 16;
 	static const int INDEX_GOAL_MEDIC = 17;
@@ -26,6 +27,7 @@ public:
 	static const int ID_SCV = 7;
 	static const int ID_FIREBAT = 32;
 	static const int ID_MEDIC = 34;
+	static const int ID_COMMANDCENTER = 106;
 	static const int ID_DEPOT = 109;
 	static const int ID_REFINERY = 110;
 	static const int ID_BARRACK = 111;
