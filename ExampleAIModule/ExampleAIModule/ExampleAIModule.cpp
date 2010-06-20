@@ -19,12 +19,6 @@ void ExampleAIModule::onStart()
   // Uncomment to enable complete map information
   //Broodwar->enableFlag(Flag::CompleteMapInformation);
 
-  /*//read map information into BWTA so terrain analysis can be done in another thread
-  BWTA::readMap();
-  analyzed=false;
-  analysis_just_finished=false;
-  show_visibility_data=false;*/
-
   if (Broodwar->isReplay())
   {
     Broodwar->printf("The following players are in this replay:");
@@ -46,7 +40,7 @@ void ExampleAIModule::onStart()
 	//---------------------------------------------
 
 	//Broodwar->setLocalSpeed(0);
-	//Broodwar->setLocalSpeed(8);
+	Broodwar->setLocalSpeed(8);
 	agente = new ManoloBot();
   }
 }
@@ -69,12 +63,9 @@ void ExampleAIModule::onFrame()
 void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay()){
-		Broodwar->sendText("A %s [%x] has been created at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		//Broodwar->sendText("A %s [%x] has been created at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 		
-		if (unit->getType().isBuilding()){
-			agente->edificioConstruido(unit);
-		}
-		else if(unit->getType().getID()==0) agente->unidadConstruida(unit);
+		agente->onUnitCreate(unit);
 	}
 	else
 	{
@@ -96,15 +87,17 @@ void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 
 void ExampleAIModule::onUnitDestroy(BWAPI::Unit* unit)
 {
-  if (!Broodwar->isReplay())
-    Broodwar->sendText("A %s [%x] has been destroyed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
-	
-
+	if (!Broodwar->isReplay()){
+		agente->onUnitDestroy(unit);
+		Broodwar->sendText("A %s [%x] has been destroyed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+	}
 }
 
 void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
 {
-	if (!Broodwar->isReplay()){}
+	if (!Broodwar->isReplay())
+		agente->onUnitCreate(unit);
+	
     //Broodwar->sendText("A %s [%x] has been morphed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
   else
   {

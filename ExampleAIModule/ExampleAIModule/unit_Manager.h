@@ -28,6 +28,9 @@ public:
 
 	void nuevaUnidadConstruccion(Unit *u); // este metodo se invoca cuando se genera el evento onUnitCreate, y agrega la unidad en construccion a una lista
 	Unit* controlarFinalizacion(); // retorna la primera unidad que haya sido terminada de construir que encuentre en la lista, NULL si no encuentra ninguna
+	
+	void onUnitDestroy(Unit *u);
+	void onUnitCreate(Unit *u);
 
 	~unit_Manager(void);
 
@@ -51,7 +54,4 @@ private:
 	bool researchDone[Utilidades::maxResearch]; // arreglo que mantiene informacion sobre si una investigacion se realizo o no
 	
 	Unit *reparador1, *reparador2; // puntero a un SCV que se encargara de reparar los bunkers que sean atacados
-
-	//std::list<TilePosition*> ubicarBunker(Region *r, Chokepoint *c); // este metodo retorna una TilePosition donde se deberia ubicar un bunker
-	//void ubicarBunker(Region *r, Chokepoint *c); // este metodo retorna una TilePosition donde se deberia ubicar un bunker
 };

@@ -40,8 +40,8 @@ Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calc
 
 unit_Manager::unit_Manager(void)
 {
-	Easy = new compania();
-	Otra = new compania();
+	Easy = new compania(Colors::Red);
+	Otra = new compania(Colors::Blue);
 
 	magallanes = new Scout(getWorker());
 	cantBarracas = 0;
@@ -86,6 +86,8 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 	Graficos::resaltarUnidad(reparador1);
 	Graficos::resaltarUnidad(reparador2);
+
+	Easy->onFrame();
 
 	// verifica si se termino de construir alguna unidad en este frame
 	//ultimaFinalizada = controlarFinalizacion();
@@ -248,7 +250,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			delete posB;
 		}
 	}
-	else if ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))) == goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER] > 0)){
+	/*else if ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))) == goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER] > 0)){
 		if (reparador1 == NULL){
 			// setea un SCV para que repare los bunkers
 			for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
@@ -272,7 +274,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				}
 			}
 		}
-	}
+	}*/
 
 	// ------------------------- Fin construccion bunkers -------------------------
 
@@ -685,7 +687,7 @@ void unit_Manager::setResearchs(int researchs[10]){
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	
 	if (unit->getType().getID() == Utilidades::ID_MARINE){
-		if (cantMarines > /*12*/8) Otra->asignarUnidad(unit);
+		if (cantMarines > 12) Otra->asignarUnidad(unit);
 		else Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
@@ -747,7 +749,7 @@ void unit_Manager::verificarBunkers(){
 				Graficos::resaltarUnidad(atacado);
 
 				//Otra->atacar(u);
-				//Easy->atacar(u);
+				Easy->atacar(u);
 
 				//grupoB1->estrategia1(atacado);
 
@@ -762,7 +764,7 @@ void unit_Manager::verificarBunkers(){
 				Graficos::resaltarUnidad(atacado);
 
 				//Otra->atacar(u);
-				//Easy->atacar(u);
+				Easy->atacar(u);
 				//grupoB1->estrategia1(atacado);
 
 				break;
@@ -774,117 +776,6 @@ void unit_Manager::verificarBunkers(){
 		Easy->aplicarStim();
 	}*/
 }
-
-
-/*void unit_Manager::ubicarBunker(Region *r, Chokepoint *c){
-//std::set<TilePosition*> unit_Manager::ubicarBunker(Region *r, Chokepoint *c){
-	// Calculo la posicion relativa del chokepoint respecto al centro de la region a defender
-	// el tamaño de un bunker es 3 x 2 (ancho x alto)
-	
-	//int offsetX, offsetY;
-	//TilePosition *t;
-	int factorX = 1, factorY = 1;
-
-	if (r->getCenter().x() < c->getCenter().x()){
-		// El centro de la region esta mas a la izquierda que el centro del chokepoint
-		//offsetX = -1;
-		factorX = -1;
-	}
-	else{
-		factorX = 1;
-	}
-
-	if (r->getCenter().y() < c->getCenter().y()){
-		// El centro de la region esta mas arriba que el centro del chokepoint
-		factorY = -1;
-	}
-	else{
-		factorY = 1;
-	}
-
-	/*t = new TilePosition(c->getCenter().x() / 32 + offsetX, c->getCenter().y() / 32 + offsetY);
-
-	if (Broodwar->unitsOnTile(t->x(), t->y()).size() == 0){
-		seteado = true;
-		return t;
-	}
-	else{
-		delete t;
-		t = new TilePosition(c->getCenter().x() / 32 + offsetX + 1, c->getCenter().y() / 32 + offsetY - 2);
-
-		if (Broodwar->unitsOnTile(t->x(), t->y()).size() == 0){
-			seteado = true;
-			return t;
-		}
-		else{
-
-			delete t;
-			t = new TilePosition(c->getCenter().x() / 32 + offsetX - 1, c->getCenter().y() / 32 + offsetY + 2);
-
-			if (Broodwar->unitsOnTile(t->x(), t->y()).size() == 0){
-				seteado = true;
-				return t;
-			}
-			else{
-				seteado = false;
-				return NULL;
-			}
-		}
-	}*/
-
-
-	/*Position bordeMasCercano;
-	UnitType *marine = new UnitType(Utilidades::ID_MARINE);
-
-	// Busca el extremo del chokepoint mas cercano al centro de la region
-	if (c->getSides().first.getDistance(r->getCenter()) < c->getSides().second.getDistance(r->getCenter())){
-		bordeMasCercano = c->getSides().first;
-	}
-	else{
-		bordeMasCercano = c->getSides().second;
-	}
-
-	int offset; // representa la distancia desde el punto deseado hasta el borde del build tile del bunker
-	int anchoBunker = 3 * 32;
-	int altoBunker = 2 * 32;
-	double raiz2 = sqrt(2.0);
-	int rango = marine->seekRange(); // rango es la distancia a la que buscamos ubicar el bunker respecto del chokepoint
-
-	// Cuentita sacada a mano, usando el teorema de pitagoras
-	offset = rango / raiz2;
-
-	//std::set<TilePosition*> result;
-	Position *pos1, *pos2, *pos3;
-
-	pos1 = new Position(c->getSides().first.x() +  factorX * (offset + anchoBunker), c->getSides().first.y() +  factorY * (offset + altoBunker));
-	pos2 = new Position(c->getSides().second.x() +  factorX * (offset + anchoBunker), c->getSides().second.y() +  factorY * (offset + altoBunker));
-	pos3 = new Position(c->getCenter().x() +  factorX * (offset + anchoBunker), c->getCenter().y() +  factorY * (offset + altoBunker));
-
-	/*t1 = new TilePosition(pos1->x() / 32, pos1->y() / 32);
-	t2 = new TilePosition(pos2->x() / 32, pos2->y() / 32);
-	t3 = new TilePosition(pos3->x() / 32, pos3->y() / 32);*/
-
-	/*posiciones.insert(t1);
-	posiciones.insert(t2);
-	posiciones.insert(t3);*/
-
-
-
-	/*delete pos1;
-	delete pos2;
-	delete pos3;
-
-	delete marine;
-	//return result;
-
-}*/
-
-
-
-// Calcula el angulo que tiene el chokepoint
-/*int unit_Manager::calcularAngulo(Region *r, Chokepoint *c){
-
-}*/
 
 
 void unit_Manager::nuevaUnidadConstruccion(Unit *u){
@@ -966,4 +857,21 @@ void unit_Manager::moverUnidades(TilePosition *t){
 		}
 
 	}
+}
+
+void unit_Manager::onUnitDestroy(Unit *u){
+	
+}
+
+void unit_Manager::onUnitCreate(Unit *u){
+	int Id;
+	Id = u->getType().getID();
+	
+	if (Id == Utilidades::ID_DEPOT) newSupplyDepot();
+	else if (Id == Utilidades::ID_BARRACK) newBarrack();
+	else if (Id == Utilidades::ID_ACADEMY) newAcademy();
+	else if (Id == Utilidades::ID_MARINE) asignarUnidadACompania(u);
+
+	resetBuildingSemaphore();
+	nuevaUnidadConstruccion(u);
 }

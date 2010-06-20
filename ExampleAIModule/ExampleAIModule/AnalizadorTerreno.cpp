@@ -56,7 +56,6 @@ Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 
 		if (length < min_length || choke==NULL){
 
-			//BWTA::Region *r1, *r2;
 			std::pair<BWTA::Region*, BWTA::Region*> p;
 
 			p = (*c)->getRegions();
@@ -90,8 +89,6 @@ Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 		}
 	}
 
-	//Broodwar->printf("hay %d chokepoints", chokepoints.size());
-
 	if (choke == NULL)
 		return NULL;
 	else
@@ -106,6 +103,7 @@ Chokepoint* AnalizadorTerreno::obtenerChokepoint(){
 	
 	//get the chokepoints linked to our home region
 	std::set<BWTA::Chokepoint*> chokepoints= home->getChokepoints();
+
 	double min_length=10000;
 	//double min_length = 0;
 	BWTA::Chokepoint* choke=NULL;
@@ -116,7 +114,6 @@ Chokepoint* AnalizadorTerreno::obtenerChokepoint(){
 
 		if (length < min_length || choke==NULL){
 
-			//BWTA::Region *r1, *r2;
 			std::pair<BWTA::Region*, BWTA::Region*> p;
 
 			p = (*c)->getRegions();
@@ -194,13 +191,6 @@ Region* AnalizadorTerreno::regionInicial(){
 TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 	Position *p1 = NULL, *p2 = NULL;
 	
-	// la variable ubicacionCentro tiene 4 valores posibles:
-	// 1- el centro de la region esta ubicado arriba y a la izquierda del centro del chokepoint
-	// 2- el centro de la region esta ubicado arriba y a la derecha del centro del chokepoint
-	// 3- el centro de la region esta ubicado abajo y a la izquierda del centro del chokepoint
-	// 4- el centro de la region esta ubicado abajo y a la derecha del centro del chokepoint
-	int ubicacionCentro = 0; 
-
 	int cuadrante = 0;
 	int angulo = 0;
 
@@ -212,8 +202,6 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 	bool encontre = false;
 	int cont = 0;
 
-	//****************************************************************
-	// Nuevo
 
 	if (Broodwar->self()->getStartLocation().x() <= (Broodwar->mapWidth() / 2)){
 		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
@@ -228,7 +216,6 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 			cuadrante = 4;
 	}
 
-	//****************************************************************
 
 	// Inicializo los puntos que representan a los bordes del chokepoint
 	// p1 siempre sera el borde mas a la izquierda del chokepoint
@@ -243,12 +230,6 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
 			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
 		}
-
-		// si la posicion es totalmente horizontal, no me deberia desplazar sobre el eje X
-		/*if (c->getSides().first.y() == c->getSides().second.y()){
-			distanciaX = 0;
-			distanciaY *= -1;
-		}*/
 	}
 	else{
 		// la inclinacion del chokepoint es vertical |
@@ -260,43 +241,11 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
 			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
 		}
-
-		// no me desplazo sobre el eje Y
-		/*distanciaY = 0;
-		distanciaX *= -1;*/
-	}
-
-	// ubico la posicion del chokepoint respecto al centro de la region a defender
-	if (r->getCenter().x() <= c->getCenter().x()){
-		if (r->getCenter().y() <= c->getCenter().y())
-			ubicacionCentro = 1;
-		else
-			ubicacionCentro = 3;
-	}	
-	else{
-		if (r->getCenter().y() <= c->getCenter().y())
-			ubicacionCentro = 2;
-		else
-			ubicacionCentro = 4;
 	}
 
 	angulo = calcularAngulo(p1, p2);
 	//Broodwar->printf("cuadrante: %d - angulo: %d", cuadrante, angulo);
 	
-	/*while (!encontre && (cont < 4)){
-
-		if (res != NULL) delete res;*/
-	
-		// posiblemente esto necesite una mejora...
-		/*if (ubicacionCentro == 1)
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
-		else if (ubicacionCentro == 2)
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() - distanciaY);
-		else if (ubicacionCentro == 3)
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
-		else if (ubicacionCentro == 4)
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);*/
-
 	if (cuadrante == 1){
 		if ((angulo > 0) && (angulo < 23))
 			// como el angulo del chokepoint es pequeño no inclino la ubicacion del bunker, solo la desplazo en el eje X

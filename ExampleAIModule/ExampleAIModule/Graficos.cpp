@@ -13,7 +13,7 @@ void Graficos::dibujarCuadro(TilePosition* p, int tilesAncho, int tilesAlto){
 }
 
 
-void Graficos::resaltarUnidad(Unit *u){
+void Graficos::resaltarUnidad(Unit *u, Color c){
 
 	if (u != NULL){
 		int izq = u->getType().dimensionLeft() * 2;
@@ -21,9 +21,12 @@ void Graficos::resaltarUnidad(Unit *u){
 		int arr = u->getType().dimensionUp() * 2;
 		int aba = u->getType().dimensionDown() * 2;
 
-		Broodwar->drawBox(CoordinateType::Map, u->getPosition().x() - izq, u->getPosition().y() - arr, u->getPosition().x() + der, u->getPosition().y() + aba, Colors::White, false);
+		Broodwar->drawBox(CoordinateType::Map, u->getPosition().x() - izq, u->getPosition().y() - arr, u->getPosition().x() + der, u->getPosition().y() + aba, c, false);
 	}
+}
 
+void Graficos::resaltarUnidad(Unit *u){
+	resaltarUnidad(u, Colors::White);
 }
 
 void Graficos::dibujarTerreno(bool show_visibility_data, bool analyzed){

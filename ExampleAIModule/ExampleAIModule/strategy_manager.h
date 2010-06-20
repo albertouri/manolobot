@@ -13,10 +13,15 @@ public:
 	int* getResearchs(void);
 	~strategy_manager(void);
 
+	void onUnitCreate(Unit *u);
+	void onUnitDestroy(Unit *u);
+	
+	bool investigado(int ID_tech);
+
 
 private:
 	int GoalUnidades[34];
-	int cantUnidades[34];
+	int cantUnidades[34]; // mantiene la cantidad de unidades de cada tipo que hay actualmente
 	int GoalResearch[Utilidades::maxResearch];
 	bool ResearchDone[Utilidades::maxResearch];
 
