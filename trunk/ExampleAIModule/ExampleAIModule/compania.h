@@ -1,12 +1,13 @@
 #pragma once
 #include <BWAPI.h>
+#include "Graficos.h"
 
 using namespace BWAPI;
 
 class compania
 {
 public:
-	compania(void);
+	compania(BWAPI::Color);
 	void asignarUnidad(Unit *U);
 	void aplicarStim(std::list<Unit*> lista); // aplica el stim_pack a las unidades pertenecientes a la compañia si no estan dentro de un contenedor (bunker, dropship)
 
@@ -15,6 +16,8 @@ public:
 	int countFirebats(); // elimina de la lista correspondiente las unidades destruidas, y retorna la cantidad de unidades vivas
 
 	void atacar(Unit *u); // manda a la compañia a atacar a la unidad pasada como parametro
+	void onFrame();
+
 	~compania(void);
 
 private:

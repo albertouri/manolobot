@@ -39,25 +39,15 @@ void ManoloBot::checkGoals(void){
 
 }
 
-
-void ManoloBot::edificioConstruido(Unit *u){
-
-	int Id;
-	Id = u->getType().getID();
-	
-	if(Id == 109) unitManager->newSupplyDepot();
-	else if(Id == 111) unitManager->newBarrack();
-	else if(Id == Utilidades::ID_ACADEMY) unitManager->newAcademy();
-
-	unitManager->resetBuildingSemaphore();
-	unitManager->nuevaUnidadConstruccion(u);
-
-}
-
-void ManoloBot::unidadConstruida(Unit* U){
-	unitManager->asignarUnidadACompania(U);
+void ManoloBot::onUnitCreate(Unit* u){
+	strategyManager->onUnitCreate(u);
+	unitManager->onUnitCreate(u);
 }
 
 ManoloBot::~ManoloBot(void)
 {
+}
+
+void ManoloBot::onUnitDestroy(Unit *u){
+	strategyManager->onUnitDestroy(u);
 }

@@ -8,8 +8,7 @@ class ManoloBot
 public:
 	ManoloBot(void);
 	void checkGoals(void);
-	//void edificioConstruido(int Id);
-	void edificioConstruido(Unit *u);
-	void unidadConstruida(Unit* unit);
+	void onUnitCreate(Unit* u);
+	void onUnitDestroy(Unit* u);
 	~ManoloBot(void);
 };

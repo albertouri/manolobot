@@ -1,20 +1,22 @@
-#include <BWAPI.h>
 #include "compania.h"
-#include <list>
+//#include <list>
 #include "Utilidades.h"
 
 std::list<Unit*> lista;
 Unit *unidad1, *unidad2, *unidad3;
 int i=1;
+Color *c;
 
 
 
-compania::compania(void)
+compania::compania(BWAPI::Color ID)
 {
+	c = new Color(ID);
 }
 
 compania::~compania(void)
 {
+	delete c;
 }
 
 void compania::asignarUnidad(Unit *u){
@@ -22,7 +24,7 @@ void compania::asignarUnidad(Unit *u){
 	else if(i==2) unidad2 = U;
 	else if(i==3) unidad3 = U;*/
 
-	i++;
+	//i++;
 	
 	if (u->getType().getID() == Utilidades::ID_MARINE)
 		listMarines.push_front(u);
@@ -32,7 +34,7 @@ void compania::asignarUnidad(Unit *u){
 		listFirebats.push_front(u);
 
 
-	lista.push_front(u);
+	//lista.push_front(u);
 
 	//conteoUnidades();
 	//if ((unidad1!=NULL)&&(unidad1->exists())) unidad1->rightClick(*(new TilePosition(1,1)));
@@ -71,29 +73,26 @@ void compania::aplicarStim(std::list<Unit*> lista){
 		It1 = lista.begin();
 
 		while (It1 != lista.end()){
-			//if (((*It1)->getType().getID() == Utilidades::ID_MARINE) || ((*It1)->getType().getID() == Utilidades::ID_FIREBAT)){
-				
-				// si no esta dentro de un contenedor, se aplica el stim pack a la unidad
-				if (!(*It1)->isLoaded())
-					(*It1)->useTech(*(new TechType(TechTypes::Stim_Packs)));
-			//}
+			// si existe y no esta dentro de un contenedor, se aplica el stim pack a la unidad
+			if ((*It1)->exists() && (!(*It1)->isLoaded())){
+				(*It1)->useTech(*(new TechType(TechTypes::Stim_Packs)));
+			}
 			It1++;
 		}
 	}
-	
 }
 
 
 int compania::countMarines(){
-	contarUnidades(&listMarines);
+	return contarUnidades(&listMarines);
 }
 
 int compania::countMedics(){
-	contarUnidades(&listMedics);
+	return contarUnidades(&listMedics);
 }
 
 int compania::countFirebats(){
-	contarUnidades(&listFirebats);
+	return contarUnidades(&listFirebats);
 }
 
 int compania::contarUnidades(std::list<Unit*> *lista){
@@ -124,9 +123,10 @@ void compania::atacar(Unit *u){
 		while(It1 != listMarines.end()){
 			if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
 			else {
-				It1++; //(*It1)->attackUnit(u);}
-				//aplicarStim(listMarines);
+				//(*It1)->attackUnit(u);}
+				aplicarStim(listMarines);
 				(*It1)->attackMove(u->getPosition());
+				It1++;
 			}
 		}
 	}
@@ -139,9 +139,9 @@ void compania::atacar(Unit *u){
 		while(It1 != listFirebats.end()){
 			if(!(*It1)->exists()) It1 = listFirebats.erase(It1);	
 			else {
-				It1++; 
-				//aplicarStim(listFirebats);
+				aplicarStim(listFirebats);
 				(*It1)->attackUnit(u);
+				It1++;
 			}
 		}
 	}
@@ -153,9 +153,56 @@ void compania::atacar(Unit *u){
 
 		while(It1 != listMedics.end()){
 			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
-			else {It1++; //(*It1)->rightClick(u->getPosition());}
-			(*It1)->attackMove(u->getPosition());}
+			else { //(*It1)->rightClick(u->getPosition());}
+				(*It1)->attackMove(u->getPosition());
+				It1++;
+			}
 		}
 	}
 	
+}
+
+void compania::onFrame(){
+
+	if (listMarines.size() > 0){
+
+		std::list<Unit*>::iterator It1;
+		It1 = listMarines.begin();
+
+		while(It1 != listMarines.end()){
+			if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
+			else {
+				Graficos::resaltarUnidad(*It1, *c);
+				It1++;
+			}
+		}
+	}
+
+	if (listFirebats.size() > 0){
+
+		std::list<Unit*>::iterator It1;
+		It1 = listFirebats.begin();
+
+		while(It1 != listFirebats.end()){
+			if(!(*It1)->exists()) It1 = listFirebats.erase(It1);	
+			else {
+				Graficos::resaltarUnidad(*It1, *c);
+				It1++; 
+			}
+		}
+	}
+
+	if (listMedics.size() > 0){
+
+		std::list<Unit*>::iterator It1;
+		It1 = listMedics.begin();
+
+		while(It1 != listMedics.end()){
+			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
+			else {
+				Graficos::resaltarUnidad(*It1, *c);
+				It1++;
+			}
+		}
+	}
 }
