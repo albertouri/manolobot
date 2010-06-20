@@ -12,8 +12,10 @@ strategy_manager::strategy_manager(void)
 	for (int x = 0; x < 34; x++){
 		this->cantUnidades[x] = 0;
 		this->GoalUnidades[x] = 0;
-		
 	}
+
+	cantUnidades[Utilidades::INDEX_GOAL_SCV] = 4;
+	cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 1;
 
 	for (int x = 0; x < Utilidades::maxResearch; x++){
 		this->ResearchDone[x] = false;
@@ -78,10 +80,10 @@ void strategy_manager::checkGoals(void){
 		ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
 
 	}
-	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
+	/*else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
 		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
-	}
+	}*/
 }
 
 int* strategy_manager::getGoals(){

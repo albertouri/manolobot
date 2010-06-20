@@ -314,7 +314,7 @@ int AnalizadorTerreno::calcularAngulo(Position *p1, Position *p2){
 	int restoAngulo; // si el punto p2 tiene menor coordenada Y que el punto p1, se debe sumar 90 al angulo resultante del calculo
 	double segmentoB;
 
-	if (p1->y() > p2->y()){
+	if (p1->y() >= p2->y()){
 		restoAngulo = 90;
 		segmentoB = p1->y() - p2->y();
 	}
