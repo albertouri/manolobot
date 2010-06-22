@@ -27,14 +27,14 @@ void ManoloBot::checkGoals(void){
 		
 		unitManager->setGoals(strategyManager->getGoals());
 		unitManager->setResearchs(strategyManager->getResearchs());
-		
+
 		latency=0;
 	}
 	else{
 		latency++;
 	}
 
-	unitManager->executeActions(analizador);
+	unitManager->executeActions(analizador);	
 	analizador->dibujarResultados();
 
 }
@@ -50,4 +50,5 @@ ManoloBot::~ManoloBot(void)
 
 void ManoloBot::onUnitDestroy(Unit *u){
 	strategyManager->onUnitDestroy(u);
+	unitManager->onUnitDestroy(u);
 }

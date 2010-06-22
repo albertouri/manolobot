@@ -209,8 +209,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	if((Broodwar->self()->minerals() > 200) && (cantUnidades[Utilidades::INDEX_GOAL_DEPOT] < goalCantUnidades[Utilidades::INDEX_GOAL_DEPOT]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_DEPOT);
 		TilePosition* posB = getTilePositionAviable(building);
-		buildUnit(posB, Utilidades::ID_DEPOT);
-		delete posB;
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_DEPOT);
+			delete posB;
+		}
 	}
 
 
@@ -218,8 +221,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	if((Broodwar->self()->minerals() > 200) && (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] < goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BARRACK);
 		TilePosition* posB = getTilePositionAviable(building);
-		buildUnit(posB, Utilidades::ID_BARRACK);
-		delete posB;
+		
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_BARRACK);
+			delete posB;
+		}
 	}
 
 
@@ -290,8 +296,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	if((Broodwar->self()->minerals() > 200) && (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] < goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_ACADEMY);
 		TilePosition* posB = getTilePositionAviable(building);
-		buildUnit(posB, Utilidades::ID_ACADEMY);
-		delete posB;
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_ACADEMY);
+			delete posB;
+		}
 	}
 
 	// ------------------------- Fin construccion academia -------------------------
@@ -356,6 +365,7 @@ unit_Manager::~unit_Manager(void)
 
 
 void unit_Manager::buildUnit(TilePosition *pos, int id){
+	// posible error???
 
 	Unit* trabajador;
 	UnitType *tipo = new UnitType(id);
@@ -363,10 +373,9 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 		trabajador = getWorker();
 
 		if (trabajador!=NULL) {
-			if ( Broodwar->canBuildHere(trabajador, *(new Position(*pos)), *tipo )){
+			if ( Broodwar->canBuildHere(trabajador, /* *(new Position(*pos))*/ *pos, *tipo )){
 				buildingSemaphore++;
 				trabajador->build((*pos), *tipo);
-				
 			}
 		}
 	}
@@ -522,7 +531,7 @@ void unit_Manager::resetBuildingSemaphore(){
 
 // Obtiene un TilePosition disponible en las cercanias del centro de comando
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
-	TilePosition* pos;
+	TilePosition* pos = NULL;
 	Unit* worker = getWorker();
 	int x = centroComando->x();
 	int y = centroComando->y();
@@ -592,7 +601,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 
 // Obtiene un TilePosition disponible en las cercanias de la posicion pasada como parametro
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t){
-	TilePosition* pos;
+	TilePosition* pos = NULL;
 	Unit* worker = getWorker();
 
 	int x = t->x();
