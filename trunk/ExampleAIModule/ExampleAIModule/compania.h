@@ -7,7 +7,7 @@ using namespace BWAPI;
 class compania
 {
 public:
-	compania(BWAPI::Color);
+	compania(Color ID);
 	void asignarUnidad(Unit *U);
 	void aplicarStim(std::list<Unit*> lista); // aplica el stim_pack a las unidades pertenecientes a la compañia si no estan dentro de un contenedor (bunker, dropship)
 
@@ -21,14 +21,16 @@ public:
 	~compania(void);
 
 private:
-	void conteoUnidades(void);
-	void ponerACubierto(Unit *U);
-	int contarUnidades(std::list<Unit*> *lista);
-
 	// listas de unidades de la compañia
 	std::list<Unit*> listMarines;
 	std::list<Unit*> listMedics;
 	std::list<Unit*> listFirebats;
+
+	void conteoUnidades(void);
+	void ponerACubierto(Unit *U);
+	int contarUnidades(std::list<Unit*> *lista);
+
+	void actualizarEstado(std::list<Unit*> *lista); // elimina de la lista las unidades que hayan dejado de existir...
 
 };
 
