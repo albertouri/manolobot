@@ -66,9 +66,9 @@ void strategy_manager::checkGoals(void){
 	}
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
 		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
-		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 9;
-		GoalUnidades[Utilidades::INDEX_GOAL_FIREBAT] = 5;
-		GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 5;
+		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
+		//GoalUnidades[Utilidades::INDEX_GOAL_FIREBAT] = 5;
+		//GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 5;
 
 
 		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
@@ -79,10 +79,10 @@ void strategy_manager::checkGoals(void){
 		ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
 
 	}
-	/*else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
+	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
 		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
-	}*/
+	}
 }
 
 int* strategy_manager::getGoals(){
