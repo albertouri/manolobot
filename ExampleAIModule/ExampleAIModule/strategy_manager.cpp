@@ -64,14 +64,13 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 	}
-	/* ----------------- nuevo -----------------*/
-	else if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2){
-		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 4;
-		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 14;
-		GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 5;
-	}
-	/* ----------------- fin nuevo -----------------*/
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
+		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 9;
+		GoalUnidades[Utilidades::INDEX_GOAL_FIREBAT] = 5;
+		GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 5;
+
+
 		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 		// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
