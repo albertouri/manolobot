@@ -46,23 +46,28 @@ void strategy_manager::checkGoals(void){
 	}*/
 
 	//no tengo una refineria
-	if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
+	if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
 		estadoActual = 0;
-		GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 1;
+		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 10;
 		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
 	} // no hay barraca
-	else if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
+	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
 		estadoActual = 1;
-		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
-	}
-	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3){
 		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 	}
+	else if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
+
+		GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 1;
+	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
-		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
+		//GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
+		GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
+	}
+	else if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] == 0){
+		GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 	}
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
 		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
