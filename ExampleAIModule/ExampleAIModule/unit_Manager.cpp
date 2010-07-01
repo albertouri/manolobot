@@ -138,8 +138,13 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		trainMedic();
 	}
 
+	if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] < goalCantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {
+		trainTankSiege();
+	}
 
-	if (frameLatency >= 200){
+
+
+	if (frameLatency >= 150){
 		int SCVgatheringCristal= 0, SCVgatheringGas = 0;
 		Unit* trabajador;
 		frameLatency=0;
@@ -205,12 +210,14 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	}
 
 
+
 	//if((Broodwar->self()->minerals() > 200)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_DEPOT))))<goalCantUnidades[Utilidades::INDEX_GOAL_DEPOT])&&(buildingSemaphore == 0)){
 	if((Broodwar->self()->minerals() > 200) && (cantUnidades[Utilidades::INDEX_GOAL_DEPOT] < goalCantUnidades[Utilidades::INDEX_GOAL_DEPOT]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_DEPOT);
 		TilePosition* posB = getTilePositionAviable(building);
-
+			
 		if (posB != NULL){
+			
 			buildUnit(posB, Utilidades::ID_DEPOT);
 			delete posB;
 		}
@@ -224,6 +231,16 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_BARRACK);
+			delete posB;
+		}
+	}
+
+	if((Broodwar->self()->minerals() > 200) && (cantUnidades[Utilidades::INDEX_GOAL_FACTORY] < goalCantUnidades[Utilidades::INDEX_GOAL_FACTORY]) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_FACTORY);
+		TilePosition* posB = getTilePositionAviable(building);
+		
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_FACTORY);
 			delete posB;
 		}
 	}
@@ -369,9 +386,9 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 
 	Unit* trabajador;
 	UnitType *tipo = new UnitType(id);
-	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>tipo->gasPrice())){
+	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>=tipo->gasPrice())){
 		trabajador = getWorker();
-
+		
 		if (trabajador!=NULL) {
 			if ( Broodwar->canBuildHere(trabajador, /* *(new Position(*pos))*/ *pos, *tipo )){
 				buildingSemaphore++;
@@ -479,6 +496,21 @@ void unit_Manager::trainMedic(){
 			
 			if ((firstBarrack != NULL) && (Broodwar->canMake(firstBarrack, Utilidades::ID_MEDIC)) && (firstBarrack->getTrainingQueue().size() < 5)){
 				firstBarrack->train(*(new UnitType(Utilidades::ID_MEDIC)));
+				break;
+			}
+		}
+	}
+}
+
+void unit_Manager::trainTankSiege(){
+	Unit* firstFactory = NULL;
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType().getID() == Utilidades::ID_FACTORY){
+			firstFactory = (*i);
+
+			if ((firstFactory != NULL) && (Broodwar->canMake(firstFactory, Utilidades::ID_TANKSIEGE)) && (firstFactory->getTrainingQueue().size() < 5)){
+				firstFactory->train(*(new UnitType(Utilidades::ID_TANKSIEGE)));
 				break;
 			}
 		}

@@ -41,6 +41,7 @@ private:
 	void trainWorker();
 	void trainMarine();
 	void trainMedic();
+	void trainTankSiege();
 
 	TilePosition* getTilePositionAviable(UnitType* U); // despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria
 	TilePosition* getTilePositionAviable(UnitType* U, TilePosition* t); // despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria
