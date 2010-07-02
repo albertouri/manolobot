@@ -14,7 +14,7 @@ AnalizadorTerreno *analizador;
 
 
 ManoloBot::ManoloBot(void)
-{	
+{		
 	unitManager = new unit_Manager();
 	strategyManager = new strategy_manager();
 	analizador = new AnalizadorTerreno();

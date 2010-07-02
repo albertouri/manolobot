@@ -2,18 +2,17 @@
 #include "Utilidades.h"
 
 std::list<Unit*> lista;
-Color *c;
-Unit *comandante = NULL;
+
 
 
 compania::compania(Color ID)
 {
-	c = new Color(ID);
+	c = ID;
+	comandante = NULL;
 }
 
 compania::~compania(void)
 {
-	delete c;
 }
 
 void compania::asignarUnidad(Unit *u){
@@ -25,12 +24,6 @@ void compania::asignarUnidad(Unit *u){
 	else if (u->getType().getID() == Utilidades::ID_FIREBAT)
 		listFirebats.push_front(u);
 
-
-	//lista.push_front(u);
-
-	//conteoUnidades();
-	//if ((unidad1!=NULL)&&(unidad1->exists())) unidad1->rightClick(*(new TilePosition(1,1)));
-	
 	ponerACubierto(u);
 }
 
@@ -117,7 +110,6 @@ void compania::actualizarEstado(std::list<Unit*> *lista){
 }
 
 void compania::atacar(Unit *u){
-	//Broodwar->printf("Iniciando movimiento de ataque");
 
 	if (listMarines.size() > 0){
 
@@ -155,8 +147,7 @@ void compania::atacar(Unit *u){
 
 		while(It1 != listMedics.end()){
 			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
-			else { //(*It1)->rightClick(u->getPosition());}
-				//(*It1)->attackMove(u->getPosition());
+			else { 
 				(*It1)->follow(comandante);
 				It1++;
 			}
@@ -177,16 +168,20 @@ void compania::onFrame(){
 			else {
 				Unit *u;
 				
-				if ((!(*It1)->isLoaded()) && ((*It1)->getTarget() != NULL)){
-					u = (*It1)->getTarget();
-					Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
-				}
-				else if ((!(*It1)->isLoaded()) && ((*It1)->getOrderTarget() != NULL)){
-					u = (*It1)->getOrderTarget();
-					Broodwar->drawLine(CoordinateType::Map, ((*It1)->getPosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
+				if (!(*It1)->isLoaded()){
+
+					if ((*It1)->getTarget() != NULL){
+						u = (*It1)->getTarget();
+						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
+					}
+					else if ((*It1)->getOrderTarget() != NULL){
+						u = (*It1)->getOrderTarget();
+						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getPosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
+					}
+
+					Graficos::resaltarUnidad(*It1, c);
 				}
 
-				Graficos::resaltarUnidad(*It1, *c);
 				It1++;
 			}
 		}
@@ -200,7 +195,7 @@ void compania::onFrame(){
 		while(It1 != listFirebats.end()){
 			if(!(*It1)->exists()) It1 = listFirebats.erase(It1);	
 			else {
-				if (!(*It1)->isLoaded()) Graficos::resaltarUnidad(*It1, *c);
+				if (!(*It1)->isLoaded()) Graficos::resaltarUnidad(*It1, c);
 				It1++; 
 			}
 		}
@@ -214,7 +209,7 @@ void compania::onFrame(){
 		while(It1 != listMedics.end()){
 			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
 			else {
-				if (!(*It1)->isLoaded()) Graficos::resaltarUnidad(*It1, *c);
+				if (!(*It1)->isLoaded()) Graficos::resaltarUnidad(*It1, c);
 				It1++;
 			}
 		}
