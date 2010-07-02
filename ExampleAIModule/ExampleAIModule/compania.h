@@ -21,6 +21,9 @@ public:
 	~compania(void);
 
 private:
+	Color c; // color especifico para cada compañia, seteado en el constructor
+	Unit *comandante;
+
 	// listas de unidades de la compañia
 	std::list<Unit*> listMarines;
 	std::list<Unit*> listMedics;

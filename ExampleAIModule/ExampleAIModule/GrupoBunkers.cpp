@@ -1,11 +1,19 @@
 #include "GrupoBunkers.h"
 
-GrupoBunkers::GrupoBunkers(void)
+/*GrupoBunkers::GrupoBunkers(void)
 {
+}*/
+GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
+{
+	analizador = a;
+	choke = a->obtenerChokepoint();
+	reg = a->regionInicial();
 }
 
 GrupoBunkers::~GrupoBunkers(void)
 {
+	delete choke;
+	delete reg;
 }
 
 void GrupoBunkers::agregarBunker(Unit* u){
@@ -87,4 +95,13 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 	}
 
 	return false;
+}
+
+TilePosition* GrupoBunkers::posicionNuevoBunker(){
+	//if (getCantBunkers() == 0){
+		return analizador->calcularPrimerTile(reg, choke);
+	/*}
+	else{
+
+	}*/
 }

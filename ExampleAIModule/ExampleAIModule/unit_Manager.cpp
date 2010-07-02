@@ -5,24 +5,17 @@
 #include <math.h>
 #include "GrupoBunkers.h"
 
-//int cantBarracas, cantRefinerias = 0, cantAcademias = 0; // lleva la cuenta de la cantidad de barracas construidas
-/*int cantSupplyDepot= 0;
-int cantMarines = 0;
-int cantMedics = 0;
-int cantFirebats = 0;*/
-
 int goalLimiteGeiser = 1;
 int goalLimiteSCV = 8;
 int goalLimiteBarracas = 1;
 
-/*int cantSCV = 4;
-int cantMarine = 0;*/
 int SCVgatheringMinerals= 0, SCVgatheringGas = 0;
 int frameLatency;
 int buildingSemaphore =0;
 
 int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
 
+// Compañias de unidades
 compania* Easy;
 compania* Otra;
 
@@ -31,9 +24,8 @@ Player* enemigo;
 
 TilePosition *centroComando;	// mantiene la posicion del centro de comando
 Unit *centroDeComando; //puntero a la posicion del centro;
-//UnitType *barraca; // puntero a la unidad que actualmente esta construyendo algo
 
-//TilePosition *posUltimoBunker = NULL; // puntero a la posicion donde se construyo el ultimo bunker
+// Grupos de bunkers
 GrupoBunkers *grupoB1;
 
 std::list<Unit*> unidadesEnConstruccion; // Lista de unidades que estan en construccion actualmente
@@ -42,17 +34,13 @@ Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calc
 //int tiempoProxFinalizacion = 0; // mantiene el tiempo hasta la proxima finalizacion de la construccion o entrenamiento de una unidad para evitar ejecutar en todos los frames el metodo controlarFinalizacion
 //int contProxFinalizacion = 0; // contador que se incrementa en cada frame, para controlar la finalizacion de una construccion o entrenamiento
 
-unit_Manager::unit_Manager(void)
+unit_Manager::unit_Manager()
 {
 	Easy = new compania(Colors::Red);
 	Otra = new compania(Colors::Yellow);
 
 	magallanes = new Scout(getWorker());
-	//cantBarracas = 0;
 
-	//barraca = new UnitType(Utilidades::ID_ACADEMY);
-
-	//cantSCV = Broodwar->self()->completedUnitCount(*(new UnitType(Utilidades::ID_SCV)));
 	frameLatency = 0;
 
 	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
@@ -83,13 +71,16 @@ unit_Manager::unit_Manager(void)
 	// supongo que jugamos contra un solo enemigo
 	// TODO: arreglar para que se puede jugar contra varios enemigos
 	enemigo = Broodwar->enemy();
-
-	// Crea un nuevo grupo de bunkers
-	grupoB1 = new GrupoBunkers();
+	grupoB1 = NULL;
 
 }
 
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
+
+	// Crea un nuevo grupo de bunkers
+	if ((grupoB1 == NULL) && (analizador->analisisListo()))
+		grupoB1 = new GrupoBunkers(analizador);
+
 	// manda al scout a explorar el mapa
 	magallanes->explorar();
 
@@ -259,7 +250,12 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			
 			//Position *p = analizador->obtenerCentroChokepoint();
 			//TilePosition *t = new TilePosition(p->x() / 32, p->y() / 32);
-			posB = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
+			
+			//posB = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
+			posB = grupoB1->posicionNuevoBunker();
+			
+			
+			
 			//posB = getTilePositionAviable(building, t);
 			
 			//delete t;
@@ -729,10 +725,10 @@ void unit_Manager::setResearchs(int researchs[10]){
 
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	
-	/*if (unit->getType().getID() == Utilidades::ID_MARINE){
-		if (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 12) Otra->asignarUnidad(unit);
-		else*/ Easy->asignarUnidad(unit);
-	/*}
+	if (unit->getType().getID() == Utilidades::ID_MARINE){
+		if (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 4) { Broodwar->printf("agregue soldado a OTRA"); Otra->asignarUnidad(unit); }
+		else {Broodwar->printf("agregue soldado a EASY"); Easy->asignarUnidad(unit); }
+	}/*
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
 		Otra->asignarUnidad(unit);
 	}

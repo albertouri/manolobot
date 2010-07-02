@@ -11,7 +11,7 @@ using namespace BWTA;
 class unit_Manager
 {
 public:
-	unit_Manager(void);
+	unit_Manager();
 	void executeActions(AnalizadorTerreno *analizador);
 	void resetBuildingSemaphore();
 	
