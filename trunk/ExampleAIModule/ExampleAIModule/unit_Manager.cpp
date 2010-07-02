@@ -129,7 +129,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		trainMedic();
 	}
 
-	if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] < goalCantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {
+	if(cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] < goalCantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {
 		trainTankSiege();
 	}
 
@@ -236,6 +236,16 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 	}
 
+	if((Broodwar->self()->minerals() > 50)&& (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] < goalCantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]) && (buildingSemaphore == 0)){
+		buildUnitAddOn(Utilidades::ID_MACHINESHOP);
+		/*UnitType* building = new UnitType(Utilidades::ID_MACHINESHOP);
+		TilePosition* posB = getTilePositionAviable(building);
+		
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_MACHINESHOP);
+			delete posB;
+		}*/
+	}
 
 	// ------------------------- construccion bunkers -------------------------
 
@@ -394,6 +404,34 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 	}
 
 }
+
+void unit_Manager::buildUnitAddOn(int id){
+	// posible error???
+
+	
+	Unit* trabajador;
+	Unit* factory = NULL;
+	UnitType *tipo = new UnitType(id);
+	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>=tipo->gasPrice())){
+		trabajador = getWorker();
+	
+		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+		{
+			if ((*i)->getType().getID()==Utilidades::ID_FACTORY){
+				factory = (*i);
+				break;
+			}
+		}
+
+
+		if (factory != NULL) {
+				factory->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP));
+		}
+	}
+
+}
+
+
 
 
 void unit_Manager::makeRefinery(TilePosition *pos){
@@ -926,6 +964,15 @@ void unit_Manager::onUnitCreate(Unit *u){
 			break;
 		case Utilidades::ID_SCV:
 			cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
+			break;
+		case Utilidades::ID_FACTORY:
+			cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
+			break;	
+		case Utilidades::ID_MACHINESHOP:
+			cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]++;
+			break;
+		case Utilidades::ID_TANKSIEGE:
+			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 			break;
 	}
 

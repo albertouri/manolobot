@@ -22,13 +22,13 @@ public:
 	static const int INDEX_GOAL_MEDIC = 17;
 	static const int INDEX_GOAL_REFINERY = 22;
 	static const int INDEX_GOAL_SCV = 23;
-	static const int INDEX_GOAL_TANKSIEGE = 26;
+	static const int INDEX_GOAL_TANKSIEGE = 27;
 	static const int INDEX_GOAL_DEPOT = 29;
 	
 	// constantes que representan el ID de cada tipo de unidad terran
 	static const int ID_MARINE = 0;
 	static const int ID_SCV = 7;
-	static const int ID_TANKSIEGE = 30;
+	static const int ID_TANKSIEGE = 5;
 	static const int ID_FIREBAT = 32;
 	static const int ID_MEDIC = 34;
 	static const int ID_COMMANDCENTER = 106;
