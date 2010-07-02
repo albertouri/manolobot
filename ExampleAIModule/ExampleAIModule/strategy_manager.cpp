@@ -66,7 +66,8 @@ void strategy_manager::checkGoals(void){
 		//GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 		GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
 	}
-	else if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] == 0){
+	else if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] == 1){
+		GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 	}
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
@@ -126,6 +127,15 @@ void strategy_manager::onUnitCreate(Unit* u){
 			break;
 		case Utilidades::ID_SCV:
 			cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
+			break;
+		case Utilidades::ID_FACTORY:
+			cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
+			break;
+		case Utilidades::ID_MACHINESHOP:
+			cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]++;
+			break;
+		case Utilidades::ID_TANKSIEGE:
+			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 			break;
 	}
 

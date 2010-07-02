@@ -33,6 +33,7 @@ public:
 
 private:
 	void buildUnit(TilePosition *pos, int id);
+	void buildUnitAddOn(int id);
 	void makeRefinery(TilePosition *pos);
 	Unit* getWorker();
 	Unit* getUnit(int IDTipo);
