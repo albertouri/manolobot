@@ -15,10 +15,6 @@ public:
 	void executeActions(AnalizadorTerreno *analizador);
 	void resetBuildingSemaphore();
 	
-	void newSupplyDepot();
-	void newBarrack();
-	void newAcademy();
-
 	void setGoals(int goals[34]);
 	void setResearchs(int researchs[10]);
 	void asignarUnidadACompania(Unit* unit);

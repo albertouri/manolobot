@@ -78,8 +78,12 @@ unit_Manager::unit_Manager()
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 	// Crea un nuevo grupo de bunkers
-	if ((grupoB1 == NULL) && (analizador->analisisListo()))
-		grupoB1 = new GrupoBunkers(analizador);
+	if (grupoB1 == NULL){ 
+		if (analizador->analisisListo())
+			grupoB1 = new GrupoBunkers(analizador);
+	}
+	else
+		grupoB1->onFrame();
 
 	// manda al scout a explorar el mapa
 	magallanes->explorar();
@@ -93,7 +97,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// verifica daños en los bunkers
 	verificarBunkers();
 
-/*	if (analizador->analisisListo()){
+	if (analizador->analisisListo()){
 		TilePosition *t111 = NULL;
 		
 		t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
@@ -101,14 +105,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			Graficos::dibujarCuadro(t111, 3, 2);
 			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 		}
-	}*/
-
-
-	// Si la cantidad de suministros usados es igual a la cantidad maxima, se construye un nuevo deposito
-	/*if (Broodwar->self()->supplyUsed() == Broodwar->self()->supplyTotal()){
-		if (!construyendo(Utilidades::ID_DEPOT))
-			goalCantUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
-	}*/
+	}
 
 	//-----------------------------------------------------
 
@@ -156,7 +153,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 					else if (trabajador->isGatheringGas())SCVgatheringGas++;
 					else if (trabajador->isIdle()){ sendGatherCristal(trabajador); SCVgatheringCristal++;}
 				}
-			}	
+			}
 		}
 
 		if ((Broodwar->self()->completedUnitCount(*(new UnitType(Utilidades::ID_REFINERY)))>0) && (SCVgatheringCristal+SCVgatheringGas>10)){
@@ -238,13 +235,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 	if((Broodwar->self()->minerals() > 50)&& (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] < goalCantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]) && (buildingSemaphore == 0)){
 		buildUnitAddOn(Utilidades::ID_MACHINESHOP);
-		/*UnitType* building = new UnitType(Utilidades::ID_MACHINESHOP);
-		TilePosition* posB = getTilePositionAviable(building);
-		
-		if (posB != NULL){
-			buildUnit(posB, Utilidades::ID_MACHINESHOP);
-			delete posB;
-		}*/
 	}
 
 	// ------------------------- construccion bunkers -------------------------
@@ -254,30 +244,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
-		if (grupoB1->getCantBunkers() == 0){
-			// Obtiene la posicion del centro del chokepoint a defender y la convierte a una TilePosition (que se 
-			// mide en build tiles)
-			
-			//Position *p = analizador->obtenerCentroChokepoint();
-			//TilePosition *t = new TilePosition(p->x() / 32, p->y() / 32);
-			
-			//posB = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
-			posB = grupoB1->posicionNuevoBunker();
-			
-			
-			
-			//posB = getTilePositionAviable(building, t);
-			
-			//delete t;
-			//delete p;
-		}
-		else{
-			// Ubica el nuevo bunker alrededor de la posicion del ultimo bunker creado
-			TilePosition *t = new TilePosition(grupoB1->getUltimoBunkerCreado()->getTilePosition().x(), grupoB1->getUltimoBunkerCreado()->getTilePosition().y());
-			posB = getTilePositionAviable(building, t);
-
-			delete t;
-		}
+		posB = grupoB1->posicionNuevoBunker();
 
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_BUNKER);
@@ -285,31 +252,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			delete posB;
 		}
 	}
-	/*else if ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))) == goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER] > 0)){
-		if (reparador1 == NULL){
-			// setea un SCV para que repare los bunkers
-			for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
-				if ((*i)->getType().isWorker()){
-					reparador1 = (*i);
-					Broodwar->printf("Reparador1 seteado...");
-					//reparador1->rightClick(*(new Position(grupoB1->getUltimoBunkerCreado()->getPosition().x() - 10, grupoB1->getUltimoBunkerCreado()->getPosition().y() - 10)));
-					break;
-				}
-			}
-		}
-		
-		if (reparador2 == NULL){
-			// setea un SCV para que repare los bunkers
-			for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
-				if (((*i)->getType().isWorker()) && ((*i)->getID() != reparador1->getID())){
-					reparador2 = (*i);
-					Broodwar->printf("Reparador2 seteado...");
-					//reparador2->rightClick(*(new Position(grupoB1->getUltimoBunkerCreado()->getPosition().x() - 10, grupoB1->getUltimoBunkerCreado()->getPosition().y() - 10)));
-					break;
-				}
-			}
-		}
-	}*/
 
 	// ------------------------- Fin construccion bunkers -------------------------
 
@@ -406,12 +348,11 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 }
 
 void unit_Manager::buildUnitAddOn(int id){
-	// posible error???
-
 	
 	Unit* trabajador;
 	Unit* factory = NULL;
 	UnitType *tipo = new UnitType(id);
+
 	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>=tipo->gasPrice())){
 		trabajador = getWorker();
 	
@@ -423,9 +364,8 @@ void unit_Manager::buildUnitAddOn(int id){
 			}
 		}
 
-
 		if (factory != NULL) {
-				factory->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP));
+			factory->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP));
 		}
 	}
 
@@ -737,18 +677,6 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 }
 
 
-void unit_Manager::newSupplyDepot(){
-	//cantSupplyDepot++;
-}
-
-void unit_Manager::newBarrack(){
-	//cantBarracas++;
-}
-
-void unit_Manager::newAcademy(){
-	//cantAcademias++;
-}
-
 void unit_Manager::setGoals(int goals[34]){
 	for (int i=0; i<34; i++){
 		goalCantUnidades[i] = goals[i];
@@ -764,15 +692,15 @@ void unit_Manager::setResearchs(int researchs[10]){
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	
 	if (unit->getType().getID() == Utilidades::ID_MARINE){
-		if (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 4) { Broodwar->printf("agregue soldado a OTRA"); Otra->asignarUnidad(unit); }
+		if (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 12) { Broodwar->printf("agregue soldado a OTRA"); Otra->asignarUnidad(unit); }
 		else {Broodwar->printf("agregue soldado a EASY"); Easy->asignarUnidad(unit); }
-	}/*
+	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
 		Otra->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_FIREBAT){
 		Otra->asignarUnidad(unit);
-	}*/
+	}
 }
 
 
@@ -786,24 +714,23 @@ void unit_Manager::repararUnidad(Unit *u){
 				reparador2->repair(u);
 			}
 		}
-		else{
+		else
 			Broodwar->printf("No se puede reparar esa unidad");
-		}
 	}
 	else{
 		// sino utiliza cualquier SCV para reparar la unidad bajo ataque
-		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
-			if ((*i)->getType().isWorker()){
-				if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
-					if (u->exists()){
+		if (u != NULL){
+			if (((u->getType().isMechanical()) || (u->getType().isBuilding())) && (u->exists())){
+
+				for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+					if ((*i)->getType().isWorker()){
 						(*i)->repair(u);
+						break;
 					}
 				}
-				else{
-					Broodwar->printf("No se puede reparar esa unidad");
-				}
-				break;
 			}
+			else
+				Broodwar->printf("No se puede reparar esa unidad");
 		}
 	}
 
@@ -823,8 +750,8 @@ void unit_Manager::verificarBunkers(){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
 
-				//Otra->atacar(u);
-				Easy->atacar(u);
+				Otra->atacar(u);
+				//Easy->atacar(u);
 
 				//grupoB1->estrategia1(atacado);
 
@@ -836,8 +763,8 @@ void unit_Manager::verificarBunkers(){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
 
-				//Otra->atacar(u);
-				Easy->atacar(u);
+				Otra->atacar(u);
+				//Easy->atacar(u);
 				//grupoB1->estrategia1(atacado);
 
 				break;

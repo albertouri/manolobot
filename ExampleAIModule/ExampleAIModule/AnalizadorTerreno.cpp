@@ -195,8 +195,8 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 	int angulo = 0;
 
 	// distancias desde el centro del chokepoint hasta el lugar para ubicar el bunker
-	int distanciaX = 96;
-	int distanciaY = 96;
+	int distanciaX = /*96*/ /*160*/ 288;
+	int distanciaY = /*96*/ 160;
 	Position *res = NULL;
 
 	bool encontre = false;
@@ -253,7 +253,7 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 		else if ((angulo >= 23) && (angulo < 67))
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
 		else if ((angulo >= 67) && (angulo < 112))
-			res = new Position(c->getCenter().x(), c->getCenter().y() - distanciaY);
+			res = new Position(c->getCenter().x() - 32, c->getCenter().y() - distanciaY);
 		else if ((angulo >= 112) && (angulo < 157))
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
 		else
@@ -279,12 +279,12 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 		else if ((angulo >= 23) && (angulo < 67))
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
 		else if ((angulo >= 67) && (angulo < 112))
-			res = new Position(c->getCenter().x(), c->getCenter().y() + distanciaY);
+			res = new Position(c->getCenter().x() - 32, c->getCenter().y() + distanciaY);
 		else if ((angulo >= 112) && (angulo < 157))
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
 		else
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
-	}		
+	}
 	else{
 		if ((angulo > 0) && (angulo < 23))
 			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
