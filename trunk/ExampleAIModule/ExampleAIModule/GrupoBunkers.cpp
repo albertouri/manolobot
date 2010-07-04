@@ -29,9 +29,29 @@ Unit* GrupoBunkers::getUltimoBunkerCreado(){
 		return NULL;
 }
 
+Unit* GrupoBunkers::getPrimerBunkerCreado(){
+	if (bunkers.size() > 0)
+		return bunkers.back();
+	else
+		return NULL;
+}
+
 
 int GrupoBunkers::getCantBunkers(){
-	return bunkers.size();
+	//return bunkers.size();
+
+	std::list<Unit*>::iterator It1;
+	It1 = bunkers.begin();
+	int cont = 0;
+
+	while (It1 != bunkers.end()){
+		if ((*It1)->exists())
+			cont++;
+		
+		It1++;
+	}
+
+	return cont;
 }
 
 
@@ -75,7 +95,6 @@ void GrupoBunkers::estrategia1(Unit *u){
 				u->load(*It2);
 				It2++;
 			}
-
 		}
 	}
 }
@@ -98,10 +117,107 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 }
 
 TilePosition* GrupoBunkers::posicionNuevoBunker(){
-	//if (getCantBunkers() == 0){
-		return analizador->calcularPrimerTile(reg, choke);
-	/*}
-	else{
+	if (!analizador->analisisListo())
+		return NULL;
 
-	}*/
+	if (getCantBunkers() == 0){
+		return analizador->calcularPrimerTile(reg, choke);
+	}
+	else{
+		int angulo;
+		Position *p1, *p2;
+
+		// Inicializo los puntos que representan a los bordes del chokepoint
+		// p1 siempre sera el borde mas a la izquierda del chokepoint
+		// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
+		if (choke->getSides().first.x() != choke->getSides().second.x()){
+			// la inclinacion del chokepoint no es completamente vertical |, es decir el chokepoint esta inclinado	
+			if (choke->getSides().first.x() < choke->getSides().second.x()){
+				p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+				p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+			}
+			else{
+				p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+				p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+			}
+		}
+		else{
+			// la inclinacion del chokepoint es vertical |
+			if (choke->getSides().first.y() < choke->getSides().second.y()){
+				p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+				p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+			}
+			else{
+				p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+				p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+			}
+		}
+
+		angulo = analizador->calcularAngulo(p1, p2);
+
+		Unit *bunker;
+		TilePosition *t = NULL;
+
+		// Dependiendo el angulo determina una posicion
+		// TODO: mejorar la heuristica
+		bunker = getPrimerBunkerCreado();
+
+		if ((angulo >= 67) && (angulo < 112)){
+			if (getCantBunkers() % 2 == 0)
+				t = new TilePosition(bunker->getTilePosition().x() + 3, bunker->getTilePosition().y());
+			else
+				t = new TilePosition(bunker->getTilePosition().x() - 3, bunker->getTilePosition().y());
+		}
+		else if ((angulo >= 112) && (angulo < 157)){
+			if (getCantBunkers() % 2 == 0)
+				t = new TilePosition(bunker->getTilePosition().x() + 1, bunker->getTilePosition().y() - 2);
+			else
+				t = new TilePosition(bunker->getTilePosition().x() - 1, bunker->getTilePosition().y() + 2);
+		}
+		else if ((angulo < 67) && (angulo > 22)){
+			if (getCantBunkers() % 2 == 0)
+				t = new TilePosition(bunker->getTilePosition().x() - 1, bunker->getTilePosition().y() - 2);
+			else
+				t = new TilePosition(bunker->getTilePosition().x() + 1, bunker->getTilePosition().y() + 2);			
+		}
+		else if ((angulo <= 22) || (angulo >= 157)){
+			if (getCantBunkers() % 2 == 0)
+				t = new TilePosition(bunker->getTilePosition().x(), bunker->getTilePosition().y() - 2);
+			else
+				t = new TilePosition(bunker->getTilePosition().x(), bunker->getTilePosition().y() + 2);			
+		}
+
+		return t;
+	}
+}
+
+
+void GrupoBunkers::controlDestruidos(){
+	std::list<Unit*>::iterator It1;
+	It1 = bunkers.begin();
+
+	//Broodwar->printf("Entra al control");
+	while (It1 != bunkers.end()){
+		if (!(*It1)->exists()){
+			bunkers.erase(It1);
+			It1 = bunkers.begin(); // tuve que poner esto porque sino se colgaba el while...
+		}
+		else
+			It1++;
+
+		//Broodwar->printf("a");
+	}
+
+	//Broodwar->printf("Sale del control");
+}
+
+
+void GrupoBunkers::onFrame(){
+	if (Broodwar->getFrameCount() % frameLatency == 0){
+		//Broodwar->printf("CantBunkers: %d", getCantBunkers());
+		//if (getCantBunkers() > 0)
+
+		if (getCantBunkers() != bunkers.size())
+			controlDestruidos();
+	}
 }

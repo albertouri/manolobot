@@ -29,28 +29,22 @@ strategy_manager::~strategy_manager(void)
 
 
 void strategy_manager::checkGoals(void){
-	//UnitType * tipo;
 
-	// quizas se puede reemplazar manteniendo la cantidad de unidades de cada tipo en el arreglo y en el evento
-	// onUnitDestroy actualizar esa cantidad (para evitar el for)
-	/*for (int i=0; i<34; i++){
-		tipo = new UnitType(IdUnidades[i]);
-		cantUnidades[i] = Broodwar->self()->allUnitCount(*tipo);
-
-		delete tipo;
-	}*/
-	
-	/*if (Broodwar->self()->supplyUsed() == Broodwar->self()->supplyTotal()){
-		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
-		Broodwar->printf("Usado: %d - Total: %d", Broodwar->self()->supplyUsed(), Broodwar->self()->supplyTotal());
-	}*/
+	// Realiza un control para ver si es necesario construir un nuevo supply depot
+	if (Broodwar->getFrameCount() % 20 == 0){
+		//Broodwar->printf("CONTROL DE SUPPLY");
+		if (Broodwar->self()->supplyUsed() == Broodwar->self()->supplyTotal()){
+			GoalUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
+			//Broodwar->printf("Usado: %d - Total: %d", Broodwar->self()->supplyUsed(), Broodwar->self()->supplyTotal());
+		}
+	}
 
 	//no tengo una refineria
 	if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
 		estadoActual = 0;
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 10;
-		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
+		//GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
 	} // no hay barraca
 	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
 		estadoActual = 1;
@@ -71,7 +65,7 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 	}
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
-		GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
+		//GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 		//GoalUnidades[Utilidades::INDEX_GOAL_FIREBAT] = 5;
 		//GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 5;
