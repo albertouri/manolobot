@@ -139,7 +139,14 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		Unit* trabajador;
 		frameLatency=0;
 		buildingSemaphore=0;
-
+		
+		//-- CODIGO PARA REPARAR UNIDADES 
+		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+			if (((*i)->getType().isBuilding())&&((*i)->getType().maxEnergy()>(*i)->getEnergy())){
+				repararUnidad(*i);
+			}		
+		}
+		//-- TERMINA EL CODIGO PARA REPARAR UNIDADES
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 		{
 			if ((*i)->getType().isWorker()){
@@ -752,7 +759,7 @@ void unit_Manager::repararUnidad(Unit *u){
 	if ((reparador1 != NULL) && (u != NULL)){
 		// si el reparador esta seteado lo utiliza
 		if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
-			if (u->exists()){
+			if ((u->exists())&& reparador1->exists()){
 				reparador1->repair(u);
 				reparador2->repair(u);
 			}
@@ -815,9 +822,7 @@ void unit_Manager::verificarBunkers(){
 		}
 	}
 
-	/*if (researchDone[Utilidades::INDEX_GOAL_STIMPACK]){
-		Easy->aplicarStim();
-	}*/
+
 }
 
 
