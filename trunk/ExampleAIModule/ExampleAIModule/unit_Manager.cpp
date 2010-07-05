@@ -97,7 +97,9 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// verifica daños en los bunkers
 	verificarBunkers();
 
+
 	if (analizador->analisisListo()){
+
 		TilePosition *t111 = NULL;
 		
 		t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
@@ -316,6 +318,29 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 					delete t;
 					
 					researchDone[Utilidades::INDEX_GOAL_U238] = true;
+				}
+			}
+		}
+	}
+
+	if (!researchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE]){
+		// mejora de alcance para marines (se investiga en academia terran)
+		if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] == 1)){
+			Unit *u;
+
+			u = getUnit(Utilidades::ID_MACHINESHOP);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					// Construccion de la academia finalizada, se puede investigar mejoras
+
+					Broodwar->printf("Investigando ampliación a Modo Asedio");
+					TechType *t = new TechType(TechTypes::Tank_Siege_Mode);
+					u->research(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = true;
 				}
 			}
 		}
@@ -701,6 +726,10 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 	else if (unit->getType().getID() == Utilidades::ID_FIREBAT){
 		Otra->asignarUnidad(unit);
 	}
+	else if (unit->getType().getID() == Utilidades::ID_TANKSIEGE){
+		Easy->asignarUnidad(unit);
+	}
+
 }
 
 
@@ -900,6 +929,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 			break;
 		case Utilidades::ID_TANKSIEGE:
 			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
+			asignarUnidadACompania(u);
 			break;
 	}
 
