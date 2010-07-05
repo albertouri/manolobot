@@ -20,6 +20,7 @@ public:
 	static const int INDEX_GOAL_MACHINESHOP = 15;
 	static const int INDEX_GOAL_MARINE = 16;
 	static const int INDEX_GOAL_MEDIC = 17;
+	static const int INDEX_GOAL_MISSILE_TURRET = 18;
 	static const int INDEX_GOAL_REFINERY = 22;
 	static const int INDEX_GOAL_SCV = 23;
 	static const int INDEX_GOAL_TANKSIEGE = 27;
@@ -38,6 +39,7 @@ public:
 	static const int ID_ACADEMY = 112;
 	static const int ID_FACTORY = 113;
 	static const int ID_MACHINESHOP = 120;
+	static const int ID_MISSILE_TURRET = 124;
 	static const int ID_BUNKER = 125;
 
 	// indice de cada investigacion en el arreglo goalResearch

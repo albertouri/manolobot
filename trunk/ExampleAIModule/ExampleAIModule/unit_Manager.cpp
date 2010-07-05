@@ -255,6 +255,20 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 	}
 
+	if((cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < goalCantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
+		TilePosition *posB = NULL;
+
+		posB = grupoB1->posicionNuevoBunker();
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
+
+			delete posB;
+		}
+	}
+
+
 	// ------------------------- Fin construccion bunkers -------------------------
 
 	// ------------------------- construccion academia -------------------------
