@@ -169,6 +169,15 @@ void strategy_manager::onUnitDestroy(Unit *u){
 		case Utilidades::ID_SCV:
 			cantUnidades[Utilidades::INDEX_GOAL_SCV]--;
 			break;
+		case Utilidades::ID_FACTORY:
+			cantUnidades[Utilidades::INDEX_GOAL_FACTORY]--;
+			break;
+		case Utilidades::ID_MACHINESHOP:
+			cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]--;
+			break;
+		case Utilidades::ID_TANKSIEGE:
+			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
+			break;
 	}
 }
 
