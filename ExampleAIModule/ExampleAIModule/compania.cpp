@@ -2,8 +2,9 @@
 #include "Utilidades.h"
 
 std::list<Unit*> lista;
+int latencia=0;
 
-
+std::list<Unit*> listaDeTanquesAUbicar;
 
 compania::compania(Color ID)
 {
@@ -17,14 +18,23 @@ compania::~compania(void)
 
 void compania::asignarUnidad(Unit *u){
 	
-	if (u->getType().getID() == Utilidades::ID_MARINE)
-		listMarines.push_front(u);
-	else if (u->getType().getID() == Utilidades::ID_MEDIC)
-		listMedics.push_front(u);
-	else if (u->getType().getID() == Utilidades::ID_FIREBAT)
-		listFirebats.push_front(u);
+	if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
+		if (comandante!=NULL){
+			Broodwar->printf("el comandante no es nulo");
+			u->rightClick(comandante->getPosition());
+		}
+		listaDeTanquesAUbicar.push_front(u);
+	}
+	else{
+		if (u->getType().getID() == Utilidades::ID_MARINE)
+			listMarines.push_front(u);
+		else if (u->getType().getID() == Utilidades::ID_MEDIC)
+			listMedics.push_front(u);
+		else if (u->getType().getID() == Utilidades::ID_FIREBAT)
+			listFirebats.push_front(u);
 
-	ponerACubierto(u);
+		ponerACubierto(u);
+	}
 }
 
 void compania::conteoUnidades(){
@@ -248,5 +258,20 @@ void compania::onFrame(){
 			if (masCercana != NULL)
 				atacar(masCercana);
 		}
+	}
+	if (listaDeTanquesAUbicar.size() > 0){
+		if (latencia>100){
+			std::list<Unit*>::iterator It1;
+			It1 = listaDeTanquesAUbicar.begin();
+
+			while(It1 != listaDeTanquesAUbicar.end()){
+				if(!(*It1)->exists()) It1 = listaDeTanquesAUbicar.erase(It1);	
+				else {
+					if (!(*It1)->isMoving()) (*It1)->siege();
+					It1++;
+				}
+			}
+			latencia = 0;
+		} else {latencia++;}
 	}
 }

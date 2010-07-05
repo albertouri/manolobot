@@ -79,6 +79,10 @@ void strategy_manager::checkGoals(void){
 		ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
 
 	}
+	else if (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE]) {
+		GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
+		ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = true;
+	}
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
 		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
