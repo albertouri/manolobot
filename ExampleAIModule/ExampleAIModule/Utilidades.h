@@ -15,6 +15,7 @@ public:
 	static const int INDEX_GOAL_BARRACK = 2;
 	static const int INDEX_GOAL_BUNKER = 4;
 	static const int INDEX_GOAL_COMMANDCENTER = 5;
+	static const int INDEX_GOAL_ENGINEERING_BAY = 10;
 	static const int INDEX_GOAL_FACTORY = 11;
 	static const int INDEX_GOAL_FIREBAT = 12;
 	static const int INDEX_GOAL_MACHINESHOP = 15;
@@ -41,6 +42,7 @@ public:
 	static const int ID_ACADEMY = 112;
 	static const int ID_FACTORY = 113;
 	static const int ID_MACHINESHOP = 120;
+	static const int ID_ENGINEERING_BAY = 122;
 	static const int ID_MISSILE_TURRET = 124;
 	static const int ID_BUNKER = 125;
 

@@ -41,8 +41,4 @@ private:
 	static const int frameLatency = 400; // cantidad de frames que espera para ejecutar nuevamente el control de bunkers destruidos
 	void controlDestruidos(); // controla si algun bunker del grupo fue destruido y lo elimina de la lista de bunkers
 	
-	TilePosition* ubicarGrupo();
-	TilePosition* primerBunker; // puntero al primer bunker del grupo
-
-	TilePosition* posicionPrimerBunker(); // calcula la posicion en la que debe ubicarse el primer bunker del grupo
 };

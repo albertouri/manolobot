@@ -99,7 +99,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	verificarBunkers();
 
 
-	if (analizador->analisisListo()){
+	/*if (analizador->analisisListo()){
 
 		TilePosition *t111 = NULL;
 		
@@ -108,7 +108,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			Graficos::dibujarCuadro(t111, 3, 2);
 			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 		}
-	}
+	}*/
 
 	//-----------------------------------------------------
 
@@ -267,7 +267,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
 		TilePosition *posB = NULL;
 
-		posB = grupoB1->posicionNuevoBunker();
+		posB = grupoB1->posicionNuevaTorreta();
 
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
@@ -288,6 +288,17 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_ACADEMY);
+			delete posB;
+		}
+	}
+
+
+	if((Broodwar->self()->minerals() > 125) && (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] < goalCantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_ENGINEERING_BAY);
+		TilePosition* posB = getTilePositionAviable(building);
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_ENGINEERING_BAY);
 			delete posB;
 		}
 	}
@@ -821,9 +832,8 @@ void unit_Manager::nuevaUnidadConstruccion(Unit *u){
 	if (u != NULL){
 		unidadesEnConstruccion.push_front(u);
 
-		if (u->getType().getID() == Utilidades::ID_BUNKER){
+		if ((u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
 			grupoB1->agregarUnidad(u);
-		}
 	}
 }
 
@@ -852,6 +862,7 @@ Unit* unit_Manager::controlarFinalizacion(){
 	return NULL;
 }
 
+
 bool unit_Manager::construyendo(int ID){
 	std::list<Unit*>::iterator It1;
 	It1 = unidadesEnConstruccion.begin();
@@ -863,6 +874,7 @@ bool unit_Manager::construyendo(int ID){
 
 	return false;
 }
+
 
 // mueve las unidades que estan ubicadas en el build tile pasado como parametro a otro build tile para poder construir ahi
 void unit_Manager::moverUnidades(TilePosition *t){
@@ -944,6 +956,9 @@ void unit_Manager::onUnitCreate(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 				break;
 		}
+		case Utilidades::ID_ENGINEERING_BAY:
+			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
+			break;
 	}
 
 	resetBuildingSemaphore();
@@ -995,5 +1010,8 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
 				break;
 		}
+		case Utilidades::ID_ENGINEERING_BAY:
+			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
+			break;
 	}
 }
