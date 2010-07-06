@@ -761,7 +761,7 @@ void unit_Manager::repararUnidad(Unit *u){
 		if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
 			if ((u->exists())&& reparador1->exists()){
 				reparador1->repair(u);
-				reparador2->repair(u);
+				//reparador2->repair(u);
 			}
 		}
 		else
