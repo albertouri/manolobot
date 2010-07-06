@@ -102,7 +102,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 		TilePosition *t111 = NULL;
 		
-		t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint());
+		t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint(), 1);
 		if (t111 != NULL){
 			Graficos::dibujarCuadro(t111, 3, 2);
 			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
@@ -738,8 +738,8 @@ void unit_Manager::setResearchs(int researchs[10]){
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	
 	if (unit->getType().getID() == Utilidades::ID_MARINE){
-		if (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 12) { Broodwar->printf("agregue soldado a OTRA"); Otra->asignarUnidad(unit); }
-		else {Broodwar->printf("agregue soldado a EASY"); Easy->asignarUnidad(unit); }
+		if (Easy->countMarines() < 12) { /*Broodwar->printf("agregue soldado a EASY");*/ Easy->asignarUnidad(unit); }
+		else { /*Broodwar->printf("agregue soldado a OTRA");*/ Otra->asignarUnidad(unit); }
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
 		Otra->asignarUnidad(unit);
@@ -748,7 +748,7 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		Otra->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_TANKSIEGE){
-		Easy->asignarUnidad(unit);
+		Otra->asignarUnidad(unit);
 	}
 
 }
@@ -799,12 +799,7 @@ void unit_Manager::verificarBunkers(){
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
-
 				Otra->atacar(u);
-				//Easy->atacar(u);
-
-				//grupoB1->estrategia1(atacado);
-
 				break;
 			}
 
@@ -812,17 +807,11 @@ void unit_Manager::verificarBunkers(){
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
-
 				Otra->atacar(u);
-				//Easy->atacar(u);
-				//grupoB1->estrategia1(atacado);
-
 				break;
 			}
 		}
 	}
-
-
 }
 
 
@@ -832,8 +821,7 @@ void unit_Manager::nuevaUnidadConstruccion(Unit *u){
 		unidadesEnConstruccion.push_front(u);
 
 		if (u->getType().getID() == Utilidades::ID_BUNKER){
-			//Broodwar->printf("Agregue un bunker al grupoB1");
-			grupoB1->agregarBunker(u);
+			grupoB1->agregarUnidad(u);
 		}
 	}
 }

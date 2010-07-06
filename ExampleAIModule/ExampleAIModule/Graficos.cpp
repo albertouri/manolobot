@@ -53,7 +53,7 @@ void Graficos::dibujarTerreno(bool show_visibility_data, bool analyzed){
 	if (Broodwar->isReplay())
 		return;
 
-	//drawStats();
+	drawStats();
 
 	if (analyzed)
 	{

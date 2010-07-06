@@ -35,7 +35,9 @@ void ManoloBot::checkGoals(void){
 	}
 
 	unitManager->executeActions(analizador);	
-	analizador->dibujarResultados();
+	
+	if (analizador->analisisListo())
+		analizador->dibujarResultados();
 
 }
 

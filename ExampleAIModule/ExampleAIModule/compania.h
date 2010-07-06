@@ -14,6 +14,7 @@ public:
 	int countMarines(); // elimina de la lista correspondiente las unidades destruidas, y retorna la cantidad de unidades vivas
 	int countMedics(); // elimina de la lista correspondiente las unidades destruidas, y retorna la cantidad de unidades vivas
 	int countFirebats(); // elimina de la lista correspondiente las unidades destruidas, y retorna la cantidad de unidades vivas
+	//int countTanks();
 
 	void atacar(Unit *u); // manda a la compañia a atacar a la unidad pasada como parametro
 	void onFrame();
@@ -28,6 +29,7 @@ private:
 	std::list<Unit*> listMarines;
 	std::list<Unit*> listMedics;
 	std::list<Unit*> listFirebats;
+	//std::list<Unit*> listTanks;
 
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);
