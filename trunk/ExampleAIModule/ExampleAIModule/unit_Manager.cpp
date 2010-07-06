@@ -938,6 +938,9 @@ void unit_Manager::onUnitCreate(Unit *u){
 			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 			asignarUnidadACompania(u);
 			break;
+		case Utilidades::ID_TANKSIEGE_SIEGEMODE:
+			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
+			break;
 	}
 
 	resetBuildingSemaphore();
@@ -980,6 +983,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 			cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]--;
 			break;
 		case Utilidades::ID_TANKSIEGE:
+			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
+			break;
+		case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
 			break;
 	}
