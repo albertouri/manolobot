@@ -32,10 +32,8 @@ void strategy_manager::checkGoals(void){
 
 	// Realiza un control para ver si es necesario construir un nuevo supply depot
 	if (Broodwar->getFrameCount() % 20 == 0){
-		//Broodwar->printf("CONTROL DE SUPPLY");
-		if (Broodwar->self()->supplyUsed() == Broodwar->self()->supplyTotal()){
+		if (Broodwar->self()->supplyUsed()+4 >= Broodwar->self()->supplyTotal()){
 			GoalUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
-			//Broodwar->printf("Usado: %d - Total: %d", Broodwar->self()->supplyUsed(), Broodwar->self()->supplyTotal());
 		}
 	}
 
@@ -44,7 +42,7 @@ void strategy_manager::checkGoals(void){
 		estadoActual = 0;
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 10;
-		//GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
+
 	} // no hay barraca
 	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
 		estadoActual = 1;
@@ -57,7 +55,6 @@ void strategy_manager::checkGoals(void){
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
-		//GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 		GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
 	}
 	else if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] == 1){
@@ -65,12 +62,7 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 	}
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
-		//GoalUnidades[Utilidades::INDEX_GOAL_DEPOT] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
-		//GoalUnidades[Utilidades::INDEX_GOAL_FIREBAT] = 5;
-		//GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 5;
-
-
 		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 		// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
@@ -136,6 +128,9 @@ void strategy_manager::onUnitCreate(Unit* u){
 		case Utilidades::ID_TANKSIEGE:
 			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 			break;
+		case Utilidades::ID_TANKSIEGE_SIEGEMODE:
+			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
+			break;
 	}
 
 	//Broodwar->printf("Se construyo un %d", u->getType().getID());
@@ -177,6 +172,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 			cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]--;
 			break;
 		case Utilidades::ID_TANKSIEGE:
+			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
+			break;
+		case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
 			break;
 	}
