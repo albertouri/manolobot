@@ -249,7 +249,7 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 		return NULL;
 	
 	if (posicionesLibres.size() == 0){
-		Broodwar->printf("Quiere construir bunker nro %d", getCantBunkers() + 1);
+		//Broodwar->printf("Quiere construir bunker nro %d", getCantBunkers() + 1);
 		return analizador->calcularPrimerTile(reg, choke, getCantBunkers() + 1);
 	}
 	else{
