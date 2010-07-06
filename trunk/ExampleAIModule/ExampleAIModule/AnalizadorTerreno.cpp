@@ -188,7 +188,7 @@ Region* AnalizadorTerreno::regionInicial(){
 
 
 
-TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
+TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, int nroBunker){
 	Position *p1 = NULL, *p2 = NULL;
 	
 	int cuadrante = 0;
@@ -197,7 +197,8 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 	// distancias desde el centro del chokepoint hasta el lugar para ubicar el bunker
 	int distanciaX = /*96*/ /*160*/ 288;
 	int distanciaY = /*96*/ 160;
-	Position *res = NULL;
+	//Position *res = NULL;
+	TilePosition *res = NULL;
 
 	bool encontre = false;
 	int cont = 0;
@@ -246,7 +247,7 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 	angulo = calcularAngulo(p1, p2);
 	//Broodwar->printf("cuadrante: %d - angulo: %d", cuadrante, angulo);
 	
-	if (cuadrante == 1){
+	/*if (cuadrante == 1){
 		if ((angulo > 0) && (angulo < 23))
 			// como el angulo del chokepoint es pequeño no inclino la ubicacion del bunker, solo la desplazo en el eje X
 			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
@@ -296,13 +297,160 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c){
 			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);
 		else
 			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
-	}
+	}*/
+
+	res = encontrarPosicion(cuadrante, c->getCenter(), angulo, nroBunker);
 		
 	
 	delete p1;
 	delete p2;
 
-	return (new TilePosition(res->x() / 32, res->y() / 32));
+	//return (new TilePosition(res->x() / 32, res->y() / 32));
+	return res;
+}
+
+bool AnalizadorTerreno::puedoConstruir(TilePosition t, UnitType tipo){
+	bool res = true;
+
+	for (int x = 0; x < tipo.tileWidth(); x++){
+		for (int y = 0; y < tipo.tileHeight(); y++)
+			res = res && Broodwar->isBuildable(t.x() + x, t.y() + y);
+	}
+
+	return res;
+}
+
+TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, int angulo, int nroBunker){
+	int factorX, factorY;
+
+	int contX = -1, contY = 0;
+	bool encontre = false;
+	TilePosition *t, *res = NULL;
+
+	int angulo1 = 0;
+	
+	if (cuadrante == 1){
+		factorX = -1;
+		factorY = -1;
+	}
+	else if (cuadrante == 2){
+		factorX = 1;
+		factorY = -1;
+	}
+	else if (cuadrante == 3){
+		factorX = -1;
+		factorY = 1;
+	}
+	else if (cuadrante == 4){
+		factorX = 1;
+		factorY = 1;
+	}
+
+	if ((angulo > 135) && (angulo <= 179))
+		angulo1 = 0;
+	else if ((angulo < 45) && (angulo >= 0))
+		angulo1 = 0;
+	else
+		angulo1 = 90;
+
+
+	if (angulo1 == 90){
+		while (contY < 10){
+			t = new TilePosition(p.x() / 32 + contX, p.y() / 32 + contY * factorY);
+
+			if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
+				// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
+				if (nroBunker == 1)
+					res = new TilePosition(t->x(), t->y() + 1 * factorY);
+
+				delete t;
+				t = new TilePosition(p.x() / 32 + 3 + contX, p.y() / 32 + contY * factorY);
+
+				if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
+					// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
+					if (nroBunker == 2)
+						res = new TilePosition(t->x(), t->y() + 1 * factorY);
+
+					delete t;
+					t = new TilePosition(p.x() / 32 - 3 + contX, p.y() / 32 + contY * factorY);
+
+					if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
+						if (nroBunker == 3)
+							res = new TilePosition(t->x(), t->y() + 1 * factorY);						
+						
+						delete t;
+
+						return res;
+					}
+					else delete t;
+				}
+				else delete t;
+			}
+			else delete t;
+
+			if (contX == 1){
+				contY++;
+				contX = -1;
+			}
+			else
+				contX++;
+
+			if (res != NULL){
+				delete res;
+				res = NULL;
+			}
+		}
+	}
+	else if (angulo1 == 0){
+
+		while (contX < 10){
+			t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + contY);
+
+			if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
+				// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
+				if (nroBunker == 1)
+					res = new TilePosition(t->x() + 1 * factorX, t->y());
+
+				delete t;
+				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + 2 + contY);
+
+				if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
+					// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
+					if (nroBunker == 2)
+						res = new TilePosition(t->x() + 1 * factorX, t->y());
+
+					delete t;
+					t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 - 2 + contY);
+
+					if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
+						if (nroBunker == 3)
+							res = new TilePosition(t->x() + 1 * factorX, t->y());	
+						
+						delete t;
+
+						return res;
+					}
+					else delete t;
+				}
+				else delete t;
+			}
+			else delete t;
+
+			if (contY == 1){
+				contX++;
+				contY = -1;
+			}
+			else
+				contY++;
+
+			if (res != NULL){
+				delete res;
+				res = NULL;
+			}
+		}
+	}
+	return res;
+
 }
 
 

@@ -1,4 +1,6 @@
 #include "GrupoBunkers.h"
+#include <list>
+std::list<int> posicionesLibres;
 
 /*GrupoBunkers::GrupoBunkers(void)
 {
@@ -8,6 +10,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 	analizador = a;
 	choke = a->obtenerChokepoint();
 	reg = a->regionInicial();
+
+	//primerBunker = posicionPrimerBunker();
 }
 
 GrupoBunkers::~GrupoBunkers(void)
@@ -16,9 +20,14 @@ GrupoBunkers::~GrupoBunkers(void)
 	delete reg;
 }
 
-void GrupoBunkers::agregarBunker(Unit* u){
-	if ((u != NULL) && (u->getType().getID() == Utilidades::ID_BUNKER)){
-		bunkers.push_front(u);
+void GrupoBunkers::agregarUnidad(Unit* u){
+	if (u != NULL){
+		if (u->getType().getID() == Utilidades::ID_BUNKER)
+			bunkers.push_front(u);
+		else if (u->getType().getID() == Utilidades::ID_MISSILE_TURRET)
+			misileTurrets.push_front(u);
+		else
+			Broodwar->printf("No se puede agregar ese tipo de unidad a un grupo de bunkers");
 	}
 }
 
@@ -38,17 +47,18 @@ Unit* GrupoBunkers::getPrimerBunkerCreado(){
 
 
 int GrupoBunkers::getCantBunkers(){
-	//return bunkers.size();
 
 	std::list<Unit*>::iterator It1;
 	It1 = bunkers.begin();
 	int cont = 0;
 
-	while (It1 != bunkers.end()){
-		if ((*It1)->exists())
-			cont++;
-		
-		It1++;
+	if (bunkers.size() > 0){
+		while (It1 != bunkers.end()){
+			if ((*It1)->exists())
+				cont++;
+			
+			It1++;
+		}
 	}
 
 	return cont;
@@ -116,12 +126,12 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 	return false;
 }
 
-TilePosition* GrupoBunkers::posicionNuevoBunker(){
+/*TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	if (!analizador->analisisListo())
 		return NULL;
 
 	if (getCantBunkers() == 0){
-		return analizador->calcularPrimerTile(reg, choke);
+		t = analizador->calcularPrimerTile(reg, choke);
 	}
 	else{
 		int angulo;
@@ -189,35 +199,66 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 
 		return t;
 	}
+}*/
+
+
+TilePosition* GrupoBunkers::posicionPrimerBunker(){
+	if (analizador->analisisListo())
+		return analizador->calcularPrimerTile(reg, choke, 1);
+	else
+		return NULL;
 }
+
+
+TilePosition* GrupoBunkers::posicionNuevoBunker(){
+	if (!analizador->analisisListo())
+		return NULL;
+	
+	return analizador->calcularPrimerTile(reg, choke, getCantBunkers() + 1);
+
+}
+
+
+TilePosition* GrupoBunkers::ubicarGrupo(){
+
+}
+
+
+TilePosition* GrupoBunkers::posicionNuevaTorreta(){
+	
+}
+
 
 
 void GrupoBunkers::controlDestruidos(){
 	std::list<Unit*>::iterator It1;
 	It1 = bunkers.begin();
+	int cont = 1;
 
-	//Broodwar->printf("Entra al control");
 	while (It1 != bunkers.end()){
 		if (!(*It1)->exists()){
 			bunkers.erase(It1);
 			It1 = bunkers.begin(); // tuve que poner esto porque sino se colgaba el while...
+
+			//posicionesLibres.push_front(cont);
+			//posicionesLibres.unique(); // elimina posiciones repetidas
 		}
 		else
 			It1++;
 
-		//Broodwar->printf("a");
+		cont++;
 	}
-
-	//Broodwar->printf("Sale del control");
 }
 
 
 void GrupoBunkers::onFrame(){
 	if (Broodwar->getFrameCount() % frameLatency == 0){
-		//Broodwar->printf("CantBunkers: %d", getCantBunkers());
-		//if (getCantBunkers() > 0)
 
-		if (getCantBunkers() != bunkers.size())
+		// Calcula la posicion del primer bunker a construir
+		if (primerBunker = NULL)
+			posicionPrimerBunker();
+
+		if (getCantBunkers() != bunkers.size()) // es decir hay algun bunker que ya no existe en la lista, se debe actualizar
 			controlDestruidos();
 	}
 }

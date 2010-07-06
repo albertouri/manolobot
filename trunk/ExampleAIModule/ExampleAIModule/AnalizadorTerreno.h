@@ -2,6 +2,7 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 #include <windows.h> 
+#include "Utilidades.h"
 
 using namespace BWTA;
 using namespace BWAPI;
@@ -25,10 +26,12 @@ public:
 	Chokepoint* obtenerChokepoint(); // Obtiene el chokepoint que se debe defender desde la posicion inicial
 	void dibujarResultados(void); // hace un dibujito
 
-	TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c); // retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
+	TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, int nroBunker); // retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
 	int calcularAngulo(Position *p1, Position *p2);
 
 private:
 	bool show_visibility_data;
+	TilePosition* encontrarPosicion(int cuadrante, Position p, int angulo, int nroBunker);
+	bool puedoConstruir(TilePosition t, UnitType tipo);
 	
 };

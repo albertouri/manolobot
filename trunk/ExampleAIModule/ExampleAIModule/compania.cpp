@@ -26,14 +26,16 @@ void compania::asignarUnidad(Unit *u){
 		listaDeTanquesAUbicar.push_front(u);
 	}
 	else{
-		if (u->getType().getID() == Utilidades::ID_MARINE)
+		if (u->getType().getID() == Utilidades::ID_MARINE){
 			listMarines.push_front(u);
+			ponerACubierto(u);
+		}
 		else if (u->getType().getID() == Utilidades::ID_MEDIC)
 			listMedics.push_front(u);
 		else if (u->getType().getID() == Utilidades::ID_FIREBAT)
 			listFirebats.push_front(u);
-
-		ponerACubierto(u);
+		/*else if (u->getType().getID() == Utilidades::ID_TANKSIEGE)
+			listTanks.push_front(u);*/
 	}
 }
 
