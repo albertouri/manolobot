@@ -36,6 +36,7 @@ Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calc
 
 unit_Manager::unit_Manager()
 {
+	Broodwar->printf("necesito %d, tengo %d", goalCantUnidades[Utilidades::INDEX_GOAL_MARINE], cantUnidades[Utilidades::INDEX_GOAL_MARINE]);
 	Easy = new compania(Colors::Red);
 	Otra = new compania(Colors::Yellow);
 
@@ -896,51 +897,53 @@ void unit_Manager::moverUnidades(TilePosition *t){
 }
 
 void unit_Manager::onUnitCreate(Unit *u){
+	if(Broodwar->self()== u->getPlayer()){
 
-	switch (u->getType().getID()){
-		case Utilidades::ID_ACADEMY:
-			cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]++;
-			break;
-		case Utilidades::ID_BARRACK:
-			cantUnidades[Utilidades::INDEX_GOAL_BARRACK]++;
-			break;
-		case Utilidades::ID_BUNKER:
-			cantUnidades[Utilidades::INDEX_GOAL_BUNKER]++;
-			break;
-		case Utilidades::ID_DEPOT:
-			cantUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
-			break;
-		case Utilidades::ID_FIREBAT:
-			cantUnidades[Utilidades::INDEX_GOAL_FIREBAT]++;
-			asignarUnidadACompania(u);
-			break;
-		case Utilidades::ID_MARINE:
-			cantUnidades[Utilidades::INDEX_GOAL_MARINE]++;
-			asignarUnidadACompania(u);
-			break;
-		case Utilidades::ID_MEDIC:
-			cantUnidades[Utilidades::INDEX_GOAL_MEDIC]++;
-			asignarUnidadACompania(u);
-			break;
-		case Utilidades::ID_REFINERY:
-			cantUnidades[Utilidades::INDEX_GOAL_REFINERY]++;
-			break;
-		case Utilidades::ID_SCV:
-			cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
-			break;
-		case Utilidades::ID_FACTORY:
-			cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
-			break;	
-		case Utilidades::ID_MACHINESHOP:
-			cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]++;
-			break;
-		case Utilidades::ID_TANKSIEGE:
-			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
-			asignarUnidadACompania(u);
-			break;
-		case Utilidades::ID_TANKSIEGE_SIEGEMODE:
-			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
-			break;
+		switch (u->getType().getID()){
+			case Utilidades::ID_ACADEMY:
+				cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]++;
+				break;
+			case Utilidades::ID_BARRACK:
+				cantUnidades[Utilidades::INDEX_GOAL_BARRACK]++;
+				break;
+			case Utilidades::ID_BUNKER:
+				cantUnidades[Utilidades::INDEX_GOAL_BUNKER]++;
+				break;
+			case Utilidades::ID_DEPOT:
+				cantUnidades[Utilidades::INDEX_GOAL_DEPOT]++;
+				break;
+			case Utilidades::ID_FIREBAT:
+				cantUnidades[Utilidades::INDEX_GOAL_FIREBAT]++;
+				asignarUnidadACompania(u);
+				break;
+			case Utilidades::ID_MARINE:
+				cantUnidades[Utilidades::INDEX_GOAL_MARINE]++;
+				asignarUnidadACompania(u);
+				break;
+			case Utilidades::ID_MEDIC:
+				cantUnidades[Utilidades::INDEX_GOAL_MEDIC]++;
+				asignarUnidadACompania(u);
+				break;
+			case Utilidades::ID_REFINERY:
+				cantUnidades[Utilidades::INDEX_GOAL_REFINERY]++;
+				break;
+			case Utilidades::ID_SCV:
+				cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
+				break;
+			case Utilidades::ID_FACTORY:
+				cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
+				break;	
+			case Utilidades::ID_MACHINESHOP:
+				cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]++;
+				break;
+			case Utilidades::ID_TANKSIEGE:
+				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
+				asignarUnidadACompania(u);
+				break;
+			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
+				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
+				break;
+		}
 	}
 
 	resetBuildingSemaphore();
@@ -948,45 +951,49 @@ void unit_Manager::onUnitCreate(Unit *u){
 }
 
 void unit_Manager::onUnitDestroy(Unit *u){
-	switch (u->getType().getID()){
-		case Utilidades::ID_ACADEMY:
-			cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]--;
-			break;
-		case Utilidades::ID_BARRACK:
-			cantUnidades[Utilidades::INDEX_GOAL_BARRACK]--;
-			break;
-		case Utilidades::ID_BUNKER:
-			cantUnidades[Utilidades::INDEX_GOAL_BUNKER]--;
-			break;
-		case Utilidades::ID_DEPOT:
-			cantUnidades[Utilidades::INDEX_GOAL_DEPOT]--;
-			break;
-		case Utilidades::ID_FIREBAT:
-			cantUnidades[Utilidades::INDEX_GOAL_FIREBAT]--;
-			break;
-		case Utilidades::ID_MARINE:
-			cantUnidades[Utilidades::INDEX_GOAL_MARINE]--;
-			break;
-		case Utilidades::ID_MEDIC:
-			cantUnidades[Utilidades::INDEX_GOAL_MEDIC]--;
-			break;
-		case Utilidades::ID_REFINERY:
-			cantUnidades[Utilidades::INDEX_GOAL_REFINERY]--;
-			break;
-		case Utilidades::ID_SCV:
-			cantUnidades[Utilidades::INDEX_GOAL_SCV]--;
-			break;
-		case Utilidades::ID_FACTORY:
-			cantUnidades[Utilidades::INDEX_GOAL_FACTORY]--;
-			break;
-		case Utilidades::ID_MACHINESHOP:
-			cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]--;
-			break;
-		case Utilidades::ID_TANKSIEGE:
-			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
-			break;
-		case Utilidades::ID_TANKSIEGE_SIEGEMODE:
-			cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
-			break;
+	
+	if(Broodwar->self()== u->getPlayer()){
+
+		switch (u->getType().getID()){
+			case Utilidades::ID_ACADEMY:
+				cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]--;
+				break;
+			case Utilidades::ID_BARRACK:
+				cantUnidades[Utilidades::INDEX_GOAL_BARRACK]--;
+				break;
+			case Utilidades::ID_BUNKER:
+				cantUnidades[Utilidades::INDEX_GOAL_BUNKER]--;
+				break;
+			case Utilidades::ID_DEPOT:
+				cantUnidades[Utilidades::INDEX_GOAL_DEPOT]--;
+				break;
+			case Utilidades::ID_FIREBAT:
+				cantUnidades[Utilidades::INDEX_GOAL_FIREBAT]--;
+				break;
+			case Utilidades::ID_MARINE:
+				cantUnidades[Utilidades::INDEX_GOAL_MARINE]--;
+				break;
+			case Utilidades::ID_MEDIC:
+				cantUnidades[Utilidades::INDEX_GOAL_MEDIC]--;
+				break;
+			case Utilidades::ID_REFINERY:
+				cantUnidades[Utilidades::INDEX_GOAL_REFINERY]--;
+				break;
+			case Utilidades::ID_SCV:
+				cantUnidades[Utilidades::INDEX_GOAL_SCV]--;
+				break;
+			case Utilidades::ID_FACTORY:
+				cantUnidades[Utilidades::INDEX_GOAL_FACTORY]--;
+				break;
+			case Utilidades::ID_MACHINESHOP:
+				cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]--;
+				break;
+			case Utilidades::ID_TANKSIEGE:
+				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
+				break;
+			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
+				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
+				break;
+		}
 	}
 }
