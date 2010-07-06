@@ -49,13 +49,19 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 	}
+	else if (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0){
+		GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
+	}
 	else if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
-
 		GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 1;
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
+		//GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
+	}
+	else if (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 1){
+		GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 	}
 	else if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] == 1){
 		GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
@@ -135,6 +141,9 @@ void strategy_manager::onUnitCreate(Unit* u){
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 				break;
 		}
+		case Utilidades::ID_ENGINEERING_BAY:
+			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
+			break;
 	}
 
 	//Broodwar->printf("Se construyo un %d", u->getType().getID());
@@ -185,6 +194,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
 				break;
 		}
+		case Utilidades::ID_ENGINEERING_BAY:
+			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
+			break;
 	}
 }
 

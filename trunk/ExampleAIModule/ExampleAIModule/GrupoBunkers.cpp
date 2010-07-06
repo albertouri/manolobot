@@ -1,6 +1,7 @@
 #include "GrupoBunkers.h"
 #include <list>
-std::set<int> posicionesLibres;
+
+std::set<int> posicionesLibres; // a esta lista se agrega el numero de construccion de un bunker si el mismo fue destruido, para construir de nuevo en esa posicion
 
 /*GrupoBunkers::GrupoBunkers(void)
 {
@@ -235,15 +236,6 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 	}
 }*/
 
-
-TilePosition* GrupoBunkers::posicionPrimerBunker(){
-	if (analizador->analisisListo())
-		return analizador->calcularPrimerTile(reg, choke, 1);
-	else
-		return NULL;
-}
-
-
 TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	if (!analizador->analisisListo())
 		return NULL;
@@ -255,19 +247,106 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	else{
 		std::set<int>::iterator It1;
 		It1 = posicionesLibres.begin();
+		//Broodwar->printf("Quiere reconstruir bunker nro %d", *It1);
 		return analizador->calcularPrimerTile(reg, choke, *It1);
 	}
 
 }
 
 
-TilePosition* GrupoBunkers::ubicarGrupo(){
-
-}
-
-
 TilePosition* GrupoBunkers::posicionNuevaTorreta(){
+	int cuadrante;
+	TilePosition *t;
+	int x, y;
+	int angulo, angulo1;
+	Position *p1, *p2;
+
+	if (Broodwar->self()->getStartLocation().x() <= (Broodwar->mapWidth() / 2)){
+		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
+			cuadrante = 1;
+		else
+			cuadrante = 3;
+	}
+	else{
+		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
+			cuadrante = 2;
+		else
+			cuadrante = 4;
+	}
+
+	if (misileTurrets.size() == 0)
+		t = analizador->calcularPrimerTile(reg, choke, 1);
+	else
+		t = analizador->calcularPrimerTile(reg, choke, 2);
+
+	x = t->x();
+	y = t->y();
+	delete t;
+
+	// Inicializo los puntos que representan a los bordes del chokepoint
+	// p1 siempre sera el borde mas a la izquierda del chokepoint
+	// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
+	if (choke->getSides().first.x() != choke->getSides().second.x()){
+		// la inclinacion del chokepoint no es completamente vertical |, es decir el chokepoint esta inclinado	
+		if (choke->getSides().first.x() < choke->getSides().second.x()){
+			p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+			p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+		}
+		else{
+			p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+			p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+		}
+	}
+	else{
+		// la inclinacion del chokepoint es vertical |
+		if (choke->getSides().first.y() < choke->getSides().second.y()){
+			p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+			p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+		}
+		else{
+			p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
+			p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
+		}
+	}
+
+	angulo = analizador->calcularAngulo(p1, p2);
+
+	delete p1;
+	delete p2;
+
+	if ((angulo > 112) && (angulo <= 179))
+		angulo1 = 0;
+	else if ((angulo < 67) && (angulo >= 0))
+		angulo1 = 0;
+	else
+		angulo1 = 90;
 	
+	switch (cuadrante){
+		case 1:
+			if (angulo1 == 90)
+				return new TilePosition(x, y - 2);
+			else
+				return new TilePosition(x - 2, y);
+			break;
+		case 2:
+			if (angulo1 == 90)
+				return new TilePosition(x, y - 2);
+			else
+				return new TilePosition(x + 2, y);
+			break;
+		case 3:
+			if (angulo1 == 90)
+				return new TilePosition(x, y + 2);
+			else
+				return new TilePosition(x - 2, y);
+			break;
+		case 4:
+			if (angulo1 == 90)
+				return new TilePosition(x, y + 2);
+			else
+				return new TilePosition(x + 2, y);
+			break;
+	}
 }
 
 
