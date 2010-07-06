@@ -140,10 +140,11 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 				break;
+			case Utilidades::ID_ENGINEERING_BAY:
+				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
+				break;
 		}
-		case Utilidades::ID_ENGINEERING_BAY:
-			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
-			break;
+		
 	}
 
 	//Broodwar->printf("Se construyo un %d", u->getType().getID());
@@ -193,10 +194,11 @@ void strategy_manager::onUnitDestroy(Unit *u){
 			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
 				break;
+			case Utilidades::ID_ENGINEERING_BAY:
+				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
+				break;
 		}
-		case Utilidades::ID_ENGINEERING_BAY:
-			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
-			break;
+		
 	}
 }
 

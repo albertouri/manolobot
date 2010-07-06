@@ -955,10 +955,11 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
 				break;
+			case Utilidades::ID_ENGINEERING_BAY:
+				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
+				break;
 		}
-		case Utilidades::ID_ENGINEERING_BAY:
-			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
-			break;
+
 	}
 
 	resetBuildingSemaphore();
@@ -1009,9 +1010,10 @@ void unit_Manager::onUnitDestroy(Unit *u){
 			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
 				break;
+			case Utilidades::ID_ENGINEERING_BAY:
+				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
+				break;
 		}
-		case Utilidades::ID_ENGINEERING_BAY:
-			cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
-			break;
+
 	}
 }
