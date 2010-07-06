@@ -1,6 +1,6 @@
 #include "GrupoBunkers.h"
 #include <list>
-std::list<int> posicionesLibres;
+std::set<int> posicionesLibres;
 
 /*GrupoBunkers::GrupoBunkers(void)
 {
@@ -21,9 +21,43 @@ GrupoBunkers::~GrupoBunkers(void)
 }
 
 void GrupoBunkers::agregarUnidad(Unit* u){
+	int cont;
+
 	if (u != NULL){
-		if (u->getType().getID() == Utilidades::ID_BUNKER)
-			bunkers.push_front(u);
+		if (u->getType().getID() == Utilidades::ID_BUNKER){
+			
+			if (posicionesLibres.size() > 0){
+				std::set<int>::iterator It1;
+				It1 = posicionesLibres.begin();
+				TilePosition *t = analizador->calcularPrimerTile(reg, choke, *It1);
+
+				std::list<Unit*>::iterator It2;
+
+				if ((u->getTilePosition().x() == t->x()) && (u->getTilePosition().y() == t->y())){
+					if (*It1 == 1)
+						bunkers.push_back(u);
+					else{
+						cont = *It1;
+
+						It2 = bunkers.end();
+
+						while ((cont - 2 > 0) && (It2 != bunkers.begin())){
+							It2--;
+							cont--;
+						}
+
+						bunkers.insert(It2, u);
+						posicionesLibres.erase(*It1);
+					}
+				}
+				else
+					bunkers.push_front(u);
+			}
+			else
+				bunkers.push_front(u);
+			
+
+		}
 		else if (u->getType().getID() == Utilidades::ID_MISSILE_TURRET)
 			misileTurrets.push_front(u);
 		else
@@ -214,7 +248,15 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	if (!analizador->analisisListo())
 		return NULL;
 	
-	return analizador->calcularPrimerTile(reg, choke, getCantBunkers() + 1);
+	if (posicionesLibres.size() == 0){
+		Broodwar->printf("Quiere construir bunker nro %d", getCantBunkers() + 1);
+		return analizador->calcularPrimerTile(reg, choke, getCantBunkers() + 1);
+	}
+	else{
+		std::set<int>::iterator It1;
+		It1 = posicionesLibres.begin();
+		return analizador->calcularPrimerTile(reg, choke, *It1);
+	}
 
 }
 
@@ -240,8 +282,7 @@ void GrupoBunkers::controlDestruidos(){
 			bunkers.erase(It1);
 			It1 = bunkers.begin(); // tuve que poner esto porque sino se colgaba el while...
 
-			//posicionesLibres.push_front(cont);
-			//posicionesLibres.unique(); // elimina posiciones repetidas
+			posicionesLibres.insert(cont);
 		}
 		else
 			It1++;
@@ -255,8 +296,8 @@ void GrupoBunkers::onFrame(){
 	if (Broodwar->getFrameCount() % frameLatency == 0){
 
 		// Calcula la posicion del primer bunker a construir
-		if (primerBunker = NULL)
-			posicionPrimerBunker();
+		//if (primerBunker = NULL)
+		//	posicionPrimerBunker();
 
 		if (getCantBunkers() != bunkers.size()) // es decir hay algun bunker que ya no existe en la lista, se debe actualizar
 			controlDestruidos();
