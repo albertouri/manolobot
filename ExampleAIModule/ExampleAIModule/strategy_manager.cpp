@@ -146,8 +146,6 @@ void strategy_manager::onUnitCreate(Unit* u){
 		}
 		
 	}
-
-	//Broodwar->printf("Se construyo un %d", u->getType().getID());
 }
 
 void strategy_manager::onUnitDestroy(Unit *u){

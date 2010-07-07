@@ -204,47 +204,11 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, in
 	int cont = 0;
 
 
-	if (Broodwar->self()->getStartLocation().x() <= (Broodwar->mapWidth() / 2)){
-		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
-			cuadrante = 1;
-		else
-			cuadrante = 3;
-	}
-	else{
-		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
-			cuadrante = 2;
-		else
-			cuadrante = 4;
-	}
+	cuadrante = getCuadrante(c->getCenter());
 
+	//angulo = calcularAngulo(p1, p2);
+	angulo = calcularAngulo(c);
 
-	// Inicializo los puntos que representan a los bordes del chokepoint
-	// p1 siempre sera el borde mas a la izquierda del chokepoint
-	// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
-	if (c->getSides().first.x() != c->getSides().second.x()){
-		// la inclinacion del chokepoint no es completamente vertical |, es decir el chokepoint esta inclinado	
-		if (c->getSides().first.x() < c->getSides().second.x()){
-			p1 = new Position(c->getSides().first.x(), c->getSides().first.y());
-			p2 = new Position(c->getSides().second.x(), c->getSides().second.y());
-		}
-		else{
-			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
-			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
-		}
-	}
-	else{
-		// la inclinacion del chokepoint es vertical |
-		if (c->getSides().first.y() < c->getSides().second.y()){
-			p1 = new Position(c->getSides().first.x(), c->getSides().first.y());
-			p2 = new Position(c->getSides().second.x(), c->getSides().second.y());
-		}
-		else{
-			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
-			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
-		}
-	}
-
-	angulo = calcularAngulo(p1, p2);
 	//Broodwar->printf("cuadrante: %d - angulo: %d", cuadrante, angulo);
 	
 	/*if (cuadrante == 1){
@@ -302,8 +266,8 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, in
 	res = encontrarPosicion(cuadrante, c->getCenter(), angulo, nroBunker);
 		
 	
-	delete p1;
-	delete p2;
+	//delete p1;
+	//delete p2;
 
 	//return (new TilePosition(res->x() / 32, res->y() / 32));
 	return res;
@@ -353,12 +317,7 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 
 	//Broodwar->printf("cuadrante: %d", cuadrante);
 
-	if ((angulo > 112) && (angulo <= 179))
-		angulo1 = 0;
-	else if ((angulo < 67) && (angulo >= 0))
-		angulo1 = 0;
-	else
-		angulo1 = 90;
+	angulo1 = calcularAnguloGrupo(angulo);
 
 	//Broodwar->printf("angulo1: %d", angulo1);
 	//Broodwar->printf("angulo real: %d", angulo);
@@ -484,12 +443,42 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 
 
 // retorna el angulo que forma una recta que une los dos puntos con respecto a la vertical
-int AnalizadorTerreno::calcularAngulo(Position *p1, Position *p2){
+//int AnalizadorTerreno::calcularAngulo(Position *p1, Position *p2){
+int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 	double angulo;
 	double division;
+	Position *p1, *p2;
 
 	int restoAngulo; // si el punto p2 tiene menor coordenada Y que el punto p1, se debe sumar 90 al angulo resultante del calculo
 	double segmentoB;
+
+
+	// Inicializo los puntos que representan a los bordes del chokepoint
+	// p1 siempre sera el borde mas a la izquierda del chokepoint
+	// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
+	if (c->getSides().first.x() != c->getSides().second.x()){
+		// la inclinacion del chokepoint no es completamente vertical |, es decir el chokepoint esta inclinado	
+		if (c->getSides().first.x() < c->getSides().second.x()){
+			p1 = new Position(c->getSides().first.x(), c->getSides().first.y());
+			p2 = new Position(c->getSides().second.x(), c->getSides().second.y());
+		}
+		else{
+			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
+			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
+		}
+	}
+	else{
+		// la inclinacion del chokepoint es vertical |
+		if (c->getSides().first.y() < c->getSides().second.y()){
+			p1 = new Position(c->getSides().first.x(), c->getSides().first.y());
+			p2 = new Position(c->getSides().second.x(), c->getSides().second.y());
+		}
+		else{
+			p1 = new Position(c->getSides().second.x(), c->getSides().second.y());
+			p2 = new Position(c->getSides().first.x(), c->getSides().first.y());
+		}
+	}
+
 
 	if (p1->y() >= p2->y()){
 		restoAngulo = 90;
@@ -510,5 +499,38 @@ int AnalizadorTerreno::calcularAngulo(Position *p1, Position *p2){
 
 	//Broodwar->printf("el angulo es: %lf", angulo);
 
+	delete p1;
+	delete p2;
+
 	return ((int) (angulo + restoAngulo));
+}
+
+
+int AnalizadorTerreno::getCuadrante(Position p){
+	
+	if (p.x() <= (Broodwar->mapWidth() * 32 / 2)){
+		if (p.y() <= (Broodwar->mapHeight() * 32 / 2))
+			return 1;
+		else
+			return 3;
+	}
+	else{
+		if (p.y() <= (Broodwar->mapHeight() * 32 / 2))
+			return 2;
+		else
+			return 4;
+	}
+}
+
+int AnalizadorTerreno::calcularAnguloGrupo(int angulo){
+	int angulo1;
+
+	if ((angulo > 112) && (angulo <= 179))
+		angulo1 = 0;
+	else if ((angulo < 67) && (angulo >= 0))
+		angulo1 = 0;
+	else
+		angulo1 = 90;
+
+	return angulo1;
 }

@@ -750,17 +750,24 @@ void unit_Manager::setResearchs(int researchs[10]){
 void unit_Manager::asignarUnidadACompania(Unit* unit){
 	
 	if (unit->getType().getID() == Utilidades::ID_MARINE){
-		if (Easy->countMarines() < 12) { /*Broodwar->printf("agregue soldado a EASY");*/ Easy->asignarUnidad(unit); }
-		else { /*Broodwar->printf("agregue soldado a OTRA");*/ Otra->asignarUnidad(unit); }
+
+		if ((grupoB1 != NULL) && (grupoB1->faltanMarines()))
+			grupoB1->agregarUnidad(unit);
+		else
+			Easy->asignarUnidad(unit);
+
+
+		/*if (Easy->countMarines() < 12) { Easy->asignarUnidad(unit); }
+		else { Otra->asignarUnidad(unit); }*/
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
-		Otra->asignarUnidad(unit);
+		Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_FIREBAT){
-		Otra->asignarUnidad(unit);
+		Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_TANKSIEGE){
-		Otra->asignarUnidad(unit);
+		Easy->asignarUnidad(unit);
 	}
 
 }
@@ -811,7 +818,7 @@ void unit_Manager::verificarBunkers(){
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
-				Otra->atacar(u);
+				Easy->atacar(u);
 				break;
 			}
 
@@ -819,7 +826,7 @@ void unit_Manager::verificarBunkers(){
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
-				Otra->atacar(u);
+				Easy->atacar(u);
 				break;
 			}
 		}
