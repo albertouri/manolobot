@@ -1,23 +1,65 @@
 #include "GrupoBunkers.h"
 #include <list>
 
-std::set<int> posicionesLibresBunkers; // a esta lista se agrega el numero de construccion de un bunker si el mismo fue destruido, para construir de nuevo en esa posicion
-std::set<int> posicionesLibresMisileTurrets;
+
 
 /*GrupoBunkers::GrupoBunkers(void)
 {
 }*/
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 {
+	int cuadrante, angulo;
+	TilePosition *aux;
+
 	analizador = a;
 	choke = a->obtenerChokepoint();
 	reg = a->regionInicial();
 
-	//primerBunker = posicionPrimerBunker();
+	// ------------------------------------------------------------------------------------------
+	// calcula la posicion de reunion de los soldados, a la cual se dirigiran si el bunker en el que estaban es destruido, para
+	// liberar la posicion del bunker asi se puede reconstruir rapidamente
+
+	posEncuentro = NULL;
+	cuadrante = a->getCuadrante(choke->getCenter());
+	angulo = a->calcularAngulo(choke);
+
+	aux = a->calcularPrimerTile(reg, choke, 1);
+
+	switch (cuadrante){
+		case 1:
+			if (a->calcularAnguloGrupo(angulo) == 0)
+				posEncuentro = new Position(aux->x() * 32 - 192, aux->y() * 32);
+			else
+				posEncuentro = new Position(aux->x() * 32, aux->y() * 32 - 192);
+			break;
+		case 2:
+			if (a->calcularAnguloGrupo(angulo) == 0)
+				posEncuentro = new Position(aux->x() * 32 + 192, aux->y() * 32);
+			else
+				posEncuentro = new Position(aux->x() * 32, aux->y() * 32 - 192);
+			break;
+		case 3:
+			if (a->calcularAnguloGrupo(angulo) == 0)
+				posEncuentro = new Position(aux->x() * 32 - 192, aux->y() * 32);
+			else
+				posEncuentro = new Position(aux->x() * 32, aux->y() * 32 + 192);
+			break;
+		case 4:
+			if (a->calcularAnguloGrupo(angulo) == 0)
+				posEncuentro = new Position(aux->x() * 32 + 192, aux->y() * 32);
+			else
+				posEncuentro = new Position(aux->x() * 32, aux->y() * 32 + 192);
+			break;
+	}
+
+	// ------------------------------------------------------------------------------------------
+
 }
 
 GrupoBunkers::~GrupoBunkers(void)
 {
+	if (posEncuentro != NULL)
+		delete posEncuentro;
 	delete choke;
 	delete reg;
 }
@@ -42,7 +84,7 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 					
 					std::list<Unit*>::iterator It2;
 
-					It2 = bunkers.begin();
+					It2 = listBunkers.begin();
 					cont = (*It1) - 1;
 
 					while (cont > 0){
@@ -50,20 +92,19 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 						cont--;
 					}
 
-					bunkers.insert(It2, u);
+					listBunkers.insert(It2, u);
 					posicionesLibresBunkers.erase(*It1);
 					
 				}
 				else
-					bunkers.push_back(u);
+					listBunkers.push_back(u);
 			}
 			else
-				bunkers.push_back(u);
+				listBunkers.push_back(u);
 			
 
 		}
 		else if (u->getType().getID() == Utilidades::ID_MISSILE_TURRET){
-			//misileTurrets.push_back(u);
 
 			if (posicionesLibresMisileTurrets.size() > 0){
 				std::set<int>::iterator It1;
@@ -79,7 +120,7 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 					
 					std::list<Unit*>::iterator It2;
 
-					It2 = misileTurrets.begin();
+					It2 = listMisileTurrets.begin();
 					cont = (*It1) - 1;
 
 					while (cont > 0){
@@ -87,17 +128,20 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 						cont--;
 					}
 
-					misileTurrets.insert(It2, u);
+					listMisileTurrets.insert(It2, u);
 					posicionesLibresMisileTurrets.erase(*It1);
 					
 				}
 				else
-					misileTurrets.push_back(u);
+					listMisileTurrets.push_back(u);
 			}
 			else
-				misileTurrets.push_back(u);
+				listMisileTurrets.push_back(u);
 
 
+		}
+		else if (u->getType().getID() == Utilidades::ID_MARINE){
+			listMarines.push_back(u);
 		}
 		else
 			Broodwar->printf("No se puede agregar ese tipo de unidad a un grupo de bunkers");
@@ -105,15 +149,15 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 }
 
 Unit* GrupoBunkers::getUltimoBunkerCreado(){
-	if (bunkers.size() > 0)
-		return bunkers.back();
+	if (listBunkers.size() > 0)
+		return listBunkers.back();
 	else 
 		return NULL;
 }
 
 Unit* GrupoBunkers::getPrimerBunkerCreado(){
-	if (bunkers.size() > 0)
-		return bunkers.front();
+	if (listBunkers.size() > 0)
+		return listBunkers.front();
 	else
 		return NULL;
 }
@@ -122,11 +166,47 @@ Unit* GrupoBunkers::getPrimerBunkerCreado(){
 int GrupoBunkers::getCantBunkers(){
 
 	std::list<Unit*>::iterator It1;
-	It1 = bunkers.begin();
+	It1 = listBunkers.begin();
 	int cont = 0;
 
-	if (bunkers.size() > 0){
-		while (It1 != bunkers.end()){
+	if (listBunkers.size() > 0){
+		while (It1 != listBunkers.end()){
+			if ((*It1)->exists())
+				cont++;
+			
+			It1++;
+		}
+	}
+
+	return cont;
+}
+
+int GrupoBunkers::getCantMisileTurrets(){
+
+	std::list<Unit*>::iterator It1;
+	It1 = listMisileTurrets.begin();
+	int cont = 0;
+
+	if (listMisileTurrets.size() > 0){
+		while (It1 != listMisileTurrets.end()){
+			if ((*It1)->exists())
+				cont++;
+			
+			It1++;
+		}
+	}
+
+	return cont;
+}
+
+int GrupoBunkers::getCantMarines(){
+
+	std::list<Unit*>::iterator It1;
+	It1 = listMarines.begin();
+	int cont = 0;
+
+	if (listMarines.size() > 0){
+		while (It1 != listMarines.end()){
 			if ((*It1)->exists())
 				cont++;
 			
@@ -187,9 +267,9 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 
 	if (u != NULL){
 		std::list<Unit*>::iterator It1;
-		It1 = bunkers.begin();
+		It1 = listBunkers.begin();
 
-		while (It1 != bunkers.end()){
+		while (It1 != listBunkers.end()){
 			if ((*It1)->getID() == u->getID())
 				return true;
 			It1++;
@@ -198,81 +278,6 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 
 	return false;
 }
-
-/*TilePosition* GrupoBunkers::posicionNuevoBunker(){
-	if (!analizador->analisisListo())
-		return NULL;
-
-	if (getCantBunkers() == 0){
-		t = analizador->calcularPrimerTile(reg, choke);
-	}
-	else{
-		int angulo;
-		Position *p1, *p2;
-
-		// Inicializo los puntos que representan a los bordes del chokepoint
-		// p1 siempre sera el borde mas a la izquierda del chokepoint
-		// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
-		if (choke->getSides().first.x() != choke->getSides().second.x()){
-			// la inclinacion del chokepoint no es completamente vertical |, es decir el chokepoint esta inclinado	
-			if (choke->getSides().first.x() < choke->getSides().second.x()){
-				p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-				p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-			}
-			else{
-				p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-				p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-			}
-		}
-		else{
-			// la inclinacion del chokepoint es vertical |
-			if (choke->getSides().first.y() < choke->getSides().second.y()){
-				p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-				p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-			}
-			else{
-				p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-				p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-			}
-		}
-
-		angulo = analizador->calcularAngulo(p1, p2);
-
-		Unit *bunker;
-		TilePosition *t = NULL;
-
-		// Dependiendo el angulo determina una posicion
-		// TODO: mejorar la heuristica
-		bunker = getPrimerBunkerCreado();
-
-		if ((angulo >= 67) && (angulo < 112)){
-			if (getCantBunkers() % 2 == 0)
-				t = new TilePosition(bunker->getTilePosition().x() + 3, bunker->getTilePosition().y());
-			else
-				t = new TilePosition(bunker->getTilePosition().x() - 3, bunker->getTilePosition().y());
-		}
-		else if ((angulo >= 112) && (angulo < 157)){
-			if (getCantBunkers() % 2 == 0)
-				t = new TilePosition(bunker->getTilePosition().x() + 1, bunker->getTilePosition().y() - 2);
-			else
-				t = new TilePosition(bunker->getTilePosition().x() - 1, bunker->getTilePosition().y() + 2);
-		}
-		else if ((angulo < 67) && (angulo > 22)){
-			if (getCantBunkers() % 2 == 0)
-				t = new TilePosition(bunker->getTilePosition().x() - 1, bunker->getTilePosition().y() - 2);
-			else
-				t = new TilePosition(bunker->getTilePosition().x() + 1, bunker->getTilePosition().y() + 2);			
-		}
-		else if ((angulo <= 22) || (angulo >= 157)){
-			if (getCantBunkers() % 2 == 0)
-				t = new TilePosition(bunker->getTilePosition().x(), bunker->getTilePosition().y() - 2);
-			else
-				t = new TilePosition(bunker->getTilePosition().x(), bunker->getTilePosition().y() + 2);			
-		}
-
-		return t;
-	}
-}*/
 
 TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	if (!analizador->analisisListo())
@@ -286,7 +291,6 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 		It1 = posicionesLibresBunkers.begin();
 		return analizador->calcularPrimerTile(reg, choke, *It1);
 	}
-
 }
 
 
@@ -295,23 +299,11 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 	TilePosition *t;
 	int x, y;
 	int angulo, angulo1;
-	Position *p1, *p2;
 
-	if (Broodwar->self()->getStartLocation().x() <= (Broodwar->mapWidth() / 2)){
-		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
-			cuadrante = 1;
-		else
-			cuadrante = 3;
-	}
-	else{
-		if (Broodwar->self()->getStartLocation().y() <= (Broodwar->mapHeight() / 2))
-			cuadrante = 2;
-		else
-			cuadrante = 4;
-	}
+	cuadrante = analizador->getCuadrante(choke->getCenter());
 
 	if (posicionesLibresMisileTurrets.size() == 0){
-		if (misileTurrets.size() == 0)
+		if (listMisileTurrets.size() == 0)
 			t = analizador->calcularPrimerTile(reg, choke, 2);
 		else
 			t = analizador->calcularPrimerTile(reg, choke, 3);
@@ -327,43 +319,8 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 	y = t->y();
 	delete t;
 
-	// Inicializo los puntos que representan a los bordes del chokepoint
-	// p1 siempre sera el borde mas a la izquierda del chokepoint
-	// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
-	if (choke->getSides().first.x() != choke->getSides().second.x()){
-		// la inclinacion del chokepoint no es completamente vertical |, es decir el chokepoint esta inclinado	
-		if (choke->getSides().first.x() < choke->getSides().second.x()){
-			p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-			p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-		}
-		else{
-			p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-			p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-		}
-	}
-	else{
-		// la inclinacion del chokepoint es vertical |
-		if (choke->getSides().first.y() < choke->getSides().second.y()){
-			p1 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-			p2 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-		}
-		else{
-			p1 = new Position(choke->getSides().second.x(), choke->getSides().second.y());
-			p2 = new Position(choke->getSides().first.x(), choke->getSides().first.y());
-		}
-	}
-
-	angulo = analizador->calcularAngulo(p1, p2);
-
-	delete p1;
-	delete p2;
-
-	if ((angulo > 112) && (angulo <= 179))
-		angulo1 = 0;
-	else if ((angulo < 67) && (angulo >= 0))
-		angulo1 = 0;
-	else
-		angulo1 = 90;
+	angulo = analizador->calcularAngulo(choke);
+	angulo1 = analizador->calcularAnguloGrupo(angulo);
 	
 	switch (cuadrante){
 		case 1:
@@ -397,16 +354,17 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 
 void GrupoBunkers::controlDestruidos(){
 	std::list<Unit*>::iterator It1;
-	It1 = bunkers.begin();
+	It1 = listBunkers.begin();
 	int cont = 1;
 
 	// ----------- controla los bunkers -----------
-	while (It1 != bunkers.end()){
+	while (It1 != listBunkers.end()){
 		if (!(*It1)->exists()){
-			bunkers.erase(It1);
-			It1 = bunkers.begin(); // tuve que poner esto porque sino se colgaba el while...
+			listBunkers.erase(It1);
+			It1 = listBunkers.begin(); // tuve que poner esto porque sino se colgaba el while...
 
 			posicionesLibresBunkers.insert(cont);
+			moverSoldadosPosEncuentro();
 		}
 		else
 			It1++;
@@ -415,13 +373,13 @@ void GrupoBunkers::controlDestruidos(){
 	}
 
 	// ----------- controla las torretas de misiles -----------
-	It1 = misileTurrets.begin();
+	It1 = listMisileTurrets.begin();
 	cont = 2;
 
-	while (It1 != misileTurrets.end()){
+	while (It1 != listMisileTurrets.end()){
 		if (!(*It1)->exists()){
-			misileTurrets.erase(It1);
-			It1 = misileTurrets.begin(); // tuve que poner esto porque sino se colgaba el while...
+			listMisileTurrets.erase(It1);
+			It1 = listMisileTurrets.begin(); // tuve que poner esto porque sino se colgaba el while...
 
 			posicionesLibresMisileTurrets.insert(cont);
 		}
@@ -430,12 +388,78 @@ void GrupoBunkers::controlDestruidos(){
 
 		cont++;
 	}
+
+	// ----------- controla los marines -----------
+	It1 = listMarines.begin();
+
+	while (It1 != listMarines.end()){
+		if (!(*It1)->exists()){
+			listMarines.erase(It1);
+			It1 = listMarines.begin(); // tuve que poner esto porque sino se colgaba el while...
+		}
+		else
+			It1++;
+	}
+}
+
+
+void GrupoBunkers::ponerACubierto(){
+	std::list<Unit*>::iterator ItM;
+	std::list<Unit*>::iterator ItB;
+
+	ItM = listMarines.begin();
+
+	while (ItM != listMarines.end()){
+		// si el marine no esta dentro de un bunker, busca uno para ponerlo a cubierto
+		if (((*ItM)->isCompleted()) && (!(*ItM)->isLoaded())){
+			ItB = listBunkers.begin();
+
+			while (ItB != listBunkers.end()){
+				if (((*ItB)->isCompleted()) && ((*ItB)->getLoadedUnits().size() < 4)){
+					(*ItB)->load(*ItM);
+					ItB = listBunkers.end();
+				}
+				else{
+					ItB++;
+				}
+			}
+		}
+		ItM++;
+	}
 }
 
 
 void GrupoBunkers::onFrame(){
+
 	if (Broodwar->getFrameCount() % frameLatency == 0){
-		if (getCantBunkers() != bunkers.size()) // es decir hay algun bunker que ya no existe en la lista, se debe actualizar
-			controlDestruidos();
+		//Broodwar->printf("bunker onFrame");
+
+		//if (getCantBunkers() != listBunkers.size()) // es decir hay algun bunker que ya no existe en la lista, se debe actualizar
+		controlDestruidos();
+
+		if (getCantBunkers() > 1)
+			ponerACubierto();
+	}
+}
+
+bool GrupoBunkers::faltanMarines(){
+	
+	if (getCantMarines() < 12)
+		return true;
+	else
+		return false;
+}
+
+void GrupoBunkers::moverSoldadosPosEncuentro(){
+	if (posEncuentro != NULL){
+		std::list<Unit*>::iterator It1;
+		It1 = listMarines.begin();
+
+		while (It1 != listMarines.end()){
+			if (((*It1)->isCompleted()) && (!(*It1)->isLoaded()))
+				(*It1)->rightClick(*posEncuentro);
+
+			It1++;
+		}
 	}
 }

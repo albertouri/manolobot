@@ -28,7 +28,7 @@ void compania::asignarUnidad(Unit *u){
 	else{
 		if (u->getType().getID() == Utilidades::ID_MARINE){
 			listMarines.push_front(u);
-			ponerACubierto(u);
+			//ponerACubierto(u);
 		}
 		else if (u->getType().getID() == Utilidades::ID_MEDIC)
 			listMedics.push_front(u);

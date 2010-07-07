@@ -27,7 +27,10 @@ public:
 	void dibujarResultados(void); // hace un dibujito
 
 	TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, int nroBunker); // retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
-	int calcularAngulo(Position *p1, Position *p2);
+	//int calcularAngulo(Position *p1, Position *p2);
+	int calcularAngulo(Chokepoint *c);
+	int calcularAnguloGrupo(int angulo);
+	int getCuadrante(Position p);
 
 private:
 	bool show_visibility_data;
