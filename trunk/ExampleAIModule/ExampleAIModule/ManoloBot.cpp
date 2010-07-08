@@ -18,6 +18,13 @@ ManoloBot::ManoloBot(void)
 	unitManager = new unit_Manager();
 	strategyManager = new strategy_manager();
 	analizador = new AnalizadorTerreno();
+
+	/*Position *p = new Position(Broodwar->self()->getStartLocation().x() * 32, Broodwar->self()->getStartLocation().y() * 32);
+
+	if (analizador->getCuadrante(*p) != 2){
+		delete p;
+		Broodwar->restartGame();
+	}*/
 }
 
 void ManoloBot::checkGoals(void){
@@ -34,7 +41,7 @@ void ManoloBot::checkGoals(void){
 		latency++;
 	}
 
-	unitManager->executeActions(analizador);	
+	unitManager->executeActions(analizador);
 	
 	if (analizador->analisisListo())
 		analizador->dibujarResultados();
