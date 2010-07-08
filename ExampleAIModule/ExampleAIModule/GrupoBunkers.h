@@ -23,14 +23,18 @@ public:
 	int getCantBunkers(); // retorna la cantidad de bunkers que hay en el grupo de bunkers (no cuenta los destruidos)
 	int getCantMisileTurrets(); // retorna la cantidad de misile turrets que hay en el grupo de bunkers (no cuenta los destruidos)
 	int getCantMarines(); // retorna la cantidad de marines que hay en el grupo de bunkers (no cuenta los destruidos)
+	int getCantTanks();
 
 	void estrategia1(Unit *u);
 	
 	TilePosition* posicionNuevoBunker(); // retorna un tilePosition donde se deberia ubicar el nuevo bunker
 	TilePosition* posicionNuevaTorreta(); // retorna un tilePosition donde se deberia ubicar la nueva misile turret bunker
+	TilePosition* posicionNuevoTanque();
 
 	void onFrame(); // metodo a ejecutar en cada frame
+
 	bool faltanMarines(); // retorna true si hay bunkers que no tienen suficientes marines dentro
+	bool faltanTanques();
 
 private:
 	// listas de unidades pertenecientes al grupo de bunkers
@@ -41,6 +45,7 @@ private:
 
 	std::set<int> posicionesLibresBunkers; // a esta lista se agrega el numero de construccion de un bunker si el mismo fue destruido, para construir de nuevo en esa posicion
 	std::set<int> posicionesLibresMisileTurrets; // a esta lista se agrega el numero de construccion de un misile turret si el mismo fue destruido, para construir de nuevo en esa posicion
+	std::set<int> posicionesLibresTanques;
 
 	bool perteneceBunker(Unit *u);
 
@@ -56,5 +61,6 @@ private:
 	Position *posEncuentro; // posicion de encuentro de los soldados del grupo de bunkers
 
 	void resaltarUnidades();
+	void ubicarModoSiege();
 	
 };

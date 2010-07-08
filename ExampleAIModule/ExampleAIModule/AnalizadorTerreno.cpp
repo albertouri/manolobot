@@ -189,87 +189,20 @@ Region* AnalizadorTerreno::regionInicial(){
 
 
 TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, int nroBunker){
-	Position *p1 = NULL, *p2 = NULL;
-	
 	int cuadrante = 0;
 	int angulo = 0;
 
-	// distancias desde el centro del chokepoint hasta el lugar para ubicar el bunker
-	int distanciaX = /*96*/ /*160*/ 288;
-	int distanciaY = /*96*/ 160;
-	//Position *res = NULL;
 	TilePosition *res = NULL;
 
 	bool encontre = false;
 	int cont = 0;
 
 
-	cuadrante = getCuadrante(c->getCenter());
-
-	//angulo = calcularAngulo(p1, p2);
+	//cuadrante = getCuadrante(c->getCenter());
+	cuadrante = getCuadrante(r->getCenter());
 	angulo = calcularAngulo(c);
-
-	//Broodwar->printf("cuadrante: %d - angulo: %d", cuadrante, angulo);
-	
-	/*if (cuadrante == 1){
-		if ((angulo > 0) && (angulo < 23))
-			// como el angulo del chokepoint es pequeño no inclino la ubicacion del bunker, solo la desplazo en el eje X
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
-		else if ((angulo >= 23) && (angulo < 67))
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
-		else if ((angulo >= 67) && (angulo < 112))
-			res = new Position(c->getCenter().x() - 32, c->getCenter().y() - distanciaY);
-		else if ((angulo >= 112) && (angulo < 157))
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
-		else
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
-	}
-	else if (cuadrante == 2){
-		
-		if ((angulo > 0) && (angulo < 23))
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
-		else if ((angulo >= 23) && (angulo < 67))
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() - distanciaY);
-		else if ((angulo >= 67) && (angulo < 112))
-			res = new Position(c->getCenter().x(), c->getCenter().y() - distanciaY);
-		else if ((angulo >= 112) && (angulo < 157))
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);
-		else
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
-	}
-	else if (cuadrante == 3){
-
-		if ((angulo > 0) && (angulo < 23))
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
-		else if ((angulo >= 23) && (angulo < 67))
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() + distanciaY);
-		else if ((angulo >= 67) && (angulo < 112))
-			res = new Position(c->getCenter().x() - 32, c->getCenter().y() + distanciaY);
-		else if ((angulo >= 112) && (angulo < 157))
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y() - distanciaY);
-		else
-			res = new Position(c->getCenter().x() - distanciaX, c->getCenter().y());
-	}
-	else{
-		if ((angulo > 0) && (angulo < 23))
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
-		else if ((angulo >= 23) && (angulo < 67))
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() - distanciaY);
-		else if ((angulo >= 67) && (angulo < 112))
-			res = new Position(c->getCenter().x(), c->getCenter().y() + distanciaY);
-		else if ((angulo >= 112) && (angulo < 157))
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y() + distanciaY);
-		else
-			res = new Position(c->getCenter().x() + distanciaX, c->getCenter().y());
-	}*/
-
 	res = encontrarPosicion(cuadrante, c->getCenter(), angulo, nroBunker);
-		
-	
-	//delete p1;
-	//delete p2;
 
-	//return (new TilePosition(res->x() / 32, res->y() / 32));
 	return res;
 }
 
@@ -393,7 +326,7 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 			if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
 				// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
 				if (nroBunker == 1)
-					res = new TilePosition(t->x(), t->y());
+					res = new TilePosition(t->x() /*- factorX*/, t->y());
 
 				//Graficos::dibujarCuadro(t, 3, 2);
 				delete t;
@@ -402,7 +335,7 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 				if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
 					// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
 					if (nroBunker == 2)
-						res = new TilePosition(t->x(), t->y());
+						res = new TilePosition(t->x() /*- factorX*/, t->y());
 
 					//Graficos::dibujarCuadro(t, 3, 2);
 					delete t;
@@ -410,7 +343,7 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 
 					if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
 						if (nroBunker == 3)
-							res = new TilePosition(t->x(), t->y());
+							res = new TilePosition(t->x() /*- factorX*/, t->y());
 						
 						//Graficos::dibujarCuadro(t, 3, 2);
 						delete t;
@@ -452,7 +385,6 @@ int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 	int restoAngulo; // si el punto p2 tiene menor coordenada Y que el punto p1, se debe sumar 90 al angulo resultante del calculo
 	double segmentoB;
 
-
 	// Inicializo los puntos que representan a los bordes del chokepoint
 	// p1 siempre sera el borde mas a la izquierda del chokepoint
 	// en caso de que tengan la misma coordenada X (el chokepoint es vertical), p1 sera el punto que tenga la menor coordenada Y
@@ -479,7 +411,6 @@ int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 		}
 	}
 
-
 	if (p1->y() >= p2->y()){
 		restoAngulo = 90;
 		segmentoB = p1->y() - p2->y();
@@ -491,11 +422,6 @@ int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 
 	division = segmentoB / p1->getDistance(*p2);
 	angulo = asin(division) * 180.0 / PI;
-
-	/*Broodwar->printf("PUNTO1: x = %d - y = %d", p1->x(), p1->y());
-	Broodwar->printf("PUNTO2: x = %d - y = %d", p2->x(), p2->y());
-	Broodwar->printf("distancia: %lf", p1->getDistance(*p2));
-	Broodwar->printf("division: %lf", division);*/
 
 	//Broodwar->printf("el angulo es: %lf", angulo);
 

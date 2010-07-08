@@ -16,7 +16,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 	// liberar la posicion del bunker asi se puede reconstruir rapidamente
 
 	posEncuentro = NULL;
-	cuadrante = a->getCuadrante(choke->getCenter());
+	cuadrante = a->getCuadrante(reg->getCenter());
 	angulo = a->calcularAngulo(choke);
 
 	aux = a->calcularPrimerTile(reg, choke, 1);
@@ -139,6 +139,18 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 		else if (u->getType().getID() == Utilidades::ID_MARINE){
 			listMarines.push_back(u);
 		}
+		else if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
+			listTanks.push_back(u);
+			Position *p;
+			TilePosition *t;
+
+			t = posicionNuevoTanque();
+			p = new Position(t->x() * 32, t->y() * 32);
+			delete t;
+
+			u->rightClick(*p);
+			delete p;
+		}
 		else
 			Broodwar->printf("No se puede agregar ese tipo de unidad a un grupo de bunkers");
 	}
@@ -203,6 +215,24 @@ int GrupoBunkers::getCantMarines(){
 
 	if (listMarines.size() > 0){
 		while (It1 != listMarines.end()){
+			if ((*It1)->exists())
+				cont++;
+			
+			It1++;
+		}
+	}
+
+	return cont;
+}
+
+int GrupoBunkers::getCantTanks(){
+
+	std::list<Unit*>::iterator It1;
+	It1 = listTanks.begin();
+	int cont = 0;
+
+	if (listTanks.size() > 0){
+		while (It1 != listTanks.end()){
 			if ((*It1)->exists())
 				cont++;
 			
@@ -296,19 +326,23 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 	TilePosition *t;
 	int x, y;
 	int angulo, angulo1;
+	int nroTorreta;
 
-	cuadrante = analizador->getCuadrante(choke->getCenter());
+	cuadrante = analizador->getCuadrante(reg->getCenter());
 
 	if (posicionesLibresMisileTurrets.size() == 0){
 		if (listMisileTurrets.size() == 0)
-			t = analizador->calcularPrimerTile(reg, choke, 2);
+			nroTorreta = 2;
 		else
-			t = analizador->calcularPrimerTile(reg, choke, 3);
+			nroTorreta = 3;
+
+		t = analizador->calcularPrimerTile(reg, choke, nroTorreta);
 	}
 	else{
 		std::set<int>::iterator It1;
 
 		It1 = posicionesLibresMisileTurrets.begin();
+		nroTorreta = *It1;
 		t = analizador->calcularPrimerTile(reg, choke, *It1);
 	}
 
@@ -319,32 +353,89 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 	angulo = analizador->calcularAngulo(choke);
 	angulo1 = analizador->calcularAnguloGrupo(angulo);
 	
+	int offset = 0;
+
+	if (nroTorreta == 2)
+		offset = 1;
+
 	switch (cuadrante){
 		case 1:
 			if (angulo1 == 90)
-				return new TilePosition(x, y - 2);
+				return new TilePosition(x + offset, y - 2);
 			else
-				return new TilePosition(x - 2, y);
+				return new TilePosition(x - 3, y + offset);
 			break;
 		case 2:
 			if (angulo1 == 90)
-				return new TilePosition(x, y - 2);
+				return new TilePosition(x + offset, y - 2);
 			else
-				return new TilePosition(x + 2, y);
+				return new TilePosition(x + 3, y + offset);
 			break;
 		case 3:
 			if (angulo1 == 90)
-				return new TilePosition(x, y + 2);
+				return new TilePosition(x + offset, y + 2);
 			else
-				return new TilePosition(x - 2, y);
+				return new TilePosition(x - 3, y + offset);
 			break;
 		case 4:
 			if (angulo1 == 90)
-				return new TilePosition(x, y + 2);
+				return new TilePosition(x + offset, y + 2);
 			else
-				return new TilePosition(x + 2, y);
+				return new TilePosition(x + 3, y + offset);
 			break;
 	}
+}
+
+
+TilePosition* GrupoBunkers::posicionNuevoTanque(){
+	
+	TilePosition *aux;
+	int angulo, angulo1, cuadrante;
+	int offset;
+
+	aux = analizador->calcularPrimerTile(reg, choke, 1);
+	angulo = analizador->calcularAngulo(choke);
+	angulo1 = analizador->calcularAnguloGrupo(angulo);
+	cuadrante = analizador->getCuadrante(reg->getCenter());
+
+	// el grupo de bunkers esta ubicado en forma horizontal
+	if (angulo1 == 90){
+		if ((cuadrante == 1) || (cuadrante == 2))
+			offset = -2;
+		else
+			offset = 2;
+		
+		if (posicionesLibresTanques.size() == 0)
+			return (new TilePosition(aux->x() + listTanks.size(), aux->y() + offset));
+		else{
+			std::set<int>::iterator It;
+			It = posicionesLibresTanques.begin();
+			int temp = *It;
+			posicionesLibresTanques.erase(It);
+
+			return (new TilePosition(aux->x() + temp - 1, aux->y() + offset));
+		}
+
+	}
+	else if (angulo1 == 0){
+		if ((cuadrante == 1) || (cuadrante == 3))
+			offset = -2;
+		else
+			offset = 2;
+		
+		if (posicionesLibresTanques.size() == 0)
+			return (new TilePosition(aux->x() + offset, aux->y() + listTanks.size()));
+		else{
+			std::set<int>::iterator It;
+			It = posicionesLibresTanques.begin();
+			int temp = *It;
+			posicionesLibresTanques.erase(It);
+
+			return (new TilePosition(aux->x() + offset, aux->y() + temp - 1));
+		}
+	}
+	else
+		return NULL;
 }
 
 
@@ -438,15 +529,31 @@ void GrupoBunkers::onFrame(){
 
 		if (getCantBunkers() > 1)
 			ponerACubierto();
+
+		ubicarModoSiege();
 	}
 }
 
+void GrupoBunkers::ubicarModoSiege(){
+	std::list<Unit*>::iterator It;
+
+	It = listTanks.begin();
+
+	while (It != listTanks.end()){
+		if ((*It)->isIdle() && (!(*It)->isSieged()))
+			(*It)->siege();
+
+		It++;
+	}
+}
+
+
 bool GrupoBunkers::faltanMarines(){
-	
-	if (getCantMarines() < 12)
-		return true;
-	else
-		return false;
+	return (getCantMarines() < 12);
+}
+
+bool GrupoBunkers::faltanTanques(){
+	return (getCantTanks() < 3);
 }
 
 

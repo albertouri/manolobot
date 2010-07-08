@@ -40,7 +40,7 @@ unit_Manager::unit_Manager()
 	Easy = new compania(Colors::Red);
 	//Otra = new compania(Colors::Yellow);
 
-	magallanes = new Scout(getWorker());
+	//magallanes = new Scout(getWorker());
 
 	frameLatency = 0;
 
@@ -108,7 +108,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	Easy->onFrame();
 	
 	// manda al scout a explorar el mapa
-	magallanes->explorar();
+	//magallanes->explorar();
 	//Otra->onFrame();
 
 	// verifica si se termino de construir alguna unidad en este frame
@@ -117,16 +117,27 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// verifica daños en los bunkers 
 	verificarBunkers();
 
-	/*if (analizador->analisisListo()){
+	if ((analizador->analisisListo()) && (grupoB1 != NULL)){
 
 		TilePosition *t111 = NULL;
+		TilePosition *t222 = NULL;
 		
-		t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint(), 1);
+		t111 = grupoB1->posicionNuevoBunker();
+		//t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint(), 1);
 		if (t111 != NULL){
 			Graficos::dibujarCuadro(t111, 3, 2);
 			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 		}
-	}*/
+
+		t222 = grupoB1->posicionNuevaTorreta();
+		if (t222 != NULL){
+			Graficos::dibujarCuadro(t222, 2, 2);
+			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
+		}
+
+		delete t111;
+		delete t222;
+	}
 
 	//-----------------------------------------------------
 
@@ -796,7 +807,11 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_TANKSIEGE){
-		Easy->asignarUnidad(unit);
+		//Easy->asignarUnidad(unit);
+		if ((grupoB1 != NULL) && (grupoB1->faltanTanques()))
+			grupoB1->agregarUnidad(unit);
+		else
+			Easy->asignarUnidad(unit);
 	}
 
 }
