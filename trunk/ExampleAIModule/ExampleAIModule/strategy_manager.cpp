@@ -48,7 +48,7 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 	}
-	else if (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0){
+	else if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0)&&(cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
 		GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
 	}
 	else if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
