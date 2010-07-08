@@ -414,7 +414,6 @@ unit_Manager::~unit_Manager(void)
 
 
 void unit_Manager::buildUnit(TilePosition *pos, int id){
-	// posible error???
 
 	Unit* trabajador;
 	UnitType *tipo = new UnitType(id);
@@ -422,7 +421,11 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 		trabajador = getWorker();
 		
 		if (trabajador!=NULL) {
-			if ( Broodwar->canBuildHere(trabajador, /* *(new Position(*pos))*/ *pos, *tipo )){
+			if ( Broodwar->canBuildHere(trabajador, *pos, *tipo)){
+				
+				/*while (Broodwar->unitsOnTile(pos->x(), pos->y()).size() > 0){
+					moverUnidades(pos);
+				}*/
 				buildingSemaphore++;
 				trabajador->build((*pos), *tipo);
 			}

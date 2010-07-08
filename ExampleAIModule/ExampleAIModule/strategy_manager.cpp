@@ -43,7 +43,7 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 10;
 	}
-	/*else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
+	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
 		estadoActual = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
@@ -80,7 +80,7 @@ void strategy_manager::checkGoals(void){
 		GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 		ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = true;
 		GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
-	}*/
+	}
 }
 
 int* strategy_manager::getGoals(){
