@@ -91,13 +91,13 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// -----------------------------------
 	// si la unidad apuntada no esta reparando, setea el apuntador reparador a NULL, para que esa unidad vuelva a recolectar recursos
 
-	if (reparador1 != NULL){
+	if ((reparador1 != NULL)&& (reparador1->exists())){
 		Graficos::resaltarUnidad(reparador1, Colors::Yellow);
 		if (!reparador1->isRepairing())
 			reparador1 = NULL;
 	}
 	
-	if (reparador2 != NULL){
+	if ((reparador2 != NULL)&& (reparador2->exists())){
 		Graficos::resaltarUnidad(reparador2, Colors::Yellow);
 		if (!reparador2->isRepairing())
 			reparador2 = NULL;
@@ -452,7 +452,7 @@ void unit_Manager::buildUnitAddOn(int id){
 	UnitType *tipo = new UnitType(id);
 
 	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>=tipo->gasPrice())){
-		trabajador = getWorker();
+		//trabajador = getWorker();
 	
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 		{
@@ -462,7 +462,8 @@ void unit_Manager::buildUnitAddOn(int id){
 			}
 		}
 
-		if (factory != NULL) {
+		if ((factory != NULL)&& (factory->exists())) {
+			
 			factory->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP));
 		}
 	}
@@ -820,7 +821,7 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 void unit_Manager::repararUnidad(Unit *u){
 
 	if ((u != NULL) && (u->getType().getID() != 7)){
-		if ((reparador1 != NULL) && (!reparador1->isRepairing())){
+		if ((reparador1 != NULL) && (reparador1->exists()) && (!reparador1->isRepairing())){
 			// si el reparador esta seteado lo utiliza
 			if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
 				if ((u->exists())&& reparador1->exists()){
@@ -830,10 +831,10 @@ void unit_Manager::repararUnidad(Unit *u){
 			else
 				Broodwar->printf("No se puede reparar esa unidad");
 		}
-		else if ((reparador2 != NULL) && (!reparador2->isRepairing())){
+		else if ((reparador2 != NULL) && (reparador2->exists()) &&(!reparador2->isRepairing())){
 			// si el reparador esta seteado lo utiliza
 			if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
-				if ((u->exists())&& reparador2->exists()){
+				if ((u->exists())&& (reparador2->exists())){
 					reparador2->repair(u);
 				}
 			}
