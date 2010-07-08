@@ -152,7 +152,7 @@ Scout::Scout(BWAPI::Unit *unidad)
 
 
 
-	Broodwar->printf("Hay %d posiciones a explorar", cantPosiciones);
+	//Broodwar->printf("Hay %d posiciones a explorar", cantPosiciones);
 
 	explorer->rightClick(*posiciones[cont]);
 	cont++;

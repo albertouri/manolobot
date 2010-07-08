@@ -2,10 +2,6 @@
 #include <list>
 
 
-
-/*GrupoBunkers::GrupoBunkers(void)
-{
-}*/
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 {
 	int cuadrante, angulo;
@@ -279,6 +275,7 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 	return false;
 }
 
+
 TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	if (!analizador->analisisListo())
 		return NULL;
@@ -431,6 +428,8 @@ void GrupoBunkers::ponerACubierto(){
 
 void GrupoBunkers::onFrame(){
 
+	resaltarUnidades();
+
 	if (Broodwar->getFrameCount() % frameLatency == 0){
 		//Broodwar->printf("bunker onFrame");
 
@@ -450,6 +449,7 @@ bool GrupoBunkers::faltanMarines(){
 		return false;
 }
 
+
 void GrupoBunkers::moverSoldadosPosEncuentro(){
 	if (posEncuentro != NULL){
 		std::list<Unit*>::iterator It1;
@@ -461,5 +461,31 @@ void GrupoBunkers::moverSoldadosPosEncuentro(){
 
 			It1++;
 		}
+	}
+}
+
+
+void GrupoBunkers::resaltarUnidades(){
+	std::list<Unit*>::iterator It1;
+
+	It1 = listMarines.begin();
+
+	while (It1 != listMarines.end()){
+		if (((*It1)->isCompleted()) && (!(*It1)->isLoaded()))
+			//Graficos::dibujarCirculo((*It1)->getPosition(), (*It1)->getType().tileWidth(), (*It1)->getType().tileHeight());
+			Graficos::resaltarUnidad((*It1), Colors::White);
+
+		It1++;
+	}	
+
+	// ---------------------------------------------------------------------
+
+	It1 = listTanks.begin();
+
+	while (It1 != listTanks.end()){
+		if (((*It1)->isCompleted()) && (!(*It1)->isLoaded()))
+			Graficos::resaltarUnidad((*It1), Colors::White);
+
+		It1++;
 	}
 }

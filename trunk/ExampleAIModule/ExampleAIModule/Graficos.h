@@ -19,6 +19,7 @@ public:
 
 	// Dibuja un rectangulo con la posicion y dimensiones pasadas como parametro
 	static void dibujarCuadro(TilePosition* p, int tilesAncho, int tilesAlto);
+	static void dibujarCirculo(TilePosition p, int tilesAncho, int tilesAlto);
 	
 	// Dibuja en el mapa los resultados del analisis del terreno realizado por el BWTA
 	static void dibujarTerreno(bool show_visibility_data, bool analyzed); 

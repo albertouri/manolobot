@@ -4,6 +4,7 @@
 #include <BWTA.h>
 #include "Utilidades.h"
 #include "AnalizadorTerreno.h"
+#include "Graficos.h"
 
 using namespace BWAPI;
 using namespace BWTA;
@@ -53,5 +54,7 @@ private:
 	void ponerACubierto(); // ordena a los soldados que esten fuera de bunkers que ingresen en ellos
 	void moverSoldadosPosEncuentro(); // mueve los soldados que estan fuera de los bunkers a un punto de encuentro, asi, en caso de que los soldados estaban en un bunker que fue destruido, liberan la zona para reconstruir el bunker
 	Position *posEncuentro; // posicion de encuentro de los soldados del grupo de bunkers
+
+	void resaltarUnidades();
 	
 };
