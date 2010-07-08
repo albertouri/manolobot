@@ -19,7 +19,7 @@ compania::~compania(void)
 void compania::asignarUnidad(Unit *u){
 	
 	if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
-		if (comandante!=NULL){
+		if ((comandante!=NULL)&&(comandante->exists())){
 			//Broodwar->printf("el comandante no es nulo");
 			u->rightClick(comandante->getPosition());
 		}
