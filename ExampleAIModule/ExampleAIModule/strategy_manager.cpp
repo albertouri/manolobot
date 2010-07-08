@@ -42,9 +42,8 @@ void strategy_manager::checkGoals(void){
 		estadoActual = 0;
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 10;
-
-	} // no hay barraca
-	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
+	}
+	/*else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
 		estadoActual = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
@@ -60,14 +59,15 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
 		//GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
 	}
-	else if (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 1){
+	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
+		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
+		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
 		GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 	}
-	else if(cantUnidades[Utilidades::INDEX_GOAL_FACTORY] == 1){
+	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
 		GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
-	}
-	else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+		
 		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
@@ -75,17 +75,12 @@ void strategy_manager::checkGoals(void){
 		// de completarse la misma, se debera setear esta flag en false desde el evento onUnitDestroy, a menos
 		// que exista mas de un edificio de este tipo
 		ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
-
 	}
-	else if (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE]) {
+	else if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
 		GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 		ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = true;
 		GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
-	}
-	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
-		GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
-		ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
-	}
+	}*/
 }
 
 int* strategy_manager::getGoals(){

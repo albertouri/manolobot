@@ -56,4 +56,6 @@ private:
 	Unit* controlarFinalizacion(); // retorna la primera unidad que haya sido terminada de construir que encuentre en la lista, NULL si no encuentra ninguna
 
 	int cantUnidades[34];
+
+	void finalizarConstruccion(Unit *u); // manda un SCV a finalizar la construccion que no fue finalizada y actualmente no esta siendo construida por ninguna unidad
 };

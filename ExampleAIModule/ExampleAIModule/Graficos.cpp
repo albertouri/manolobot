@@ -12,6 +12,13 @@ void Graficos::dibujarCuadro(TilePosition* p, int tilesAncho, int tilesAlto){
 	Broodwar->drawBox(CoordinateType::Map, p->x() * 32, p->y() * 32, p->x() * 32 + tilesAncho * 32, p->y() * 32 + tilesAlto * 32, Colors::Orange, false);
 }
 
+void Graficos::dibujarCirculo(TilePosition p, int tilesAncho, int tilesAlto){
+	if (tilesAncho > tilesAlto)
+		Broodwar->drawCircle(CoordinateType::Map, p.x() * 32, p.y() * 32, tilesAncho * 32 / 2, Colors::White, false);
+	else
+		Broodwar->drawCircle(CoordinateType::Map, p.x() * 32, p.y() * 32, tilesAlto * 32 / 2, Colors::White, false);
+}
+
 
 void Graficos::resaltarUnidad(Unit *u, Color c){
 

@@ -20,7 +20,7 @@ void compania::asignarUnidad(Unit *u){
 	
 	if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
 		if (comandante!=NULL){
-			Broodwar->printf("el comandante no es nulo");
+			//Broodwar->printf("el comandante no es nulo");
 			u->rightClick(comandante->getPosition());
 		}
 		listaDeTanquesAUbicar.push_front(u);

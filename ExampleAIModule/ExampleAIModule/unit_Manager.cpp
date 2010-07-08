@@ -36,9 +36,9 @@ Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calc
 
 unit_Manager::unit_Manager()
 {
-	Broodwar->printf("necesito %d, tengo %d", goalCantUnidades[Utilidades::INDEX_GOAL_MARINE], cantUnidades[Utilidades::INDEX_GOAL_MARINE]);
+	//Broodwar->printf("necesito %d, tengo %d", goalCantUnidades[Utilidades::INDEX_GOAL_MARINE], cantUnidades[Utilidades::INDEX_GOAL_MARINE]);
 	Easy = new compania(Colors::Red);
-	Otra = new compania(Colors::Yellow);
+	//Otra = new compania(Colors::Yellow);
 
 	magallanes = new Scout(getWorker());
 
@@ -79,25 +79,43 @@ unit_Manager::unit_Manager()
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 	// Crea un nuevo grupo de bunkers
-	if (grupoB1 == NULL){ 
-		if (analizador->analisisListo())
-			grupoB1 = new GrupoBunkers(analizador);
-	}
-	else
-		grupoB1->onFrame();
 
-	// manda al scout a explorar el mapa
-	magallanes->explorar();
+	if (analizador->analisisListo()){
+		if (grupoB1 == NULL)
+			grupoB1 = new GrupoBunkers(analizador);
+		else
+			grupoB1->onFrame();
+	}
+	
+
+	// -----------------------------------
+	// si la unidad apuntada no esta reparando, setea el apuntador reparador a NULL, para que esa unidad vuelva a recolectar recursos
+
+	if (reparador1 != NULL){
+		Graficos::resaltarUnidad(reparador1, Colors::Yellow);
+		if (!reparador1->isRepairing())
+			reparador1 = NULL;
+	}
+	
+	if (reparador2 != NULL){
+		Graficos::resaltarUnidad(reparador2, Colors::Yellow);
+		if (!reparador2->isRepairing())
+			reparador2 = NULL;
+	}
+
+	// -----------------------------------
 
 	Easy->onFrame();
-	Otra->onFrame();
+	
+	// manda al scout a explorar el mapa
+	magallanes->explorar();
+	//Otra->onFrame();
 
 	// verifica si se termino de construir alguna unidad en este frame
 	//ultimaFinalizada = controlarFinalizacion();
 
-	// verifica daños en los bunkers
+	// verifica daños en los bunkers 
 	verificarBunkers();
-
 
 	/*if (analizador->analisisListo()){
 
@@ -141,19 +159,27 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		frameLatency=0;
 		buildingSemaphore=0;
 		
+		
 		//-- CODIGO PARA REPARAR UNIDADES 
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
-			if (((*i)->getType().isBuilding())&&((*i)->getType().maxEnergy()>(*i)->getEnergy())){
+			// si es una edificacion o es una unidad mecanica, verifica si esta dañada y la repara
+			if ((((*i)->getType().isBuilding()) || ((*i)->getType().isMechanical())) && ((*i)->isCompleted()) && ((*i)->getType().maxHitPoints() > (*i)->getHitPoints())){
 				repararUnidad(*i);
-			}		
+			}
+			else if ((*i)->getType().isBuilding() && (!(*i)->isCompleted()) && (!(*i)->isBeingConstructed())){
+				// si una unidad es una edificacion, no esta completada y no esta siendo construida por nadie (es decir quedo su construccion incompleta) manda a un SCV a finalizar su construccion
+				finalizarConstruccion(*i);
+			}
 		}
 		//-- TERMINA EL CODIGO PARA REPARAR UNIDADES
+		
+
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 		{
 			if ((*i)->getType().isWorker()){
 				trabajador = (*i);
 
-				// si el reparador esta seteado se deja ese SCV idle
+				// estas condiciones evitan que un SCV que esta reparando una unidad sea enviado a recolectar recursos
 				// si el reparador no esta seteado se manda a trabajar a todos los SCV
 				bool condicion1 = ((reparador1 != NULL) && (trabajador->getID() != reparador1->getID())) || reparador1 == NULL;
 				bool condicion2 = ((reparador2 != NULL) && (trabajador->getID() != reparador2->getID())) || reparador2 == NULL;
@@ -174,7 +200,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 						if ((*i)->getType().isWorker()){
 							trabajador = (*i);
 
-							// si el reparador esta seteado se deja ese SCV idle
+							// estas condiciones evitan que un SCV que esta reparando una unidad sea enviado a recolectar recursos
 							// si el reparador no esta seteado se manda a trabajar a todos los SCV
 							bool condicion1 = ((reparador1 != NULL) && (trabajador->getID() != reparador1->getID())) || reparador1 == NULL;
 							bool condicion2 = ((reparador2 != NULL) && (trabajador->getID() != reparador2->getID())) || reparador2 == NULL;
@@ -250,7 +276,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// ------------------------- construccion bunkers -------------------------
 
 	//if((Broodwar->self()->minerals() > 150)&& ((Broodwar->self()->allUnitCount(*(new UnitType(Utilidades::ID_BUNKER))))<goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER])&&(buildingSemaphore == 0)){
-	if((Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
+	if((grupoB1 != NULL) && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
@@ -263,7 +289,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 	}
 
-	if((cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < goalCantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+	if((grupoB1 != NULL) && (cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < goalCantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
 		TilePosition *posB = NULL;
 
@@ -775,34 +801,48 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 
 void unit_Manager::repararUnidad(Unit *u){
 
-	if ((reparador1 != NULL) && (u != NULL)){
-		// si el reparador esta seteado lo utiliza
-		if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
-			if ((u->exists())&& reparador1->exists()){
-				reparador1->repair(u);
-				//reparador2->repair(u);
-			}
-		}
-		else
-			Broodwar->printf("No se puede reparar esa unidad");
-	}
-	else{
-		// sino utiliza cualquier SCV para reparar la unidad bajo ataque
-		if (u != NULL){
-			if (((u->getType().isMechanical()) || (u->getType().isBuilding())) && (u->exists())){
-
-				for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
-					if ((*i)->getType().isWorker()){
-						(*i)->repair(u);
-						break;
-					}
+	if ((u != NULL) && (u->getType().getID() != 7)){
+		if ((reparador1 != NULL) && (!reparador1->isRepairing())){
+			// si el reparador esta seteado lo utiliza
+			if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
+				if ((u->exists())&& reparador1->exists()){
+					reparador1->repair(u);
 				}
 			}
 			else
 				Broodwar->printf("No se puede reparar esa unidad");
 		}
+		else if ((reparador2 != NULL) && (!reparador2->isRepairing())){
+			// si el reparador esta seteado lo utiliza
+			if ((u->getType().isMechanical()) || (u->getType().isBuilding())){
+				if ((u->exists())&& reparador2->exists()){
+					reparador2->repair(u);
+				}
+			}
+			else
+				Broodwar->printf("No se puede reparar esa unidad");
+		}
+		else{
+			if ((reparador1 == NULL) || (reparador2 == NULL)){
+				// selecciona cualquier SCV que este recolectando recursos para reparar la unidad
+				if (((u->getType().isMechanical()) || (u->getType().isBuilding())) && (u->exists())){
+					for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+						if (((*i)->getType().isWorker()) && (!(*i)->isRepairing()) && (!(*i)->isConstructing())){
+							if (reparador1 == NULL)
+								reparador1 = (*i);
+							else
+								reparador2 = (*i);
+							
+							(*i)->repair(u);
+							break;
+						}
+					}
+				}
+				else
+					Broodwar->printf("No se puede reparar esa unidad");
+			}
+		}
 	}
-
 }
 
 
@@ -813,7 +853,7 @@ void unit_Manager::verificarBunkers(){
 	for(std::set<Unit*>::const_iterator i=enemigo->getUnits().begin();i!=enemigo->getUnits().end();i++){
 		u = (*i);
 
-		if (u->isAttacking()){
+		if ((u != NULL) && (u->exists()) && (u->isAttacking())){
 			atacado = u->getOrderTarget();
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
@@ -839,7 +879,7 @@ void unit_Manager::nuevaUnidadConstruccion(Unit *u){
 	if (u != NULL){
 		unidadesEnConstruccion.push_front(u);
 
-		if ((u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
+		if ((grupoB1 != NULL) && (u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
 			grupoB1->agregarUnidad(u);
 	}
 }
@@ -1022,5 +1062,16 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 		}
 
+	}
+}
+
+
+void unit_Manager::finalizarConstruccion(Unit *u){
+
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+		if (((*i)->getType().isWorker()) && (!(*i)->isRepairing()) && (!(*i)->isConstructing())){
+			(*i)->rightClick(u);
+			break;
+		}
 	}
 }
