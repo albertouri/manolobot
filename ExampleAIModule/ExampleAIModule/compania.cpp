@@ -23,6 +23,16 @@ void compania::asignarUnidad(Unit *u){
 			//Broodwar->printf("el comandante no es nulo");
 			u->rightClick(comandante->getPosition());
 		}
+		else{
+			Unit* bunker;
+			for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+				if (((*i)->getType().getID()==Utilidades::ID_BUNKER)){
+					bunker = (*i);
+					break;
+				}
+			}
+			if ((bunker != NULL)&&(bunker->exists())) u->rightClick(bunker->getPosition());
+		}
 		listaDeTanquesAUbicar.push_front(u);
 	}
 	else{
