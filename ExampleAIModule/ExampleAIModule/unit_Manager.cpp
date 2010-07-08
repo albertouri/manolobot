@@ -40,7 +40,7 @@ unit_Manager::unit_Manager()
 	Easy = new compania(Colors::Red);
 	//Otra = new compania(Colors::Yellow);
 
-	//magallanes = new Scout(getWorker());
+	magallanes = new Scout(getWorker());
 
 	frameLatency = 0;
 
@@ -108,7 +108,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	Easy->onFrame();
 	
 	// manda al scout a explorar el mapa
-	//magallanes->explorar();
+	magallanes->explorar();
 	//Otra->onFrame();
 
 	// verifica si se termino de construir alguna unidad en este frame
