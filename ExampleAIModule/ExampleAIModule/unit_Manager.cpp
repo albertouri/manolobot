@@ -1062,6 +1062,7 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_REFINERY]--;
 				break;
 			case Utilidades::ID_SCV:
+				Broodwar->printf("mataron a kenny");
 				cantUnidades[Utilidades::INDEX_GOAL_SCV]--;
 				break;
 			case Utilidades::ID_FACTORY:

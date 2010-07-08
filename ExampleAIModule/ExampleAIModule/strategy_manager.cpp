@@ -41,7 +41,7 @@ void strategy_manager::checkGoals(void){
 	if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
 		estadoActual = 0;
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
-		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 10;
+		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 9;
 	}
 	else if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
 		estadoActual = 1;
@@ -57,6 +57,7 @@ void strategy_manager::checkGoals(void){
 	else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 		GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
+		GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 		//GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
 	}
 	else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
