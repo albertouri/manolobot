@@ -37,7 +37,6 @@ void strategy_manager::checkGoals(void){
 		}
 	}
 
-	//no tengo una refineria
 	if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
 		estadoActual = 0;
 		GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
@@ -69,7 +68,7 @@ void strategy_manager::checkGoals(void){
 		GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
 		GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 		
-		GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
+		GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 12;
 		GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 		// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
