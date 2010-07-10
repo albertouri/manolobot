@@ -145,7 +145,7 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 			TilePosition *t;
 
 			t = posicionNuevoTanque();
-			p = new Position(t->x() * 32, t->y() * 32);
+			p = new Position(t->x() * 32 + 16, t->y() * 32 + 16);
 			delete t;
 
 			u->rightClick(*p);
@@ -487,6 +487,22 @@ void GrupoBunkers::controlDestruidos(){
 		}
 		else
 			It1++;
+	}
+
+
+	// ----------- controla los tanques -----------
+	It1 = listTanks.begin();
+	while (It1 != listTanks.end()){
+		if (!(*It1)->exists()){
+			listTanks.erase(It1);
+			It1 = listTanks.begin(); // tuve que poner esto porque sino se colgaba el while...
+
+			posicionesLibresTanques.insert(cont);
+		}
+		else
+			It1++;
+
+		cont++;
 	}
 }
 

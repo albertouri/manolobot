@@ -39,7 +39,7 @@ void strategy_manager::checkGoals(void){
 		}
 	}
 
-	if (estadoActual == 0){
+	//if (estadoActual == 0){
 		if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
 			estadoActual = 0;
 			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
@@ -48,15 +48,15 @@ void strategy_manager::checkGoals(void){
 
 		if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3)){
 		//if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 18;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		}
 		
-		if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 3) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] == 22))
+		/*if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 3) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] == 22))
 			estadoActual = 1;
 	}
-	else if (estadoActual == 1){
-		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0)&&(cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
+	else if (estadoActual == 1){*/
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
 			GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
 		}
 		else if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
@@ -66,18 +66,17 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
-			//GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
-			//ResearchDone[Utilidades::INDEX_GOAL_U238] = true;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
 			GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 			
-			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 12;
+			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
+			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 8;
 			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 			// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
@@ -87,10 +86,9 @@ void strategy_manager::checkGoals(void){
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
-			//ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = true;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 		}
-	}
+	//}
 }
 
 int* strategy_manager::getGoals(){
