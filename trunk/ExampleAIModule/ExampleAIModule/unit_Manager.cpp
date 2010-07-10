@@ -494,7 +494,6 @@ void unit_Manager::makeRefinery(TilePosition *pos){
 		
 			if (Broodwar->self()->minerals() > 150) {
 				trabajador->build((*geyserPos), *(new UnitType(Utilidades::ID_REFINERY)));
-				//cantRefinerias++;
 			}
 		}
 
@@ -536,7 +535,6 @@ void unit_Manager::trainWorker(){
 	if(centroDeComando->exists()){
 		if(Broodwar->self()->minerals()>=150){	
 			centroDeComando->train(Broodwar->self()->getRace().getWorker());
-			//cantSCV++;		
 		}
 	}
 }
@@ -792,10 +790,6 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 			grupoB1->agregarUnidad(unit);
 		else
 			Easy->asignarUnidad(unit);
-
-
-		/*if (Easy->countMarines() < 12) { Easy->asignarUnidad(unit); }
-		else { Otra->asignarUnidad(unit); }*/
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
 		Easy->asignarUnidad(unit);
@@ -804,7 +798,6 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_TANKSIEGE){
-		//Easy->asignarUnidad(unit);
 		if ((grupoB1 != NULL) && (grupoB1->faltanTanques()))
 			grupoB1->agregarUnidad(unit);
 		else
@@ -1030,11 +1023,20 @@ void unit_Manager::onUnitCreate(Unit *u){
 
 void unit_Manager::onUnitDestroy(Unit *u){
 	
+	// TODO: si un edificio por ejemplo la academia terran es destruido, y se tenia solo un edificio de ese tipo,
+	// se pierden todas las mejoras investigadas anteriormente, y se deberan investigar de nuevo
+	// Esto se debera actualizar solamente en el metodo onUnitDestroy de la clase unit_Manager
+
 	if(Broodwar->self()== u->getPlayer()){
 
 		switch (u->getType().getID()){
 			case Utilidades::ID_ACADEMY:
 				cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]--;
+
+				if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
+					researchDone[Utilidades::INDEX_GOAL_U238] = false;
+					researchDone[Utilidades::INDEX_GOAL_STIMPACK] = false;
+				}
 				break;
 			case Utilidades::ID_BARRACK:
 				cantUnidades[Utilidades::INDEX_GOAL_BARRACK]--;
@@ -1066,6 +1068,10 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_MACHINESHOP:
 				cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]--;
+
+				if (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 0){
+					researchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = false;
+				}
 				break;
 			case Utilidades::ID_TANKSIEGE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
