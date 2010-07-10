@@ -25,6 +25,8 @@ public:
 	void onUnitCreate(Unit *u);
 	void onUnitDestroy(Unit *u);
 
+	bool* getResearchsDone();
+
 	~unit_Manager(void);
 
 private:

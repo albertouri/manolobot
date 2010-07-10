@@ -109,7 +109,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	
 	// manda al scout a explorar el mapa
 	magallanes->explorar();
-	//Otra->onFrame();
 
 	// verifica si se termino de construir alguna unidad en este frame
 	//ultimaFinalizada = controlarFinalizacion();
@@ -359,10 +358,10 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 				if (u->isCompleted() && (!u->isResearching()) && (!u->isUpgrading())){
 					// Construccion de la academia finalizada, se puede investigar mejoras
-
 					Broodwar->printf("Investigando mejora stim pack en academia...");
 					TechType *t = new TechType(TechTypes::Stim_Packs);
 					u->research(*t);
+
 					delete t;
 					researchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
 				}
@@ -394,7 +393,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	}
 
 	if (!researchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE]){
-		// mejora de alcance para marines (se investiga en academia terran)
+		// investigacion de modo asedio de tanques
 		if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] == 1)){
 			Unit *u;
 
@@ -403,8 +402,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			if (u != NULL){
 
 				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
-					// Construccion de la academia finalizada, se puede investigar mejoras
-
 					Broodwar->printf("Investigando ampliación a Modo Asedio");
 					TechType *t = new TechType(TechTypes::Tank_Siege_Mode);
 					u->research(*t);
@@ -447,7 +444,6 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 
 void unit_Manager::buildUnitAddOn(int id){
 	
-	Unit* trabajador;
 	Unit* factory = NULL;
 	UnitType *tipo = new UnitType(id);
 
@@ -1094,4 +1090,9 @@ void unit_Manager::finalizarConstruccion(Unit *u){
 			break;
 		}
 	}
+}
+
+
+bool* unit_Manager::getResearchsDone(){
+	return researchDone;
 }

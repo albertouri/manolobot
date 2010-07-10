@@ -15,10 +15,9 @@ public:
 
 	void onUnitCreate(Unit *u);
 	void onUnitDestroy(Unit *u);
+
+	void setResearchsDone(bool *rd);
 	
-	bool investigado(int ID_tech);
-
-
 private:
 	int GoalUnidades[34];
 	int cantUnidades[34]; // mantiene la cantidad de unidades de cada tipo que hay actualmente
