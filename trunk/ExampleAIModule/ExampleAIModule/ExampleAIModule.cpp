@@ -76,7 +76,7 @@ void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 			int seconds=Broodwar->getFrameCount()/24;
 			int minutes=seconds/60;
 			seconds%=60;
-			Broodwar->sendText("%.2d:%.2d: %s creates a %s",minutes,seconds,unit->getPlayer()->getName().c_str(),unit->getType().getName().c_str());
+			//Broodwar->sendText("%.2d:%.2d: %s creates a %s",minutes,seconds,unit->getPlayer()->getName().c_str(),unit->getType().getName().c_str());
 		}
 	}
 
@@ -89,7 +89,7 @@ void ExampleAIModule::onUnitDestroy(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay()){
 		agente->onUnitDestroy(unit);
-		Broodwar->sendText("A %s [%x] has been destroyed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		//Broodwar->sendText("A %s [%x] has been destroyed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 	}
 }
 

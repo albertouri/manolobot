@@ -30,6 +30,7 @@ ManoloBot::ManoloBot(void)
 void ManoloBot::checkGoals(void){
 
 	if(latency >=50){
+		strategyManager->setResearchsDone(unitManager->getResearchsDone());
 		strategyManager->checkGoals();
 		
 		unitManager->setGoals(strategyManager->getGoals());
