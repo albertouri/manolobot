@@ -34,7 +34,7 @@ private:
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);
 	int contarUnidades(std::list<Unit*> *lista);
-
+	void moverCompania(TilePosition pos);
 	void actualizarEstado(std::list<Unit*> *lista); // elimina de la lista las unidades que hayan dejado de existir...
 
 };

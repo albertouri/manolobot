@@ -253,26 +253,35 @@ void compania::onFrame(){
 	}
 
 	if (comandante != NULL){
+		
+		
+		
 		// si no esta atacando ningun objetivo, se busca algun nuevo objetivo para atacar
 		if ((comandante->getTarget() == NULL) || (!comandante->getTarget()->exists())){
-			double minDist = 10000;
-			Unit *masCercana = NULL;
+			
+			if(listMarines.size() > 9){
+				double minDist = 10000;
+				Unit *masCercana = NULL;
 
-			for(std::set<Unit*>::const_iterator i=Broodwar->enemy()->getUnits().begin();i!=Broodwar->enemy()->getUnits().end();i++){
-				if ((*i)->exists()){
-					if (comandante->getPosition().getApproxDistance((*i)->getPosition()) < minDist){
-						minDist = comandante->getPosition().getApproxDistance((*i)->getPosition());
-						masCercana = *i;
+				for(std::set<Unit*>::const_iterator i=Broodwar->enemy()->getUnits().begin();i!=Broodwar->enemy()->getUnits().end();i++){
+					if ((*i)->exists()){
+						if (comandante->getPosition().getApproxDistance((*i)->getPosition()) < minDist){
+							minDist = comandante->getPosition().getApproxDistance((*i)->getPosition());
+							masCercana = *i;
+						}
 					}
 				}
-			}
 
-			if (masCercana != NULL)
-				atacar(masCercana);
+				if (masCercana != NULL)
+					atacar(masCercana);
+			}
 		}
+
 	}
 	if (listaDeTanquesAUbicar.size() > 0){
-		if (latencia>100){
+		if (latencia>100){			
+			
+			//revisar si hay que ubicar algun tanque en modo asedio
 			std::list<Unit*>::iterator It1;
 			It1 = listaDeTanquesAUbicar.begin();
 
@@ -284,6 +293,29 @@ void compania::onFrame(){
 				}
 			}
 			latencia = 0;
+			
 		} else {latencia++;}
+	}
+}
+
+
+
+void compania::moverCompania(TilePosition pos){
+
+	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists())){
+		
+		std::list<Unit*>::iterator It1;
+		It1 = listMarines.begin();
+
+		while(It1 != listMarines.end()){
+			if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
+			else {
+				if ((*It1)->getDistance(comandante->getPosition())>2) (*It1)->rightClick(comandante->getPosition());
+				It1++; 
+			}
+		}
+	}
+	else{
+		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
 	}
 }

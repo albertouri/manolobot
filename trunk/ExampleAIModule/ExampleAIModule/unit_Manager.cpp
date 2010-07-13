@@ -476,7 +476,7 @@ void unit_Manager::makeRefinery(TilePosition *pos){
 	TilePosition *geyserPos = NULL;
 
 	//if ((cantRefinerias < goalLimiteGeiser)&&(Broodwar->self()->minerals()>100)){
-	if ((cantUnidades[Utilidades::INDEX_GOAL_REFINERY] < goalLimiteGeiser)&&(Broodwar->self()->minerals()>100)){
+	if ((cantUnidades[Utilidades::INDEX_GOAL_REFINERY] < goalLimiteGeiser)&&(Broodwar->self()->minerals()>50)){
 		trabajador = getWorker();
 		Unit* closestGeiser=NULL;
 		if (trabajador != NULL){
@@ -533,7 +533,7 @@ Unit* unit_Manager::getUnit(int IDTipo){
 
 void unit_Manager::trainWorker(){
 	if(centroDeComando->exists()){
-		if(Broodwar->self()->minerals()>=150){	
+		if((Broodwar->self()->minerals()>50) && (centroDeComando->getTrainingQueue().size() < 2)){	
 			centroDeComando->train(Broodwar->self()->getRace().getWorker());
 		}
 	}
@@ -546,7 +546,7 @@ void unit_Manager::trainMarine(){
 		if ((*i)->getType().getID() == Utilidades::ID_BARRACK){
 			firstBarrack = (*i);
 
-			if ((firstBarrack != NULL) && (Broodwar->canMake(firstBarrack, Utilidades::ID_MARINE)) && (firstBarrack->getTrainingQueue().size() < 5)){
+			if ((firstBarrack != NULL) && (Broodwar->canMake(firstBarrack, Utilidades::ID_MARINE)) && (firstBarrack->getTrainingQueue().size() < 2)){
 				firstBarrack->train(*(new UnitType(Utilidades::ID_MARINE)));
 				break;
 			}
@@ -561,7 +561,7 @@ void unit_Manager::trainMedic(){
 		if ((*i)->getType().getID() == Utilidades::ID_BARRACK){
 			firstBarrack = (*i);
 			
-			if ((firstBarrack != NULL) && (Broodwar->canMake(firstBarrack, Utilidades::ID_MEDIC)) && (firstBarrack->getTrainingQueue().size() < 5)){
+			if ((firstBarrack != NULL) && (Broodwar->canMake(firstBarrack, Utilidades::ID_MEDIC)) && (firstBarrack->getTrainingQueue().size() < 2)){
 				firstBarrack->train(*(new UnitType(Utilidades::ID_MEDIC)));
 				break;
 			}
@@ -576,7 +576,7 @@ void unit_Manager::trainTankSiege(){
 		if ((*i)->getType().getID() == Utilidades::ID_FACTORY){
 			firstFactory = (*i);
 
-			if ((firstFactory != NULL) && (Broodwar->canMake(firstFactory, Utilidades::ID_TANKSIEGE)) && (firstFactory->getTrainingQueue().size() < 5)){
+			if ((firstFactory != NULL) && (Broodwar->canMake(firstFactory, Utilidades::ID_TANKSIEGE)) && (firstFactory->getTrainingQueue().size() < 2)){
 				firstFactory->train(*(new UnitType(Utilidades::ID_TANKSIEGE)));
 				break;
 			}
@@ -1005,11 +1005,13 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_TANKSIEGE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
+				Broodwar->printf("creando a boby sin siege, tengo %d tanques", cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				asignarUnidadACompania(u);
 				break;
-			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
+/*			case Utilidades::ID_TANKSIEGE_SIEGEMODE:				
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
-				break;
+				Broodwar->printf("creando a bobyTOOOON!! CON siege, tengo %d tanques", cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
+				break;*/
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
 				break;
@@ -1060,7 +1062,6 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_REFINERY]--;
 				break;
 			case Utilidades::ID_SCV:
-				Broodwar->printf("mataron a kenny");
 				cantUnidades[Utilidades::INDEX_GOAL_SCV]--;
 				break;
 			case Utilidades::ID_FACTORY:
@@ -1075,9 +1076,11 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_TANKSIEGE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
+				Broodwar->printf("mataron a boby sin siege, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				break;
 			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
+				Broodwar->printf("mataron a kenny, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				break;
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
