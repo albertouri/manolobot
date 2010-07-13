@@ -39,23 +39,30 @@ void strategy_manager::checkGoals(void){
 		}
 	}
 
-	//if (estadoActual == 0){
+	if (estadoActual == 0){
 		if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
 			estadoActual = 0;
-			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
+			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 9;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 10;
 		}
 
-		if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3)){
-		//if (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 3) {
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 18;
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1)&&(cantUnidades[Utilidades::INDEX_GOAL_MARINE] < 4)){
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 20;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
+		}
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] >= 1)&& (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
+			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
+		}
+		else if(cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2){
+			estadoActual = 1;
 		}
 		
 		/*if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 3) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] == 22))
 			estadoActual = 1;
+			*/
 	}
-	else if (estadoActual == 1){*/
+	else if (estadoActual == 1){
 		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
 			GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
 		}
@@ -76,7 +83,7 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 			
 			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
-			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 8;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
 			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 			// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
@@ -88,7 +95,7 @@ void strategy_manager::checkGoals(void){
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 		}
-	//}
+	}
 }
 
 int* strategy_manager::getGoals(){
