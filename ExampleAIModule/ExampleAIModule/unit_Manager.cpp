@@ -119,19 +119,20 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	verificarBunkers(); // verifica daños en los bunkers 
 
 	//-- seccion que imprime algunos graficos en pantalla, solo a fines de debugging
-	/*if ((analizador->analisisListo()) && (grupoB1 != NULL)){
+	if ((analizador->analisisListo()) && (grupoB1 != NULL)){
 
 		TilePosition *t111 = NULL;
 		TilePosition *t222 = NULL;
 		TilePosition *t333 = NULL;
 		
 		t111 = grupoB1->posicionNuevoBunker();
-		//t111 = analizador->calcularPrimerTile(analizador->regionInicial(), analizador->obtenerChokepoint(), 1);
 		if (t111 != NULL){
 			Graficos::dibujarCuadro(t111, 3, 2);
-			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
+			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 			delete t111;
 		}
+		else
+			Broodwar->printf("no encuentra posicion para el primer bunker");
 
 		t222 = grupoB1->posicionNuevaTorreta();
 		if (t222 != NULL){
@@ -147,7 +148,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			delete t333;
 		}
 		
-	}*/
+	}
 
 	// ---------------------------------------------------------------------------
 	//--						CODIGO DE REPARACION DE UNIDADES
