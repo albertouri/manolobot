@@ -51,7 +51,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 	}
 	}
 	else
-		Broodwar->printf("No encuentro posicion para la posicion de encuentro");
+		Broodwar->printf("No encuentro ubicacion para la posicion de encuentro");
 	// ------------------------------------------------------------------------------------------
 
 }
