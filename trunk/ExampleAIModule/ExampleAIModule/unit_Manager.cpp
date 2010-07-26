@@ -109,7 +109,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	if (Easy != NULL)
 		Easy->onFrame();
 	else
-		Broodwar->printf("Easy es null, cagamos!");
+		Broodwar->printf("ERROR: Easy es NULL");
 	
 	magallanes->explorar(); // manda al scout a explorar el mapa
 
@@ -126,13 +126,12 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		TilePosition *t333 = NULL;
 		
 		t111 = grupoB1->posicionNuevoBunker();
+
 		if (t111 != NULL){
 			Graficos::dibujarCuadro(t111, 3, 2);
 			Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 			delete t111;
 		}
-		else
-			Broodwar->printf("no encuentra posicion para el primer bunker");
 
 		t222 = grupoB1->posicionNuevaTorreta();
 		if (t222 != NULL){
@@ -329,6 +328,8 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 			delete posB;
 		}
+		else
+			Broodwar->printf("ERROR: No encuentro posicion para construir el bunker");
 		delete building;
 	}
 
@@ -345,6 +346,9 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 			delete posB;
 		}
+		else
+			Broodwar->printf("ERROR: No encuentro posicion para construir el misile turret");
+
 		delete building;
 	}
 

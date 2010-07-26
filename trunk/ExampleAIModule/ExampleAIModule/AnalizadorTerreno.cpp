@@ -203,6 +203,9 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, in
 	angulo = calcularAngulo(c);
 	res = encontrarPosicion(cuadrante, c->getCenter(), angulo, nroBunker);
 
+	if (res == NULL)
+		Broodwar->printf("ERROR: No se encontro posicion - Metodo: calcularPrimerTile - Clase: AnalizadorTerreno");
+
 	return res;
 }
 
