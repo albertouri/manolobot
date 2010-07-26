@@ -37,15 +37,22 @@ void compania::asignarUnidad(Unit *u){
 	}
 	else{
 		if (u->getType().getID() == Utilidades::ID_MARINE){
-			listMarines.push_front(u);
+			//listMarines.push_front(u);
+			listMarines.push_back(u);
+			
 			//ponerACubierto(u);
 		}
 		else if (u->getType().getID() == Utilidades::ID_MEDIC)
-			listMedics.push_front(u);
+			//listMedics.push_front(u);
+			listMedics.push_back(u);
 		else if (u->getType().getID() == Utilidades::ID_FIREBAT)
-			listFirebats.push_front(u);
+			//listFirebats.push_front(u);
+			listFirebats.push_back(u);
 		/*else if (u->getType().getID() == Utilidades::ID_TANKSIEGE)
 			listTanks.push_front(u);*/
+
+		if (comandante != NULL)
+			u->rightClick(comandante);
 	}
 }
 
@@ -170,7 +177,8 @@ void compania::atacar(Unit *u){
 		while(It1 != listMedics.end()){
 			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
 			else { 
-				(*It1)->follow(comandante);
+				//(*It1)->follow(comandante);
+				(*It1)->rightClick(u->getPosition());
 				It1++;
 			}
 		}
@@ -178,9 +186,30 @@ void compania::atacar(Unit *u){
 	
 }
 
+
+Unit* compania::buscarDañado(std::list<Unit*> lista){
+	if (lista.size() > 0){
+		std::list<Unit*>::iterator It1;
+		It1 = lista.begin();
+
+		while(It1 != lista.end()){
+			if ((*It1)->exists() && (!(*It1)->isLoaded()) && ((*It1)->getType().maxHitPoints() > (*It1)->getHitPoints()) && (!(*It1)->isBeingHealed())){
+				return 	(*It1);
+			}
+
+			It1++;
+		}
+	}
+	return NULL;
+}
+
+
 void compania::onFrame(){
 
+	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
+
 	if (listMarines.size() > 0){
+		//Broodwar->printf("Entra a 1");
 
 		std::list<Unit*>::iterator It1;
 		It1 = listMarines.begin();
@@ -191,7 +220,7 @@ void compania::onFrame(){
 				Unit *u;
 				
 				if (!(*It1)->isLoaded()){
-
+					// dibuja una linea conectando a la unidad con su objetivo actual
 					if ((*It1)->getTarget() != NULL){
 						u = (*It1)->getTarget();
 						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
@@ -202,6 +231,10 @@ void compania::onFrame(){
 					}
 
 					Graficos::resaltarUnidad(*It1, c);
+
+					if ((comandante != NULL) && (*It1)->getID() == comandante->getID()){
+						Graficos::dibujarCirculo(*(new TilePosition((*It1)->getTilePosition().x() + 1, (*It1)->getTilePosition().y() + 1)), 1, 1);
+					}
 				}
 
 				It1++;
@@ -210,6 +243,7 @@ void compania::onFrame(){
 	}
 
 	if (listFirebats.size() > 0){
+		//Broodwar->printf("Entra a 2");
 
 		std::list<Unit*>::iterator It1;
 		It1 = listFirebats.begin();
@@ -224,6 +258,7 @@ void compania::onFrame(){
 	}
 
 	if (listMedics.size() > 0){
+		//Broodwar->printf("Entra a 3");
 
 		std::list<Unit*>::iterator It1;
 		It1 = listMedics.begin();
@@ -231,13 +266,32 @@ void compania::onFrame(){
 		while(It1 != listMedics.end()){
 			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
 			else {
-				if (!(*It1)->isLoaded()) Graficos::resaltarUnidad(*It1, c);
+				if (!(*It1)->isLoaded()) {
+					Graficos::resaltarUnidad(*It1, c);
+
+					// manda a los medicos a curar a los soldados de su unidad
+					Unit *u;
+					if ((*It1)->isIdle() || (*It1)->isMoving()){
+						// recorre la lista de marines y firebats buscando alguna unidad dañada
+						u = buscarDañado(listMarines);
+
+						if (u != NULL){
+							(*It1)->rightClick(u);
+						}
+					}
+				}
+
 				It1++;
 			}
 		}
 	}
 
+
+	// ------------------------ verifica si el comandante esta seteado ------------------------
+
+	// si no hay comandante, o murio, se asigna uno nuevo
 	if ((comandante == NULL) || (!comandante->exists())){
+		//Broodwar->printf("Entra a 4");
 		actualizarEstado(&listMarines);
 		
 		if (listMarines.size() > 0)
@@ -252,11 +306,11 @@ void compania::onFrame(){
 		}
 	}
 
+	// ------------------------  Ordenes de ataque ------------------------
+
 	if (comandante != NULL){
-		
-		
-		
-		// si no esta atacando ningun objetivo, se busca algun nuevo objetivo para atacar
+		//Broodwar->printf("Entra a 5");
+		// si el comandante no esta atacando ningun objetivo, se busca algun nuevo objetivo para atacar
 		if ((comandante->getTarget() == NULL) || (!comandante->getTarget()->exists())){
 			
 			if(listMarines.size() > 9){
@@ -276,9 +330,14 @@ void compania::onFrame(){
 					atacar(masCercana);
 			}
 		}
-
 	}
+
+	controlarDistancia(); // hace que los soldados sigan al comandante
+
+	// ------------------------ Ubica los tanques en modo asedio ------------------------
+
 	if (listaDeTanquesAUbicar.size() > 0){
+		//Broodwar->printf("Entra a 6");
 		if (latencia>100){			
 			
 			//revisar si hay que ubicar algun tanque en modo asedio
@@ -296,26 +355,106 @@ void compania::onFrame(){
 			
 		} else {latencia++;}
 	}
+	
+	// ----------------------------------------------------------------------------------------
+
 }
 
 
 
-void compania::moverCompania(TilePosition pos){
+void compania::moverCompania(Position pos){
 
 	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists())){
-		
+		//comandante->attackMove(pos);
+		comandante->rightClick(pos);
+
 		std::list<Unit*>::iterator It1;
 		It1 = listMarines.begin();
 
 		while(It1 != listMarines.end()){
-			if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
+			/*if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
 			else {
 				if ((*It1)->getDistance(comandante->getPosition())>2) (*It1)->rightClick(comandante->getPosition());
 				It1++; 
-			}
+			}*/
+
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 2))
+				(*It1)->rightClick(comandante->getPosition());
+				It1++;
 		}
 	}
 	else{
 		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
 	}
+}
+
+
+
+void compania::controlarDistancia(){
+
+	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists())){
+		std::list<Unit*>::iterator It1;
+		It1 = listMarines.begin();
+
+		while(It1 != listMarines.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 2) && ((*It1)->getID() != comandante->getID()))
+				(*It1)->rightClick(comandante->getPosition());
+			It1++;
+		}
+
+		It1 = listMedics.begin();
+
+		while(It1 != listMedics.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 2) && ((*It1)->getID() != comandante->getID()))
+				(*It1)->rightClick(comandante->getPosition());
+			It1++;
+		}
+
+		It1 = listFirebats.begin();
+
+		while(It1 != listFirebats.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 2) && ((*It1)->getID() != comandante->getID()))
+				(*It1)->rightClick(comandante->getPosition());
+			It1++;
+		}
+	}
+	/*else{
+		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
+	}*/
+}
+
+bool compania::pertenece(Unit *u){
+
+	if (u->getType().getID() == Utilidades::ID_MARINE){
+		std::list<Unit*>::iterator It1;
+		It1 = listMarines.begin();
+
+		while(It1 != listMarines.end()){
+			if((*It1)->getID() == u->getID())
+				return true;
+			It1++;
+		}
+	}
+	else if (u->getType().getID() == Utilidades::ID_MEDIC){
+		std::list<Unit*>::iterator It1;
+		It1 = listMedics.begin();
+
+		while(It1 != listMedics.end()){
+			if((*It1)->getID() == u->getID())
+				return true;
+			It1++;
+		}
+	}
+	else if (u->getType().getID() == Utilidades::ID_FIREBAT){
+		std::list<Unit*>::iterator It1;
+		It1 = listFirebats.begin();
+
+		while(It1 != listFirebats.end()){
+			if((*It1)->getID() == u->getID())
+				return true;
+			It1++;
+		}
+	}
+
+	return false;
 }

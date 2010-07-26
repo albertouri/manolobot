@@ -40,13 +40,16 @@ void strategy_manager::checkGoals(void){
 	}
 
 	if (estadoActual == 0){
-		if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
+		
+		if (cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] == 0){
+			GoalUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 1;
+		}
+		else if (cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 0){
 			estadoActual = 0;
 			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 9;
 			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 10;
 		}
-
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1)&&(cantUnidades[Utilidades::INDEX_GOAL_MARINE] < 4)){
 			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 20;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
@@ -94,6 +97,9 @@ void strategy_manager::checkGoals(void){
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
+		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
+			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
 		}
 	}
 }
