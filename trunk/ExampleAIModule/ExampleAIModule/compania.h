@@ -19,6 +19,10 @@ public:
 	void atacar(Unit *u); // manda a la compañia a atacar a la unidad pasada como parametro
 	void onFrame();
 
+	void moverCompania(Position pos); // mueve la compañia a la posicion pasada como parametro
+
+	bool pertenece(Unit *u); // retorna true si la unidad pasada como parametro pertenece a la compañia
+
 	~compania(void);
 
 private:
@@ -34,8 +38,11 @@ private:
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);
 	int contarUnidades(std::list<Unit*> *lista);
-	void moverCompania(TilePosition pos);
 	void actualizarEstado(std::list<Unit*> *lista); // elimina de la lista las unidades que hayan dejado de existir...
+
+	Unit* buscarDañado(std::list<Unit*> lista); // retorna la primer unidad dañada y que no este siendo curada en la lista pasada como parametro
+
+	void controlarDistancia(); // controla que los soldados de la compañia se mantengan cerca del comandante
 
 };
 

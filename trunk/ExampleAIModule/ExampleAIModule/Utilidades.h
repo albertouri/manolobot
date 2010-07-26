@@ -50,6 +50,12 @@ public:
 	static const int INDEX_GOAL_STIMPACK = 0;
 	static const int INDEX_GOAL_U238 = 1;
 	static const int INDEX_GOAL_TANK_SIEGE_MODE = 2;
+	static const int INDEX_GOAL_INFANTRY_WEAPONS_LVL1 = 3;
+	static const int INDEX_GOAL_INFANTRY_WEAPONS_LVL2 = 4;
+	static const int INDEX_GOAL_INFANTRY_WEAPONS_LVL3 = 5;
+	static const int INDEX_GOAL_INFANTRY_ARMOR_LVL1 = 6;
+	static const int INDEX_GOAL_INFANTRY_ARMOR_LVL2 = 7;
+	static const int INDEX_GOAL_INFANTRY_ARMOR_LVL3 = 8;
 
 	// cantidad de investigaciones que provee el juego
 	static const int maxResearch = 10;

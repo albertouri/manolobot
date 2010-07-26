@@ -21,6 +21,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 
 	aux = a->calcularPrimerTile(reg, choke, 1);
 
+	if (aux != NULL){
+
 	switch (cuadrante){
 		case 1:
 			if (a->calcularAnguloGrupo(angulo) == 0)
@@ -47,7 +49,9 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 				posEncuentro = new Position(aux->x() * 32, aux->y() * 32 + 192);
 			break;
 	}
-
+	}
+	else
+		Broodwar->printf("No encuentro posicion para la posicion de encuentro");
 	// ------------------------------------------------------------------------------------------
 
 }
@@ -343,20 +347,36 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 
 		It1 = posicionesLibresMisileTurrets.begin();
 		nroTorreta = *It1;
-		t = analizador->calcularPrimerTile(reg, choke, *It1);
+		posicionesLibresMisileTurrets.erase(It1);
+		t = analizador->calcularPrimerTile(reg, choke, nroTorreta);
 	}
 
 	x = t->x();
 	y = t->y();
 	delete t;
 
-	angulo = analizador->calcularAngulo(choke);
-	angulo1 = analizador->calcularAnguloGrupo(angulo);
-	
 	int offset = 0;
 
-	if (nroTorreta == 2)
-		offset = 1;
+	angulo = analizador->calcularAngulo(choke);
+	angulo1 = analizador->calcularAnguloGrupo(angulo);
+
+	if (angulo1 == 90){
+		if (nroTorreta == 2)
+			offset = 1;
+		else if (nroTorreta == 3)
+			offset = 0;
+		else
+			Broodwar->printf("Algo raro esta pashando...");
+	}
+	else{
+		if (nroTorreta == 2)
+			offset = 2;
+		else if (nroTorreta == 3)
+			offset = -2;
+		else
+			Broodwar->printf("Algo raro esta pashando...");
+	}
+		
 
 	switch (cuadrante){
 		case 1:
@@ -393,6 +413,7 @@ TilePosition* GrupoBunkers::posicionNuevoTanque(){
 	int angulo, angulo1, cuadrante;
 	int offset;
 
+	// obtiene el tilePosition del primer bunker del grupo, para tener como referencia ese tilePosition
 	aux = analizador->calcularPrimerTile(reg, choke, 1);
 	angulo = analizador->calcularAngulo(choke);
 	angulo1 = analizador->calcularAnguloGrupo(angulo);
@@ -401,37 +422,38 @@ TilePosition* GrupoBunkers::posicionNuevoTanque(){
 	// el grupo de bunkers esta ubicado en forma horizontal
 	if (angulo1 == 90){
 		if ((cuadrante == 1) || (cuadrante == 2))
-			offset = -2;
+			offset = -1;
 		else
-			offset = 2;
+			offset = 1;
 		
 		if (posicionesLibresTanques.size() == 0)
-			return (new TilePosition(aux->x() + listTanks.size(), aux->y() + offset));
+			// la parte offset * (2 +  2 * listTanks.size() % 3))) de la expresion hace que los tanques se ubiquen en filas de 3 tanques
+			return (new TilePosition(aux->x() + 2 * (listTanks.size() % 3), aux->y() + offset * (3 +  2 * listTanks.size() % 3)));
 		else{
 			std::set<int>::iterator It;
 			It = posicionesLibresTanques.begin();
 			int temp = *It;
 			posicionesLibresTanques.erase(It);
 
-			return (new TilePosition(aux->x() + temp - 1, aux->y() + offset));
+			return (new TilePosition(aux->x() + 2 * ((temp - 1) % 3), aux->y() + offset * (3 + 2 * ((temp - 1) % 3))));
 		}
 
 	}
 	else if (angulo1 == 0){
 		if ((cuadrante == 1) || (cuadrante == 3))
-			offset = -2;
+			offset = -1;
 		else
-			offset = 2;
+			offset = 1;
 		
 		if (posicionesLibresTanques.size() == 0)
-			return (new TilePosition(aux->x() + offset, aux->y() + listTanks.size()));
+			return (new TilePosition(aux->x() + offset * (3 + 2 * listTanks.size() % 3), aux->y() + 2 * (listTanks.size() % 3)));
 		else{
 			std::set<int>::iterator It;
 			It = posicionesLibresTanques.begin();
 			int temp = *It;
 			posicionesLibresTanques.erase(It);
 
-			return (new TilePosition(aux->x() + offset, aux->y() + temp - 1));
+			return (new TilePosition(aux->x() + offset * (3 + 2 * ((temp - 1) % 3)), aux->y() + 2 * ((temp - 1) % 3) ));
 		}
 	}
 	else

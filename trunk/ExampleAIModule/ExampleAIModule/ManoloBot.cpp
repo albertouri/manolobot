@@ -5,8 +5,8 @@
 #include "Graficos.h"
 
 
-unit_Manager *unitManager; // puntero al manager de unidades
-strategy_manager *strategyManager;
+unit_Manager *unitManager = NULL; // puntero al manager de unidades
+strategy_manager *strategyManager = NULL;
 int latency = 50;
 int goals[34];
 
@@ -14,10 +14,28 @@ AnalizadorTerreno *analizador;
 
 
 ManoloBot::ManoloBot(void)
-{		
-	unitManager = new unit_Manager();
-	strategyManager = new strategy_manager();
-	analizador = new AnalizadorTerreno();
+{	
+	TilePosition *cc;
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType().getID() == Utilidades::ID_COMMANDCENTER){
+			
+			cc = new TilePosition((*i)->getTilePosition());
+
+			if ((cc->x() != 116) || (cc->y() != 40)) {
+				Broodwar->restartGame();
+				break;
+			}
+
+			Broodwar->printf("centro de comando x: %d, y: %d", cc->x(), cc->y());
+		}
+	}
+
+	if ((cc->x() == 116) || (cc->y() == 40)) {
+		unitManager = new unit_Manager();
+		//strategyManager = new strategy_manager();
+		analizador = new AnalizadorTerreno();
+	}
 
 	/*Position *p = new Position(Broodwar->self()->getStartLocation().x() * 32, Broodwar->self()->getStartLocation().y() * 32);
 
@@ -29,20 +47,24 @@ ManoloBot::ManoloBot(void)
 
 void ManoloBot::checkGoals(void){
 
-	if(latency >=50){
-		strategyManager->setResearchsDone(unitManager->getResearchsDone());
-		strategyManager->checkGoals();
-		
-		unitManager->setGoals(strategyManager->getGoals());
-		unitManager->setResearchs(strategyManager->getResearchs());
+	if ((strategyManager != NULL) && (unitManager != NULL)){
+		if(latency >=50){
+			strategyManager->setResearchsDone(unitManager->getResearchsDone());
+			//Broodwar->printf("Actualice los researchs done");
+			strategyManager->checkGoals();
+			
+			unitManager->setGoals(strategyManager->getGoals());
+			unitManager->setResearchs(strategyManager->getResearchs());
 
-		latency=0;
-	}
-	else{
-		latency++;
+			latency=0;
+		}
+		else{
+			latency++;
+		}
 	}
 
-	unitManager->executeActions(analizador);
+	if (unitManager != NULL)
+		unitManager->executeActions(analizador);
 	
 	if (analizador->analisisListo())
 		analizador->dibujarResultados();
