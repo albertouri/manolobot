@@ -397,24 +397,41 @@ void compania::controlarDistancia(){
 		It1 = listMarines.begin();
 
 		while(It1 != listMarines.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 2) && ((*It1)->getID() != comandante->getID()))
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 150) && ((*It1)->getID() != comandante->getID())) {
 				(*It1)->rightClick(comandante->getPosition());
+
+			}
+			else{
+				if ((*It1)->getID() != comandante->getID())
+					(*It1)->stop();
+			}
 			It1++;
 		}
+
 
 		It1 = listMedics.begin();
 
 		while(It1 != listMedics.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 2) && ((*It1)->getID() != comandante->getID()))
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 150) && ((*It1)->getID() != comandante->getID())){
 				(*It1)->rightClick(comandante->getPosition());
+			}
+			else{
+				if ((*It1)->getID() != comandante->getID())
+					(*It1)->stop();
+			}
 			It1++;
 		}
 
 		It1 = listFirebats.begin();
 
 		while(It1 != listFirebats.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 2) && ((*It1)->getID() != comandante->getID()))
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 150) && ((*It1)->getID() != comandante->getID())){
 				(*It1)->rightClick(comandante->getPosition());
+			}
+			else{
+				if ((*It1)->getID() != comandante->getID())
+					(*It1)->stop();
+			}
 			It1++;
 		}
 	}
