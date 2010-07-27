@@ -197,8 +197,6 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, in
 	bool encontre = false;
 	int cont = 0;
 
-
-	//cuadrante = getCuadrante(c->getCenter());
 	cuadrante = getCuadrante(r->getCenter());
 	angulo = calcularAngulo(c);
 	res = encontrarPosicion(cuadrante, c->getCenter(), angulo, nroBunker);
