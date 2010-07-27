@@ -457,8 +457,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		// mejora de armamento de marines nivel 1 (se investiga en bahia de ingenieria)
 		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] == 1)){
 			Unit *u;
-
-			u = getUnit(Utilidades::INDEX_GOAL_ENGINEERING_BAY);
+			u = getUnit(Utilidades::ID_ENGINEERING_BAY);
 
 			if (u != NULL){
 
