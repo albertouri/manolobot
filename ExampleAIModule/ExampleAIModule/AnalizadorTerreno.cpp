@@ -203,8 +203,8 @@ TilePosition* AnalizadorTerreno::calcularPrimerTile(Region* r, Chokepoint* c, in
 	angulo = calcularAngulo(c);
 	res = encontrarPosicion(cuadrante, c->getCenter(), angulo, nroBunker);
 
-	if (res == NULL)
-		Broodwar->printf("ERROR: No se encontro posicion - Metodo: calcularPrimerTile - Clase: AnalizadorTerreno");
+	/*if (res == NULL)
+		Broodwar->printf("ERROR: No se encontro posicion - Metodo: calcularPrimerTile - Clase: AnalizadorTerreno");*/
 
 	return res;
 }
@@ -275,8 +275,6 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 				if (nroBunker == 1)
 					res = new TilePosition(t->x(), t->y() + factorY);
 
-				//Graficos::dibujarCuadro(t, 3, 2);
-				//Broodwar->printf("Entra a 1");
 				delete t;
 				t = new TilePosition(p.x() / 32 + 3 + contX, p.y() / 32 + contY * factorY);
 
@@ -285,8 +283,6 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 					if (nroBunker == 2)
 						res = new TilePosition(t->x(), t->y() + factorY);
 
-					//Graficos::dibujarCuadro(t, 3, 2);
-					//Broodwar->printf("Entra a 2");
 					delete t;
 					t = new TilePosition(p.x() / 32 - 3 + contX, p.y() / 32 + contY * factorY);
 
@@ -294,8 +290,6 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 						if (nroBunker == 3)
 							res = new TilePosition(t->x(), t->y() + factorY);
 
-						//Graficos::dibujarCuadro(t, 3, 2);
-						//Broodwar->printf("Entra a 3");
 						delete t;
 
 						return res;
@@ -320,7 +314,6 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 		}
 	}
 	else if (angulo1 == 0){
-		//Broodwar->printf("Vertical");
 		contY = -2;
 
 		while (contX < 10){
@@ -331,7 +324,6 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 				if (nroBunker == 1)
 					res = new TilePosition(t->x() /*- factorX*/, t->y());
 
-				//Graficos::dibujarCuadro(t, 3, 2);
 				delete t;
 				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + 2 + contY);
 
@@ -340,7 +332,6 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 					if (nroBunker == 2)
 						res = new TilePosition(t->x() /*- factorX*/, t->y());
 
-					//Graficos::dibujarCuadro(t, 3, 2);
 					delete t;
 					t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 - 2 + contY);
 
@@ -348,7 +339,6 @@ TilePosition* AnalizadorTerreno::encontrarPosicion(int cuadrante, Position p, in
 						if (nroBunker == 3)
 							res = new TilePosition(t->x() /*- factorX*/, t->y());
 						
-						//Graficos::dibujarCuadro(t, 3, 2);
 						delete t;
 
 						return res;
