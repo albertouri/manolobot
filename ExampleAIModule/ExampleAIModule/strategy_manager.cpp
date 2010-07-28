@@ -60,10 +60,6 @@ void strategy_manager::checkGoals(void){
 		else if(cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2){
 			estadoActual = 1;
 		}
-		
-		/*if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 3) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] == 22))
-			estadoActual = 1;
-			*/
 	}
 	else if (estadoActual == 1){
 		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){

@@ -1,7 +1,7 @@
 #include "GrupoBunkers.h"
 #include <list>
 
-bool a = true;
+//bool a = true;
 
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 {
@@ -20,8 +20,9 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 	// liberar la posicion del bunker asi se puede reconstruir rapidamente
 
 	posEncuentro = NULL;
-	cuadrante = a->getCuadrante(reg->getCenter());
-	angulo = a->calcularAngulo(choke);
+	//cuadrante = a->getCuadrante(reg->getCenter());
+	//angulo = a->calcularAngulo(choke);
+	angulo = anguloGrupo;
 
 	aux = bunkerCentral;
 
@@ -164,21 +165,6 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 			Broodwar->printf("No se puede agregar ese tipo de unidad a un grupo de bunkers");
 	}
 }
-
-Unit* GrupoBunkers::getUltimoBunkerCreado(){
-	if (listBunkers.size() > 0)
-		return listBunkers.back();
-	else 
-		return NULL;
-}
-
-Unit* GrupoBunkers::getPrimerBunkerCreado(){
-	if (listBunkers.size() > 0)
-		return listBunkers.front();
-	else
-		return NULL;
-}
-
 
 int GrupoBunkers::getCantBunkers(){
 
@@ -323,8 +309,9 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	if (!analizador->analisisListo())
 		return NULL;
 
-	angulo = analizador->calcularAngulo(choke);
-	angulo1 = analizador->calcularAnguloGrupo(angulo);
+	//angulo = analizador->calcularAngulo(choke);
+	//angulo1 = analizador->calcularAnguloGrupo(angulo);
+	angulo1 = anguloGrupo;
 
 	if (bunkerCentral != NULL){
 		if (angulo1 == 90){
@@ -373,7 +360,31 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 		}
 	}
 	else{
-		Broodwar->printf("El bunker central es NULL");
+		;//Broodwar->printf("El bunker central es NULL");
+		/*
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-
+		-*/
 		return NULL;
 	}
 }
@@ -385,8 +396,9 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 	int angulo, angulo1;
 
 	cuadrante = analizador->getCuadrante(reg->getCenter());
-	angulo = analizador->calcularAngulo(choke);
-	angulo1 = analizador->calcularAnguloGrupo(angulo);
+	//angulo = analizador->calcularAngulo(choke);
+	//angulo1 = analizador->calcularAnguloGrupo(angulo);
+	angulo1 = anguloGrupo;
 
 	//-- NUEVO CODIGO
 	if (bunkerCentral != NULL){
@@ -585,8 +597,9 @@ TilePosition* GrupoBunkers::posicionNuevoTanque(){
 	// obtiene el tilePosition del primer bunker del grupo, para tener como referencia ese tilePosition
 	//aux = calcularPrimerTile(reg, choke, 1);
 	aux = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
-	angulo = analizador->calcularAngulo(choke);
-	angulo1 = analizador->calcularAnguloGrupo(angulo);
+	//angulo = analizador->calcularAngulo(choke);
+	//angulo1 = analizador->calcularAnguloGrupo(angulo);
+	angulo1 = anguloGrupo;
 	cuadrante = analizador->getCuadrante(reg->getCenter());
 
 	if (aux != NULL){
@@ -731,15 +744,18 @@ void GrupoBunkers::onFrame(){
 	resaltarUnidades();
 
 	if (Broodwar->getFrameCount() % frameLatency == 0){
-		//Broodwar->printf("bunker onFrame");
-
-		//if (getCantBunkers() != listBunkers.size()) // es decir hay algun bunker que ya no existe en la lista, se debe actualizar
 
 		if (getCantBunkers() > 1)
 			ponerACubierto();
 
 		ubicarModoSiege();
 	}
+
+	/*if ((choke->getCenter().x() / 32) < (Broodwar->mapWidth() - 11))
+		Broodwar->printf("Hay distancia");
+	else
+		Broodwar->printf("NO HAY DISTANCIA");*/
+	//Broodwar->printf("centro choke: %d, max mapa: %d", choke->getCenter().x() / 32, Broodwar->mapWidth());
 }
 
 void GrupoBunkers::onUnitDestroy(Unit *u){
@@ -950,6 +966,8 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 							Broodwar->printf("Posicion 3 libre");
 						}*/
 
+						anguloGrupo = 90;
+
 						delete t;
 
 						return res;
@@ -975,6 +993,28 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 	}
 	else if (angulo1 == 0){
 		contY = -2;
+
+		//-- CODIGO GIRATORIO
+
+		//-- SETEA EL ANGULO DEL GRUPO (VARIABLE GLOBAL)
+		anguloGrupo = 0;
+
+		//-- Verifica si hay espacio suficiente entre el borde del mapa y el grupo de bunkers
+		//bool condicion1 = ((cuadrante == 1) || (cuadrante == 3)) && (res->x() > 3);
+		//bool condicion2 = ((cuadrante == 2) || (cuadrante == 4)) && (res->x() < Broodwar->mapWidth() - 3);
+
+		bool condicion1 = ((cuadrante == 1) || (cuadrante == 3)) && ((p.x() / 32) > 11);
+		bool condicion2 = ((cuadrante == 2) || (cuadrante == 4)) && ((p.x() / 32) < (Broodwar->mapWidth() - 11));
+
+		// si el bunker central esta separado mas de 11 build tiles del borde esta OK, sino lo intenta ubicar en forma horizontal
+		if (!(condicion1 || condicion2)){
+			Broodwar->printf("Intenta girar el grupo");
+			//delete res;
+			return encontrarPosicion(cuadrante, p, 90);
+		}
+
+		//-- FIN CODIGO GIRATORIO
+
 
 		while (contX < 10){
 			t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + contY);
@@ -1002,6 +1042,7 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 						delete t;
 
 						return res;
+
 					}
 					else delete t;
 				}
@@ -1022,7 +1063,7 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 			}
 		}
 	}
-	a = false;
+	//a = false;
 
 	return res;
 

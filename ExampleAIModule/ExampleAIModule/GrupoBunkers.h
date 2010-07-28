@@ -17,9 +17,6 @@ public:
 
 	void agregarUnidad(Unit* u);
 
-	Unit* getUltimoBunkerCreado(); // retorna el ultimo bunker que se agrego al grupo, es decir el mas recientemente creado
-	Unit* getPrimerBunkerCreado(); // retorna el primer bunker que se agrego al grupo
-	
 	int getCantBunkers(); // retorna la cantidad de bunkers que hay en el grupo de bunkers (no cuenta los destruidos)
 	int getCantMisileTurrets(); // retorna la cantidad de misile turrets que hay en el grupo de bunkers (no cuenta los destruidos)
 	int getCantMarines(); // retorna la cantidad de marines que hay en el grupo de bunkers (no cuenta los destruidos)
@@ -39,6 +36,13 @@ public:
 	void onUnitDestroy(Unit *u);
 
 private:
+	//-- CONSTANTES
+	static const int frameLatency = 150; // cantidad de frames que espera para ejecutar nuevamente el control de bunkers destruidos
+
+	//-- VARIABLES GLOBALES
+	TilePosition *bunkerCentral; // TilePosition donde esta ubicado el bunker central del grupo
+	int anguloGrupo;
+
 	// listas de unidades pertenecientes al grupo de bunkers
 	std::list<Unit*> listBunkers;
 	std::list<Unit*> listMisileTurrets;
@@ -47,13 +51,14 @@ private:
 
 	std::set<int> posicionesLibresTanques;
 
+	//-- METODOS
+
 	bool perteneceBunker(Unit *u);
 
 	Region *reg; // region en la cual estara ubicado el grupo de bunkers
 	Chokepoint *choke; // chokepoint que debe defender el grupo de bunkers
 	AnalizadorTerreno *analizador; // puntero al analizador del terreno
 
-	static const int frameLatency = 250; // cantidad de frames que espera para ejecutar nuevamente el control de bunkers destruidos
 	void controlDestruidos(); // controla si algun bunker del grupo fue destruido y lo elimina de la lista de bunkers
 
 	void ponerACubierto(); // ordena a los soldados que esten fuera de bunkers que ingresen en ellos
@@ -63,11 +68,9 @@ private:
 	void resaltarUnidades();
 	void ubicarModoSiege();
 	
-	
 	bool puedoConstruir(TilePosition t, UnitType tipo); // verifica si los build tiles necesarios para construir tienen terreno apropiado para construir, y tambien verifica si ese terreno no esta ocupado por un bunker, en ese caso retorna false
-	TilePosition* encontrarPosicion(int cuadrante, Position p, int angulo);
-
-	TilePosition *bunkerCentral; // TilePosition donde esta ubicado el bunker central del grupo
+	TilePosition* encontrarPosicion(int cuadrante, Position p, int angulo); // busca una posicion donde ubicar el grupo de bunkers, este metodo solo se usa una vez en el constructor de la clase GrupoBunkers
+	
 	bool ocupado(TilePosition t, int IDTipo); // retorna true si el tile position esta ocupado con una unidad de tipo IDTipo
 	TilePosition* posicionPrimerBunker(Region* r, Chokepoint* c); // retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
 };
