@@ -344,8 +344,8 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 			delete posB;
 		}
-		else
-			Broodwar->printf("ERROR: No encuentro posicion para construir el misile turret");
+		/*else
+			Broodwar->printf("ERROR: No encuentro posicion para construir el misile turret");*/
 
 		delete building;
 	}
