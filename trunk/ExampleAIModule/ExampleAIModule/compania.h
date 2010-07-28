@@ -33,7 +33,7 @@ private:
 	std::list<Unit*> listMarines;
 	std::list<Unit*> listMedics;
 	std::list<Unit*> listFirebats;
-	//std::list<Unit*> listTanks;
+	std::list<Unit*> listTanks;
 
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);

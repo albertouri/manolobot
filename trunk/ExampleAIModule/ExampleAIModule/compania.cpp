@@ -33,6 +33,7 @@ void compania::asignarUnidad(Unit *u){
 			}
 			if ((bunker != NULL)&&(bunker->exists())) u->rightClick(bunker->getPosition());
 		}
+		listTanks.push_front(u);
 		listaDeTanquesAUbicar.push_front(u);
 	}
 	else{
@@ -48,9 +49,10 @@ void compania::asignarUnidad(Unit *u){
 		else if (u->getType().getID() == Utilidades::ID_FIREBAT)
 			//listFirebats.push_front(u);
 			listFirebats.push_back(u);
-		/*else if (u->getType().getID() == Utilidades::ID_TANKSIEGE)
-			listTanks.push_front(u);*/
-
+		else if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
+			Broodwar->printf("lo agrego a la lista de tanques");		
+			
+		}
 		if (comandante != NULL)
 			u->rightClick(comandante);
 	}
@@ -397,7 +399,7 @@ void compania::controlarDistancia(){
 		It1 = listMarines.begin();
 
 		while(It1 != listMarines.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 150) && ((*It1)->getID() != comandante->getID())) {
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 80) && ((*It1)->getID() != comandante->getID())) {
 				(*It1)->rightClick(comandante->getPosition());
 
 			}
@@ -412,7 +414,22 @@ void compania::controlarDistancia(){
 		It1 = listMedics.begin();
 
 		while(It1 != listMedics.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 150) && ((*It1)->getID() != comandante->getID())){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 110) && ((*It1)->getID() != comandante->getID())){
+				(*It1)->rightClick(comandante->getPosition());
+			}
+			else{
+				if ((*It1)->getID() != comandante->getID()){
+					if ((*It1)->isMoving())
+						(*It1)->stop();
+				}
+			}
+			It1++;
+		}
+
+		It1 = listFirebats.begin();
+
+		while(It1 != listFirebats.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 70) && ((*It1)->getID() != comandante->getID())){
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
@@ -422,10 +439,16 @@ void compania::controlarDistancia(){
 			It1++;
 		}
 
-		It1 = listFirebats.begin();
+		//muevo los tanques
+		It1 = listTanks.begin();
 
-		while(It1 != listFirebats.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 150) && ((*It1)->getID() != comandante->getID())){
+		while(It1 != listTanks.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 140) && ((*It1)->getID() != comandante->getID())){
+				if ((*It1)->isSieged()){
+					Broodwar->printf("esta sieged");
+					(*It1)->unsiege();
+				}
+
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
