@@ -15,11 +15,6 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 	bunkerCentral = NULL;
 	bunkerCentral = posicionPrimerBunker(reg, choke);
 
-	/*if (bunkerCentral != NULL)
-		Broodwar->printf("primer bunker - x: %d - y: %d", bunkerCentral->x(), bunkerCentral->y());
-	else
-		Broodwar->printf("Es null");*/
-
 	// ------------------------------------------------------------------------------------------
 	// calcula la posicion de reunion de los soldados, a la cual se dirigiran si el bunker en el que estaban es destruido, para
 	// liberar la posicion del bunker asi se puede reconstruir rapidamente
@@ -30,7 +25,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 
 	aux = bunkerCentral;
 
-	/*if (aux != NULL){
+	if (aux != NULL){
 		switch (cuadrante){
 			case 1:
 				if (a->calcularAnguloGrupo(angulo) == 0)
@@ -59,9 +54,9 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 		}
 	}
 	else
-		Broodwar->printf("ERROR: No encuentro ubicacion para la posicion de encuentro");
+		Broodwar->printf("ERROR 002: No encuentro ubicacion posible para la posicion de encuentro");
 	// ------------------------------------------------------------------------------------------
-*/
+
 }
 
 GrupoBunkers::~GrupoBunkers(void)
@@ -78,7 +73,7 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 	if (u != NULL){
 		if (u->getType().getID() == Utilidades::ID_BUNKER){
 			
-			if (posicionesLibresBunkers.size() > 0){
+/*			if (posicionesLibresBunkers.size() > 0){
 				std::set<int>::iterator It1;
 		
 				// calcula el tile donde se deberia ubicar el bunker de la primera posicion de la lista de posiciones libres
@@ -108,14 +103,14 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 				else
 					listBunkers.push_back(u);
 			}
-			else
+			else*/
 				listBunkers.push_back(u);
 			
 
 		}
 		else if (u->getType().getID() == Utilidades::ID_MISSILE_TURRET){
 
-			if (posicionesLibresMisileTurrets.size() > 0){
+			/*if (posicionesLibresMisileTurrets.size() > 0){
 				std::set<int>::iterator It1;
 		
 				// calcula el tile donde se deberia ubicar el bunker de la primera posicion de la lista de posiciones libres
@@ -145,7 +140,7 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 				else
 					listMisileTurrets.push_back(u);
 			}
-			else
+			else*/
 				listMisileTurrets.push_back(u);
 
 
@@ -323,29 +318,56 @@ bool GrupoBunkers::perteneceBunker(Unit *u){
 TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	TilePosition *t = NULL;
 
+	int angulo, angulo1;
+
 	if (!analizador->analisisListo())
 		return NULL;
 
+	angulo = analizador->calcularAngulo(choke);
+	angulo1 = analizador->calcularAnguloGrupo(angulo);
+
 	if (bunkerCentral != NULL){
-		
-		if (!ocupado(*bunkerCentral, Utilidades::ID_BUNKER)){
-			return (new TilePosition(bunkerCentral->x(), bunkerCentral->y()));
-		}
-		else{
-			t = new TilePosition(bunkerCentral->x() + 3, bunkerCentral->y());
-			if (!ocupado(*t, Utilidades::ID_BUNKER)){
-				return t;
+		if (angulo1 == 90){
+			if (!ocupado(*bunkerCentral, Utilidades::ID_BUNKER)){
+				return (new TilePosition(bunkerCentral->x(), bunkerCentral->y()));
 			}
 			else{
-				delete t;
-				t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y());
+				t = new TilePosition(bunkerCentral->x() + 3, bunkerCentral->y());
 				if (!ocupado(*t, Utilidades::ID_BUNKER)){
 					return t;
 				}
 				else{
 					delete t;
-					//Broodwar->printf("No encuentra posicion para el bunker");
-					return NULL;
+					t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y());
+					if (!ocupado(*t, Utilidades::ID_BUNKER)){
+						return t;
+					}
+					else{
+						delete t;
+						return NULL;
+					}
+				}
+			}
+		}
+		else{
+			if (!ocupado(*bunkerCentral, Utilidades::ID_BUNKER)){
+				return (new TilePosition(bunkerCentral->x(), bunkerCentral->y()));
+			}
+			else{
+				t = new TilePosition(bunkerCentral->x(), bunkerCentral->y() + 2);
+				if (!ocupado(*t, Utilidades::ID_BUNKER)){
+					return t;
+				}
+				else{
+					delete t;
+					t = new TilePosition(bunkerCentral->x(), bunkerCentral->y() - 2);
+					if (!ocupado(*t, Utilidades::ID_BUNKER)){
+						return t;
+					}
+					else{
+						delete t;
+						return NULL;
+					}
 				}
 			}
 		}
@@ -354,31 +376,19 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 		Broodwar->printf("El bunker central es NULL");
 		return NULL;
 	}
-	
-	//if (posicionesLibresBunkers.size() == 0){
-		//return calcularPrimerTile(reg, choke, getCantBunkers() + 1);
-	/*}
-	else{
-		std::set<int>::iterator It1;
-		It1 = posicionesLibresBunkers.begin();
-		return calcularPrimerTile(reg, choke, *It1);
-	}*/
 }
 
 
 TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 	int cuadrante;
 	TilePosition *t;
-	int x, y;
 	int angulo, angulo1;
-	int nroTorreta;
 
 	cuadrante = analizador->getCuadrante(reg->getCenter());
 	angulo = analizador->calcularAngulo(choke);
 	angulo1 = analizador->calcularAnguloGrupo(angulo);
 
 	//-- NUEVO CODIGO
-
 	if (bunkerCentral != NULL){
 		switch (cuadrante){
 			//-- PRIMER CUADRANTE (ARRIBA A LA IZQUIERDA)
@@ -560,91 +570,9 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 		} //-- FIN DEL SWITCH
 
 	}
-
 	//-- FIN NUEVO CODIGO
 
-	/*
-
-	if (posicionesLibresMisileTurrets.size() == 0){
-		if (listMisileTurrets.size() == 0)
-			nroTorreta = 2;
-		else
-			nroTorreta = 3;
-
-		//t = calcularPrimerTile(reg, choke, nroTorreta);
-		t = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
-	}
-	else{
-		std::set<int>::iterator It1;
-
-		It1 = posicionesLibresMisileTurrets.begin();
-		nroTorreta = *It1;
-		posicionesLibresMisileTurrets.erase(It1);
-		//t = calcularPrimerTile(reg, choke, nroTorreta);
-		t = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
-	}
-
-
-
-	if (t != NULL){
-		x = t->x();
-		y = t->y();
-		delete t;
-
-		int offset = 0;
-
-		angulo = analizador->calcularAngulo(choke);
-		angulo1 = analizador->calcularAnguloGrupo(angulo);
-
-		if (angulo1 == 90){
-			if (nroTorreta == 2)
-				offset = 1;
-			else if (nroTorreta == 3)
-				offset = 0;
-			else
-				Broodwar->printf("Algo raro esta pashando...");
-		}
-		else{
-			if (nroTorreta == 2)
-				offset = 2;
-			else if (nroTorreta == 3)
-				offset = -2;
-			else
-				Broodwar->printf("Algo raro esta pashando...");
-		}
-			
-
-		switch (cuadrante){
-			case 1:
-				if (angulo1 == 90)
-					return new TilePosition(x + offset, y - 2);
-				else
-					return new TilePosition(x - 3, y + offset);
-				break;
-			case 2:
-				if (angulo1 == 90)
-					return new TilePosition(x + offset, y - 2);
-				else
-					return new TilePosition(x + 3, y + offset);
-				break;
-			case 3:
-				if (angulo1 == 90)
-					return new TilePosition(x + offset, y + 2);
-				else
-					return new TilePosition(x - 3, y + offset);
-				break;
-			case 4:
-				if (angulo1 == 90)
-					return new TilePosition(x + offset, y + 2);
-				else
-					return new TilePosition(x + 3, y + offset);
-				break;
-		}
-	}
-	else{
-		Broodwar->printf("ERROR: No se encontro posicion - Metodo: posicionNuevaTorreta - Clase: GrupoBunkers");
-		return NULL;
-	}*/
+	return NULL;
 }
 
 
@@ -739,7 +667,7 @@ void GrupoBunkers::controlDestruidos(){
 			listMisileTurrets.erase(It1);
 			It1 = listMisileTurrets.begin(); // tuve que poner esto porque sino se colgaba el while...
 
-			posicionesLibresMisileTurrets.insert(cont);
+			//posicionesLibresMisileTurrets.insert(cont);
 		}
 		else
 			It1++;
@@ -767,7 +695,7 @@ void GrupoBunkers::controlDestruidos(){
 			listTanks.erase(It1);
 			It1 = listTanks.begin(); // tuve que poner esto porque sino se colgaba el while...
 
-			posicionesLibresTanques.insert(cont);
+			//posicionesLibresTanques.insert(cont);
 		}
 		else
 			It1++;
@@ -855,6 +783,8 @@ void GrupoBunkers::moverSoldadosPosEncuentro(){
 			It1++;
 		}
 	}
+	else
+		Broodwar->printf("ERROR 001: posicion de encuentro no seteada");
 }
 
 

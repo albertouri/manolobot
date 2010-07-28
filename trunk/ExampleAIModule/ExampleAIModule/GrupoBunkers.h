@@ -48,8 +48,6 @@ private:
 	std::list<Unit*> listMarines;
 	std::list<Unit*> listTanks;
 
-	std::set<int> posicionesLibresBunkers; // a esta lista se agrega el numero de construccion de un bunker si el mismo fue destruido, para construir de nuevo en esa posicion
-	std::set<int> posicionesLibresMisileTurrets; // a esta lista se agrega el numero de construccion de un misile turret si el mismo fue destruido, para construir de nuevo en esa posicion
 	std::set<int> posicionesLibresTanques;
 
 	bool perteneceBunker(Unit *u);
