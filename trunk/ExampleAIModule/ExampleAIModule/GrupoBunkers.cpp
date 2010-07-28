@@ -649,7 +649,6 @@ void GrupoBunkers::controlDestruidos(){
 			listBunkers.erase(It1);
 			It1 = listBunkers.begin(); // tuve que poner esto porque sino se colgaba el while...
 
-			//posicionesLibresBunkers.insert(cont);
 			moverSoldadosPosEncuentro();
 		}
 		else
@@ -666,8 +665,6 @@ void GrupoBunkers::controlDestruidos(){
 		if (!(*It1)->exists()){
 			listMisileTurrets.erase(It1);
 			It1 = listMisileTurrets.begin(); // tuve que poner esto porque sino se colgaba el while...
-
-			//posicionesLibresMisileTurrets.insert(cont);
 		}
 		else
 			It1++;
@@ -694,8 +691,6 @@ void GrupoBunkers::controlDestruidos(){
 		if (!(*It1)->exists()){
 			listTanks.erase(It1);
 			It1 = listTanks.begin(); // tuve que poner esto porque sino se colgaba el while...
-
-			//posicionesLibresTanques.insert(cont);
 		}
 		else
 			It1++;
@@ -739,13 +734,17 @@ void GrupoBunkers::onFrame(){
 		//Broodwar->printf("bunker onFrame");
 
 		//if (getCantBunkers() != listBunkers.size()) // es decir hay algun bunker que ya no existe en la lista, se debe actualizar
-		controlDestruidos();
 
 		if (getCantBunkers() > 1)
 			ponerACubierto();
 
 		ubicarModoSiege();
 	}
+}
+
+void GrupoBunkers::onUnitDestroy(Unit *u){
+	if ((u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET) || (u->getType().getID() == Utilidades::ID_TANKSIEGE))
+		controlDestruidos();
 }
 
 void GrupoBunkers::ubicarModoSiege(){
