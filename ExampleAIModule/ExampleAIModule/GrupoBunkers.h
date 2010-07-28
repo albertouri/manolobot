@@ -36,6 +36,11 @@ public:
 	bool faltanMarines(); // retorna true si hay bunkers que no tienen suficientes marines dentro
 	bool faltanTanques();
 
+	bool ocupado(TilePosition t, int IDTipo); // retorna true si el tile position esta ocupado con una unidad de tipo IDTipo
+	TilePosition* posicionPrimerBunker(Region* r, Chokepoint* c); // retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
+
+	TilePosition *bunkerCentral;
+
 private:
 	// listas de unidades pertenecientes al grupo de bunkers
 	std::list<Unit*> listBunkers;
@@ -62,5 +67,10 @@ private:
 
 	void resaltarUnidades();
 	void ubicarModoSiege();
+	
+	
+	bool puedoConstruir(TilePosition t, UnitType tipo); // verifica si los build tiles necesarios para construir tienen terreno apropiado para construir, y tambien verifica si ese terreno no esta ocupado por un bunker, en ese caso retorna false
+	TilePosition* encontrarPosicion(int cuadrante, Position p, int angulo);
+
 	
 };
