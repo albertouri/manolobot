@@ -1112,6 +1112,8 @@ void unit_Manager::onUnitDestroy(Unit *u){
 	// se pierden todas las mejoras investigadas anteriormente, y se deberan investigar de nuevo
 	// Esto se debera actualizar solamente en el metodo onUnitDestroy de la clase unit_Manager
 
+	grupoB1->onUnitDestroy(u);
+
 	if(Broodwar->self()== u->getPlayer()){
 
 		switch (u->getType().getID()){
