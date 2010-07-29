@@ -31,6 +31,8 @@ public:
 	int calcularAnguloGrupo(int angulo);
 	int getCuadrante(Position p); // determina en que cuadrante esta la posicion pasada como parametro
 
+	int getOrientacion(Chokepoint *c, Region *r);
+
 private:
 	bool show_visibility_data;
 	

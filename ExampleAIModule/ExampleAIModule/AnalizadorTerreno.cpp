@@ -248,6 +248,21 @@ int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 }
 
 
+int AnalizadorTerreno::getOrientacion(Chokepoint *c, Region *r){
+	if (r->getCenter().y() < c->getCenter().y()){
+		if (r->getCenter().x() < c->getCenter().x())
+			return 1;
+		else
+			return 2;
+	}
+	else{
+		if (r->getCenter().x() < c->getCenter().x())
+			return 3;
+		else
+			return 4;
+	}
+}
+
 int AnalizadorTerreno::getCuadrante(Position p){
 	
 	if (p.x() <= (Broodwar->mapWidth() * 32 / 2)){
