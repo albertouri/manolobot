@@ -242,7 +242,7 @@ int GrupoBunkers::getCantTanks(){
 // el bunker atacado es pasado como parametro
 void GrupoBunkers::estrategia1(Unit *u){
 
-	if (perteneceBunker(u)){
+	/*if (perteneceBunker(u)){
 
 		if (u->getLoadedUnits().size() > 0){
 			std::list<Unit*>::iterator It1;
@@ -276,11 +276,11 @@ void GrupoBunkers::estrategia1(Unit *u){
 				/*if (!(*It1)->isLoaded())
 					(*It1)->useTech(*(new TechType(TechTypes::Stim_Packs)));*/
 
-				u->load(*It2);
+				/*u->load(*It2);
 				It2++;
 			}
 		}
-	}
+	}*/
 }
 
 
