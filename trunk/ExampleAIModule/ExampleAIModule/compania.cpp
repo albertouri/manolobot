@@ -316,7 +316,7 @@ void compania::onFrame(){
 		// si el comandante no esta atacando ningun objetivo, se busca algun nuevo objetivo para atacar
 		if ((comandante->getTarget() == NULL) || (!comandante->getTarget()->exists())){
 			
-			if(listMarines.size() > 9){
+//			if(listMarines.size() > 9){
 				double minDist = 10000;
 				Unit *masCercana = NULL;
 
@@ -336,7 +336,7 @@ void compania::onFrame(){
 				else{
 					atacando = false;
 				}
-			}
+//			}
 		}
 
 	}
