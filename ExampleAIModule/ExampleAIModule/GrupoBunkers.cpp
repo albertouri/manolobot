@@ -587,13 +587,24 @@ TilePosition* GrupoBunkers::posicionNuevoTanque(){
 	int offset;
 
 	// obtiene el tilePosition del primer bunker del grupo, para tener como referencia ese tilePosition
-	aux = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
+	//aux = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
+	aux = bunkerCentral;
 	angulo1 = anguloGrupo;
 	cuadrante = analizador->getCuadrante(reg->getCenter());
 
 	if (aux != NULL){
 		// el grupo de bunkers esta ubicado en forma horizontal
+	
 		if (angulo1 == 90){
+			if ((cuadrante == 1) || (cuadrante == 2))
+				return new TilePosition(bunkerCentral->x() + listTanks.size(), bunkerCentral->y() - 3);
+			else
+				return new TilePosition(bunkerCentral->x() + listTanks.size(), bunkerCentral->y() + 3);
+		}
+		else
+			return NULL;
+
+		/*if (angulo1 == 90){
 			if ((cuadrante == 1) || (cuadrante == 2))
 				offset = -1;
 			else
@@ -630,7 +641,7 @@ TilePosition* GrupoBunkers::posicionNuevoTanque(){
 			}
 		}
 		else
-			return NULL;
+			return NULL;*/
 	}
 	else{
 		Broodwar->printf("ERROR: No se encontro posicion - Metodo: posicionNuevoTanque - Clase: GrupoBunkers");

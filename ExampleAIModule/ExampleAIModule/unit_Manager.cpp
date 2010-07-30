@@ -137,13 +137,15 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			Graficos::dibujarCuadro(t222, 2, 2);
 			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 		}
-/*
+
 		t333 = grupoB1->posicionNuevoTanque();		
 		if (t333 != NULL){
 			Graficos::dibujarCuadro(t333, 1, 1);
 			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 			delete t333;
-		}*/
+		}
+		/*else
+			Broodwar->printf("posicion nuevo tanque es NULL");*/
 		
 	}
 
