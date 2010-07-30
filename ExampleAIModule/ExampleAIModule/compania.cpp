@@ -3,6 +3,7 @@
 
 std::list<Unit*> lista;
 int latencia=0;
+bool atacando = false;
 
 std::list<Unit*> listaDeTanquesAUbicar;
 
@@ -34,7 +35,7 @@ void compania::asignarUnidad(Unit *u){
 			if ((bunker != NULL)&&(bunker->exists())) u->rightClick(bunker->getPosition());
 		}
 		listTanks.push_front(u);
-		listaDeTanquesAUbicar.push_front(u);
+//		listaDeTanquesAUbicar.push_front(u);
 	}
 	else{
 		if (u->getType().getID() == Utilidades::ID_MARINE){
@@ -90,7 +91,7 @@ void compania::aplicarStim(std::list<Unit*> lista){
 
 		while (It1 != lista.end()){
 			// si existe y no esta dentro de un contenedor, se aplica el stim pack a la unidad
-			if ((*It1)->exists() && (!(*It1)->isLoaded())){
+			if ((*It1)->exists() && (!(*It1)->isLoaded()) && (!(*It1)->isStimmed())){
 				(*It1)->useTech(*(new TechType(TechTypes::Stim_Packs)));
 			}
 			It1++;
@@ -150,11 +151,11 @@ void compania::atacar(Unit *u){
 		while(It1 != listMarines.end()){
 			if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
 			else {
-				aplicarStim(listMarines);
 				(*It1)->attackUnit(u);
 				It1++;
 			}
 		}
+		aplicarStim(listMarines);
 	}
 
 	if (listFirebats.size() > 0){
@@ -330,11 +331,16 @@ void compania::onFrame(){
 
 				if (masCercana != NULL)
 					atacar(masCercana);
+					atacando = true;
 			}
 		}
+		else{
+			atacando = false;
+		}
 	}
-
-	controlarDistancia(); // hace que los soldados sigan al comandante
+	if (!atacando){
+		controlarDistancia(); // hace que los soldados sigan al comandante
+	}
 
 	// ------------------------ Ubica los tanques en modo asedio ------------------------
 
@@ -445,7 +451,6 @@ void compania::controlarDistancia(){
 		while(It1 != listTanks.end()){
 			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 140) && ((*It1)->getID() != comandante->getID())){
 				if ((*It1)->isSieged()){
-					Broodwar->printf("esta sieged");
 					(*It1)->unsiege();
 				}
 
@@ -454,6 +459,7 @@ void compania::controlarDistancia(){
 			else{
 				if ((*It1)->getID() != comandante->getID())
 					(*It1)->stop();
+					(*It1)->siege();
 			}
 			It1++;
 		}
