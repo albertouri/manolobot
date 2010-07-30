@@ -40,7 +40,7 @@ void ExampleAIModule::onStart()
 	//---------------------------------------------
 
 	//Broodwar->setLocalSpeed(0);
-	Broodwar->setLocalSpeed(8);
+	//Broodwar->setLocalSpeed(8);
 	agente = new ManoloBot();
   }
 }
