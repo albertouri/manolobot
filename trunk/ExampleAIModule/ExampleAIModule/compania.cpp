@@ -311,7 +311,7 @@ void compania::onFrame(){
 
 	// ------------------------  Ordenes de ataque ------------------------
 
-	if (comandante != NULL){
+	if ((comandante != NULL)&& (comandante->exists())){
 		//Broodwar->printf("Entra a 5");
 		// si el comandante no esta atacando ningun objetivo, se busca algun nuevo objetivo para atacar
 		if ((comandante->getTarget() == NULL) || (!comandante->getTarget()->exists())){
@@ -329,14 +329,16 @@ void compania::onFrame(){
 					}
 				}
 
-				if (masCercana != NULL)
+				if ((masCercana != NULL)&& (masCercana->exists())){
 					atacar(masCercana);
 					atacando = true;
+				}
+				else{
+					atacando = false;
+				}
 			}
 		}
-		else{
-			atacando = false;
-		}
+
 	}
 	if (!atacando){
 		controlarDistancia(); // hace que los soldados sigan al comandante
