@@ -17,7 +17,6 @@ int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 // Compañias de unidades
 compania* Easy = NULL;
-compania* Otra;
 
 Scout* magallanes;
 Player* enemigo;
@@ -36,10 +35,10 @@ Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calc
 
 unit_Manager::unit_Manager()
 {
-	Easy = new compania(Colors::Red);
-	//Otra = new compania(Colors::Yellow);
 
-	magallanes = new Scout(getWorker());
+	Easy = new compania(Colors::Red);
+
+	magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
 
 	frameLatency = 0;
 
@@ -73,7 +72,6 @@ unit_Manager::unit_Manager()
 	// TODO: arreglar para que se puede jugar contra varios enemigos
 	enemigo = Broodwar->enemy();
 	grupoB1 = NULL;
-
 }
 
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
@@ -86,6 +84,8 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		else
 			grupoB1->onFrame();
 	}
+
+	magallanes->explorar(); // manda al scout a explorar el mapa
 
 	// ---------------------------------------------------------------------------
 	/*	si la unidad apuntada no esta reparando, setea el apuntador reparador a NULL, para 
@@ -110,8 +110,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		Easy->onFrame();
 	else
 		Broodwar->printf("ERROR: Easy es NULL");
-	
-	magallanes->explorar(); // manda al scout a explorar el mapa
+
 
 	// verifica si se termino de construir alguna unidad en este frame
 	//ultimaFinalizada = controlarFinalizacion();
