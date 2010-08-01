@@ -7,15 +7,15 @@
 
 unit_Manager *unitManager = NULL; // puntero al manager de unidades
 strategy_manager *strategyManager = NULL;
+AnalizadorTerreno *analizador = NULL;
+
 int latency = 50;
 int goals[34];
-
-AnalizadorTerreno *analizador;
 
 
 ManoloBot::ManoloBot(void)
 {	
-	TilePosition *cc;
+	//TilePosition *cc;
 	/*for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 	{
 		if ((*i)->getType().getID() == Utilidades::ID_COMMANDCENTER){
@@ -59,7 +59,7 @@ void ManoloBot::checkGoals(void){
 	if (unitManager != NULL)
 		unitManager->executeActions(analizador);
 	
-	if (analizador->analisisListo())
+	if ((analizador != NULL) && (analizador->analisisListo()))
 		analizador->dibujarResultados();
 
 }

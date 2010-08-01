@@ -35,6 +35,12 @@ public:
 
 private:
 	bool show_visibility_data;
+	bool show_bullets;
 	
+
+	void drawStats();
+	void drawBullets();
+	void drawVisibilityData();
+	void drawTerrainData();
 	
 };
