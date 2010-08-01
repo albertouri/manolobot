@@ -91,7 +91,7 @@ Scout::Scout(BWAPI::Unit *unidad)
 
 	
 	
-	for(std::set<TilePosition>::iterator p=Broodwar->getStartLocations().begin(); p != Broodwar->getStartLocations().end(); p++){
+	/*for(std::set<TilePosition>::iterator p=Broodwar->getStartLocations().begin(); p != Broodwar->getStartLocations().end(); p++){
 		nPosX = (*p).x();
 		nPosY = (*p).y();
 
@@ -144,11 +144,8 @@ Scout::Scout(BWAPI::Unit *unidad)
 					cantPosiciones++;
 				}
 			}
-
-
-
 		}
-	}
+	}*/
 
 
 
