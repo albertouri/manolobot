@@ -4,10 +4,10 @@
 #include <BWTA.h>
 #include <windows.h>
 
-//extern bool analyzed;
-//extern bool analysis_just_finished;
-//extern BWTA::Region* home;
-//extern BWTA::Region* enemy_base;
+/*extern bool analyzed;
+extern bool analysis_just_finished;
+extern BWTA::Region* home;
+extern BWTA::Region* enemy_base;*/
 //DWORD WINAPI AnalyzeThread();
 
 class ExampleAIModule : public BWAPI::AIModule
@@ -29,12 +29,12 @@ public:
   virtual void onUnitMorph(BWAPI::Unit* unit);
   virtual void onUnitRenegade(BWAPI::Unit* unit);
   virtual void onSaveGame(std::string gameName);
-  void drawStats(); //not part of BWAPI::AIModule
-  void drawBullets();
-  void drawVisibilityData();
-  void drawTerrainData();
+
+
+  //void drawStats(); //not part of BWAPI::AIModule
+  //void drawBullets();
+  //void drawVisibilityData();
+  //void drawTerrainData();
   void showPlayers();
   void showForces();
-  bool show_bullets;
-  bool show_visibility_data;
 };
