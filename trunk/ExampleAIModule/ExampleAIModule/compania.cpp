@@ -376,7 +376,7 @@ void compania::onFrame(){
 	}
 	
 	
-	if ((comandante != NULL)&& (comandante->exists())&&(posicionanteriorDelComandante == comandante->getPosition()) ){
+	if ((comandante != NULL)&& (comandante->exists())&&(posicionanteriorDelComandante != comandante->getPosition()) ){
 		posicionanteriorDelComandante = comandante->getPosition();
 		Broodwar->printf("cambie la posicion");
 	}
