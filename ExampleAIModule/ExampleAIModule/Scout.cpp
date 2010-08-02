@@ -4,7 +4,7 @@ using namespace BWAPI;
 
 Unit *explorer; // puntero a la unidad que es el scout
 
-TilePosition *posiciones[20]; // arreglo de las posiciones a explorar
+TilePosition *posiciones[30]; // arreglo de las posiciones a explorar
 
 int cantPosiciones = 0; // cantidad de posiciones a explorar
 int modo = 0; // modo de visualizacion de la grilla
@@ -91,7 +91,7 @@ Scout::Scout(BWAPI::Unit *unidad)
 
 	
 	
-	/*for(std::set<TilePosition>::iterator p=Broodwar->getStartLocations().begin(); p != Broodwar->getStartLocations().end(); p++){
+	for(std::set<TilePosition>::iterator p=Broodwar->getStartLocations().begin(); p != Broodwar->getStartLocations().end(); p++){
 		nPosX = (*p).x();
 		nPosY = (*p).y();
 
@@ -145,7 +145,7 @@ Scout::Scout(BWAPI::Unit *unidad)
 				}
 			}
 		}
-	}*/
+	}
 
 
 
