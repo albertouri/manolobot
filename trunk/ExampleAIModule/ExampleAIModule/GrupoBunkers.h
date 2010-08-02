@@ -16,16 +16,28 @@ public:
 	~GrupoBunkers(void);
 
 	void agregarUnidad(Unit* u);
+	
+	// retorna la cantidad de bunkers que hay en el grupo de bunkers (no cuenta los destruidos)
+	int getCantBunkers();
 
-	int getCantBunkers(); // retorna la cantidad de bunkers que hay en el grupo de bunkers (no cuenta los destruidos)
-	int getCantMisileTurrets(); // retorna la cantidad de misile turrets que hay en el grupo de bunkers (no cuenta los destruidos)
-	int getCantMarines(); // retorna la cantidad de marines que hay en el grupo de bunkers (no cuenta los destruidos)
+	// retorna la cantidad de misile turrets que hay en el grupo de bunkers (no cuenta los destruidos)
+	int getCantMisileTurrets();
+
+	// retorna la cantidad de marines que hay en el grupo de bunkers (no cuenta los destruidos)
+	int getCantMarines();
+	
+	// retorna la cantidad de tanques que hay en el grupo de bunkers (no cuenta los destruidos)
 	int getCantTanks();
 
 	void estrategia1(Unit *u);
 	
-	TilePosition* posicionNuevoBunker(); // retorna un tilePosition donde se deberia ubicar el nuevo bunker
-	TilePosition* posicionNuevaTorreta(); // retorna un tilePosition donde se deberia ubicar la nueva misile turret bunker
+	// retorna un tilePosition donde se deberia ubicar el nuevo bunker
+	TilePosition* posicionNuevoBunker(); 
+
+	// retorna un tilePosition donde se deberia ubicar la nueva misile turret bunker
+	TilePosition* posicionNuevaTorreta(); 
+
+
 	TilePosition* posicionNuevoTanque();
 
 	void onFrame(); // metodo a ejecutar en cada frame
@@ -47,9 +59,10 @@ private:
 	std::list<Unit*> listBunkers;
 	std::list<Unit*> listMisileTurrets;
 	std::list<Unit*> listMarines;
-	std::list<Unit*> listTanks;
+	//std::list<Unit*> listTanks;
+	std::list<std::pair<Position*, Unit*>> listTanks;
 
-	std::set<int> posicionesLibresTanques;
+	//std::set<int> posicionesLibresTanques;
 
 	//-- METODOS
 
@@ -73,4 +86,6 @@ private:
 	
 	bool ocupado(TilePosition t, int IDTipo); // retorna true si el tile position esta ocupado con una unidad de tipo IDTipo
 	TilePosition* posicionPrimerBunker(Region* r, Chokepoint* c); // retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
+
+	bool rellenarPosicionTanque(Unit *u); // recorre la lista de tanques y si encuentra un tanque que ya no existe lo reemplaza por el nuevo tanque. Retorna true si encontro una posicion vacia, false en caso contrario
 };

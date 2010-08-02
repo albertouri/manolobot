@@ -73,98 +73,39 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 
 	if (u != NULL){
 		if (u->getType().getID() == Utilidades::ID_BUNKER){
-			
-/*			if (posicionesLibresBunkers.size() > 0){
-				std::set<int>::iterator It1;
-		
-				// calcula el tile donde se deberia ubicar el bunker de la primera posicion de la lista de posiciones libres
-				It1 = posicionesLibresBunkers.begin();
-
-				//TilePosition *t = posicionPrimerBunker(reg, choke, *It1);
-				TilePosition *t = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
-
-				// compara si esa posicion es la misma que la que tiene el bunker que se va a agregar al grupo, si es la misma,
-				// se elimina esa posicion del conjunto de posiciones libres y se agrega el bunker en esa posicion del grupo
-				if ((u->getTilePosition().x() == t->x()) && (u->getTilePosition().y() == t->y())){
-					
-					std::list<Unit*>::iterator It2;
-
-					It2 = listBunkers.begin();
-					cont = (*It1) - 1;
-
-					while (cont > 0){
-						It2++;
-						cont--;
-					}
-
-					listBunkers.insert(It2, u);
-					posicionesLibresBunkers.erase(*It1);
-					
-				}
-				else
-					listBunkers.push_back(u);
-			}
-			else*/
-				listBunkers.push_back(u);
-			
-
+			listBunkers.push_back(u);
 		}
 		else if (u->getType().getID() == Utilidades::ID_MISSILE_TURRET){
-
-			/*if (posicionesLibresMisileTurrets.size() > 0){
-				std::set<int>::iterator It1;
-		
-				// calcula el tile donde se deberia ubicar el bunker de la primera posicion de la lista de posiciones libres
-				It1 = posicionesLibresMisileTurrets.begin();
-
-				//TilePosition *t = posicionPrimerBunker(reg, choke, *It1);
-				TilePosition *t = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
-
-				// compara si esa posicion es la misma que la que tiene el bunker que se va a agregar al grupo, si es la misma,
-				// se elimina esa posicion del conjunto de posiciones libres y se agrega el bunker en esa posicion del grupo
-				if ((u->getTilePosition().x() == t->x()) && (u->getTilePosition().y() == t->y())){
-					
-					std::list<Unit*>::iterator It2;
-
-					It2 = listMisileTurrets.begin();
-					cont = (*It1) - 1;
-
-					while (cont > 0){
-						It2++;
-						cont--;
-					}
-
-					listMisileTurrets.insert(It2, u);
-					posicionesLibresMisileTurrets.erase(*It1);
-					
-				}
-				else
-					listMisileTurrets.push_back(u);
-			}
-			else*/
-				listMisileTurrets.push_back(u);
-
-
+			listMisileTurrets.push_back(u);
 		}
 		else if (u->getType().getID() == Utilidades::ID_MARINE){
 			listMarines.push_back(u);
 		}
 		else if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
-			listTanks.push_back(u);
-			Position *p;
-			TilePosition *t;
 
-			t = posicionNuevoTanque();
-			p = new Position(t->x() * 32 + 16, t->y() * 32 + 16);
-			delete t;
+			if (!rellenarPosicionTanque(u)){
+				Position *p;
+				TilePosition *t;
 
-			u->rightClick(*p);
-			delete p;
+				t = posicionNuevoTanque();
+
+				if (anguloGrupo == 90)
+					p = new Position(t->x() * 32 + 44 * listTanks.size(), t->y() * 32 + 16);
+				else
+					p = new Position(t->x() * 32 + 16, t->y() * 32 + 44 * listTanks.size() - 16);
+				delete t;
+				
+				std::pair<Position*, Unit*> par = std::make_pair(p, u);
+				listTanks.push_back(par);
+
+				u->move(*p);
+			}
 		}
 		else
 			Broodwar->printf("No se puede agregar ese tipo de unidad a un grupo de bunkers");
 	}
 }
+
 
 int GrupoBunkers::getCantBunkers(){
 
@@ -184,6 +125,7 @@ int GrupoBunkers::getCantBunkers(){
 	return cont;
 }
 
+
 int GrupoBunkers::getCantMisileTurrets(){
 
 	std::list<Unit*>::iterator It1;
@@ -201,6 +143,7 @@ int GrupoBunkers::getCantMisileTurrets(){
 
 	return cont;
 }
+
 
 int GrupoBunkers::getCantMarines(){
 
@@ -220,15 +163,16 @@ int GrupoBunkers::getCantMarines(){
 	return cont;
 }
 
+
 int GrupoBunkers::getCantTanks(){
 
-	std::list<Unit*>::iterator It1;
+	std::list<std::pair<Position*, Unit*>>::iterator It1;
 	It1 = listTanks.begin();
 	int cont = 0;
 
 	if (listTanks.size() > 0){
 		while (It1 != listTanks.end()){
-			if ((*It1)->exists())
+			if ((*It1).second->exists())
 				cont++;
 			
 			It1++;
@@ -580,74 +524,78 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 }
 
 
-TilePosition* GrupoBunkers::posicionNuevoTanque(){
-	
-	TilePosition *aux;
-	int cuadrante, angulo1;
-	int offset;
 
-	// obtiene el tilePosition del primer bunker del grupo, para tener como referencia ese tilePosition
-	//aux = new TilePosition(bunkerCentral->x(), bunkerCentral->y());
-	aux = bunkerCentral;
+//-- CODIGO PARA UBICAR TANQUES
+bool GrupoBunkers::rellenarPosicionTanque(Unit *u){
+	std::list<std::pair<Position*, Unit*>>::iterator It1;
+	Position *aux;
+
+	It1 = listTanks.begin();
+	while (It1 != listTanks.end()){
+		if (!(*It1).second->exists()){
+			aux = (*It1).first;
+			(*It1) = std::make_pair(aux, u);
+			return true;
+		}
+
+		It1++;
+	}
+	return false;
+}
+
+TilePosition* GrupoBunkers::posicionNuevoTanque(){
+	int cuadrante, angulo1;
+	
 	angulo1 = anguloGrupo;
 	cuadrante = analizador->getCuadrante(reg->getCenter());
 
-	if (aux != NULL){
+	if (bunkerCentral != NULL){
 		// el grupo de bunkers esta ubicado en forma horizontal
-	
 		if (angulo1 == 90){
-			if ((cuadrante == 1) || (cuadrante == 2))
-				return new TilePosition(bunkerCentral->x() + listTanks.size(), bunkerCentral->y() - 3);
-			else
-				return new TilePosition(bunkerCentral->x() + listTanks.size(), bunkerCentral->y() + 3);
-		}
-		else
-			return NULL;
-
-		/*if (angulo1 == 90){
-			if ((cuadrante == 1) || (cuadrante == 2))
-				offset = -1;
-			else
-				offset = 1;
-			
-			if (posicionesLibresTanques.size() == 0)
-				// la parte offset * (2 +  2 * listTanks.size() % 3))) de la expresion hace que los tanques se ubiquen en filas de 3 tanques
-				return (new TilePosition(aux->x() + 2 * (listTanks.size() % 3), aux->y() + offset * (3 +  2 * listTanks.size() % 3)));
-			else{
-				std::set<int>::iterator It;
-				It = posicionesLibresTanques.begin();
-				int temp = *It;
-				posicionesLibresTanques.erase(It);
-
-				return (new TilePosition(aux->x() + 2 * ((temp - 1) % 3), aux->y() + offset * (3 + 2 * ((temp - 1) % 3))));
-			}
-
+			//if ((cuadrante == 1) || (cuadrante == 2))
+				if (choke->getCenter().y() < reg->getCenter().y())
+					return new TilePosition(bunkerCentral->x(), bunkerCentral->y() + 3);
+				else
+					return new TilePosition(bunkerCentral->x(), bunkerCentral->y() - 2);
+			//else{
+				//if (choke->getCenter().y() < reg->getCenter().y())
+					//return new TilePosition(bunkerCentral->x(), bunkerCentral->y() + 3);
+				/*else
+					return new 
+			}*/
 		}
 		else if (angulo1 == 0){
 			if ((cuadrante == 1) || (cuadrante == 3))
-				offset = -1;
+				return new TilePosition(bunkerCentral->x() - 2, bunkerCentral->y());
 			else
-				offset = 1;
-			
-			if (posicionesLibresTanques.size() == 0)
-				return (new TilePosition(aux->x() + offset * (3 + 2 * listTanks.size() % 3), aux->y() + 2 * (listTanks.size() % 3)));
-			else{
-				std::set<int>::iterator It;
-				It = posicionesLibresTanques.begin();
-				int temp = *It;
-				posicionesLibresTanques.erase(It);
-
-				return (new TilePosition(aux->x() + offset * (3 + 2 * ((temp - 1) % 3)), aux->y() + 2 * ((temp - 1) % 3) ));
-			}
+				return new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y());
 		}
 		else
-			return NULL;*/
+			return NULL;
 	}
 	else{
 		Broodwar->printf("ERROR: No se encontro posicion - Metodo: posicionNuevoTanque - Clase: GrupoBunkers");
 		return NULL;
 	}
 }
+
+
+void GrupoBunkers::ubicarModoSiege(){
+	std::list<std::pair<Position*, Unit*>>::iterator It;
+
+	It = listTanks.begin();
+
+	while (It != listTanks.end()){
+		if (((*It).second->exists()) && (*It).second->isIdle() && (!(*It).second->isSieged()) && ((*It).first->x() == (*It).second->getPosition().x()) && ((*It).first->x() == (*It).second->getPosition().x()))
+			(*It).second->siege();
+		else
+			(*It).second->move(*((*It).first));
+
+		It++;
+	}
+}
+
+//-- FIN CODIGO PARA UBICAR TANQUES
 
 
 
@@ -696,20 +644,6 @@ void GrupoBunkers::controlDestruidos(){
 		else
 			It1++;
 	}
-
-
-	// ----------- controla los tanques -----------
-	It1 = listTanks.begin();
-	while (It1 != listTanks.end()){
-		if (!(*It1)->exists()){
-			listTanks.erase(It1);
-			It1 = listTanks.begin(); // tuve que poner esto porque sino se colgaba el while...
-		}
-		else
-			It1++;
-
-		cont++;
-	}
 }
 
 
@@ -750,26 +684,12 @@ void GrupoBunkers::onFrame(){
 
 		ubicarModoSiege();
 	}
-
-	
 }
+
 
 void GrupoBunkers::onUnitDestroy(Unit *u){
-	if ((u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET) || (u->getType().getID() == Utilidades::ID_TANKSIEGE))
+	if ((u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET) || (u->getType().getID() == Utilidades::ID_TANKSIEGE) || (u->getType().getID() == Utilidades::ID_TANKSIEGE_SIEGEMODE))
 		controlDestruidos();
-}
-
-void GrupoBunkers::ubicarModoSiege(){
-	std::list<Unit*>::iterator It;
-
-	It = listTanks.begin();
-
-	while (It != listTanks.end()){
-		if ((*It)->isIdle() && (!(*It)->isSieged()))
-			(*It)->siege();
-
-		It++;
-	}
 }
 
 
@@ -780,7 +700,6 @@ bool GrupoBunkers::faltanMarines(){
 bool GrupoBunkers::faltanTanques(){
 	return (getCantTanks() < 3);
 }
-
 
 void GrupoBunkers::moverSoldadosPosEncuentro(){
 	if (posEncuentro != NULL){
@@ -814,13 +733,14 @@ void GrupoBunkers::resaltarUnidades(){
 
 	// ---------------------------------------------------------------------
 
-	It1 = listTanks.begin();
+	std::list<std::pair<Position*, Unit*>>::iterator It2;
+	It2 = listTanks.begin();
 
-	while (It1 != listTanks.end()){
-		if (((*It1)->isCompleted()) && (!(*It1)->isLoaded()))
-			Graficos::resaltarUnidad((*It1), Colors::White);
+	while (It2 != listTanks.end()){
+		if (((*It2).second->isCompleted()) && (!(*It2).second->isLoaded()))
+			Graficos::resaltarUnidad((*It2).second, Colors::White);
 
-		It1++;
+		It2++;
 	}
 }
 
@@ -842,9 +762,6 @@ TilePosition* GrupoBunkers::posicionPrimerBunker(Region* r, Chokepoint* c){
 
 	angulo = analizador->calcularAngulo(c);
 	res = encontrarPosicion(cuadrante, c->getCenter(), angulo);
-
-	/*if (res == NULL)
-		Broodwar->printf("ERROR: No se encontro posicion - Metodo: calcularPrimerTile - Clase: AnalizadorTerreno");*/
 
 	return res;
 }
@@ -993,7 +910,7 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 		}
 	}
 	else if (angulo1 == 0){
-		contY = -2;
+		contY = -3/*-2*/;
 
 		//-- CODIGO GIRATORIO
 
@@ -1040,9 +957,9 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 			}
 			else delete t;
 
-			if (contY == 2){
+			if (contY == 3/*2*/){
 				contX++;
-				contY = -2;
+				contY = -3/*-2*/;
 			}
 			else
 				contY++;

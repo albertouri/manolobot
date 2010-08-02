@@ -451,6 +451,27 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 	}
 
+	//-- INFANTRY WEAPONS LEVEL 1
+	if (!researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
+		// mejora de armamento de marines nivel 1 (se investiga en bahia de ingenieria)
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] == 1)){
+			Unit *u;
+			u = getUnit(Utilidades::ID_ENGINEERING_BAY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando mejora de armamento de marines (Nivel 1)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Infantry_Weapons);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = true;
+				}
+			}
+		}
+	}
+
 	//-- INFANTRY ARMOR LEVEL 1
 	if (!researchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 		// mejora de armamento de marines nivel 1 (se investiga en bahia de ingenieria)
@@ -461,8 +482,8 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			if (u != NULL){
 
 				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
-					Broodwar->printf("Investigando mejora armamento marines");
-					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Infantry_Weapons);
+					Broodwar->printf("Investigando mejora de armadura de marines (Nivel 1)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Infantry_Armor);
 					u->upgrade(*t);
 					delete t;
 					

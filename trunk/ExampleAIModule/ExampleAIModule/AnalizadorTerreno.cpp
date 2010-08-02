@@ -15,7 +15,7 @@ AnalizadorTerreno::AnalizadorTerreno(void)
 	analysis_just_finished=false;
 
 	show_bullets=true;
-	show_visibility_data=true;
+	show_visibility_data=false;
 
 	// Analiza el terreno del mapa
 	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AnalyzeThread, NULL, 0, NULL);
