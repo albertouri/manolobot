@@ -4,6 +4,7 @@
 std::list<Unit*> lista;
 int latencia=0;
 bool atacando = false;
+Position posicionanteriorDelComandante;
 
 std::list<Unit*> listaDeTanquesAUbicar;
 
@@ -54,7 +55,7 @@ void compania::asignarUnidad(Unit *u){
 			Broodwar->printf("lo agrego a la lista de tanques");		
 			
 		}
-		if (comandante != NULL)
+		if ((comandante != NULL)&&(comandante->exists()))
 			u->rightClick(comandante);
 	}
 }
@@ -142,7 +143,7 @@ void compania::actualizarEstado(std::list<Unit*> *lista){
 }
 
 void compania::atacar(Unit *u){
-
+	Broodwar->printf("voy a atacar!!!");
 	if (listMarines.size() > 0){
 
 		std::list<Unit*>::iterator It1;
@@ -180,8 +181,8 @@ void compania::atacar(Unit *u){
 		while(It1 != listMedics.end()){
 			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
 			else { 
-				//(*It1)->follow(comandante);
-				(*It1)->rightClick(u->getPosition());
+			//	(*It1)->follow(comandante);
+			//	(*It1)->rightClick(u->getPosition());
 				It1++;
 			}
 		}
@@ -260,50 +261,26 @@ void compania::onFrame(){
 		}
 	}
 
-	if (listMedics.size() > 0){
-		//Broodwar->printf("Entra a 3");
-
-		std::list<Unit*>::iterator It1;
-		It1 = listMedics.begin();
-
-		while(It1 != listMedics.end()){
-			if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
-			else {
-				if (!(*It1)->isLoaded()) {
-					Graficos::resaltarUnidad(*It1, c);
-
-					// manda a los medicos a curar a los soldados de su unidad
-					Unit *u;
-					if ((*It1)->isIdle() || (*It1)->isMoving()){
-						// recorre la lista de marines y firebats buscando alguna unidad dañada
-						u = buscarDañado(listMarines);
-
-						if (u != NULL){
-							(*It1)->rightClick(u);
-						}
-					}
-				}
-
-				It1++;
-			}
-		}
-	}
 
 
 	// ------------------------ verifica si el comandante esta seteado ------------------------
 
 	// si no hay comandante, o murio, se asigna uno nuevo
 	if ((comandante == NULL) || (!comandante->exists())){
-		//Broodwar->printf("Entra a 4");
+		
 		actualizarEstado(&listMarines);
 		
-		if (listMarines.size() > 0)
+		if (listMarines.size() > 0){
 			comandante = *(listMarines.begin());
+			posicionanteriorDelComandante = comandante->getPosition();
+		}
 		else{
 			actualizarEstado(&listFirebats);
 
-			if (listFirebats.size() > 0)
+			if (listFirebats.size() > 0){
 				comandante = *(listFirebats.begin());
+				posicionanteriorDelComandante = comandante->getPosition();
+			}
 			else
 				comandante = NULL;
 		}
@@ -319,7 +296,7 @@ void compania::onFrame(){
 //			if(listMarines.size() > 9){
 				double minDist = 10000;
 				Unit *masCercana = NULL;
-
+				
 				for(std::set<Unit*>::const_iterator i=Broodwar->enemy()->getUnits().begin();i!=Broodwar->enemy()->getUnits().end();i++){
 					if ((*i)->exists()){
 						if (comandante->getPosition().getApproxDistance((*i)->getPosition()) < minDist){
@@ -341,7 +318,39 @@ void compania::onFrame(){
 
 	}
 	if (!atacando){
-		controlarDistancia(); // hace que los soldados sigan al comandante
+		if ((comandante!= NULL)&&(comandante->exists()))
+			if (posicionanteriorDelComandante != comandante->getPosition()){
+				controlarDistancia(); // hace que los soldados sigan al comandante
+			}
+			else{
+				if (listMedics.size() > 0){
+				std::list<Unit*>::iterator It1;
+				It1 = listMedics.begin();
+
+				while(It1 != listMedics.end()){
+					if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
+					else {
+						if (!(*It1)->isLoaded()) {
+							Graficos::resaltarUnidad(*It1, c);
+							// manda a los medicos a curar a los soldados de su unidad
+							Unit *u;
+							if ((*It1)->isIdle() || (*It1)->isMoving()){
+								// recorre la lista de marines y firebats buscando alguna unidad dañada
+								u = buscarDañado(listMarines);
+
+								if ((u != NULL)&& (u->exists())){
+									(*It1)->rightClick(u);
+								}
+							}
+						}
+
+						It1++;
+					}
+				}
+			}
+
+
+			}
 	}
 
 	// ------------------------ Ubica los tanques en modo asedio ------------------------
@@ -364,6 +373,12 @@ void compania::onFrame(){
 			latencia = 0;
 			
 		} else {latencia++;}
+	}
+	
+	
+	if ((comandante != NULL)&& (comandante->exists())&&(posicionanteriorDelComandante == comandante->getPosition()) ){
+		posicionanteriorDelComandante = comandante->getPosition();
+		Broodwar->printf("cambie la posicion");
 	}
 	
 	// ----------------------------------------------------------------------------------------
