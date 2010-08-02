@@ -155,9 +155,11 @@ void ExampleAIModule::onUnitDestroy(BWAPI::Unit* unit)
 
 void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
 {
-	if (!Broodwar->isReplay())
+	if (!Broodwar->isReplay()){
 		//Broodwar->sendText("A %s [%x] has been morphed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
-		agente->onUnitCreate(unit);
+		if (unit->getType().getID() == Utilidades::ID_REFINERY)
+			agente->onUnitCreate(unit);
+	}
 	else{
 		/*if we are in a replay, then we will print out the build order
 		(just of the buildings, not the units).*/

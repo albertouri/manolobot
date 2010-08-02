@@ -184,9 +184,9 @@ int GrupoBunkers::getCantTanks(){
 
 
 // el bunker atacado es pasado como parametro
-void GrupoBunkers::estrategia1(Unit *u){
+/*void GrupoBunkers::estrategia1(Unit *u){
 
-	/*if (perteneceBunker(u)){
+	if (perteneceBunker(u)){
 
 		if (u->getLoadedUnits().size() > 0){
 			std::list<Unit*>::iterator It1;
@@ -224,8 +224,8 @@ void GrupoBunkers::estrategia1(Unit *u){
 				It2++;
 			}
 		}
-	}*/
-}
+	}
+}*/
 
 
 bool GrupoBunkers::perteneceBunker(Unit *u){
@@ -684,6 +684,8 @@ void GrupoBunkers::onFrame(){
 
 		ubicarModoSiege();
 	}
+
+	Graficos::dibujarCuadro(new TilePosition(posEncuentro->x() / 32, posEncuentro->y() / 32), 1, 1);
 }
 
 
