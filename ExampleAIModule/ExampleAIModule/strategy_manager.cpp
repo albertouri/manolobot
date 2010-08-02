@@ -94,6 +94,9 @@ void strategy_manager::checkGoals(void){
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
+			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
+		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
 		}
