@@ -148,6 +148,14 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		
 	}
 
+
+	//--
+	Unit *k = getUnit(Utilidades::ID_ACADEMY);
+	if ((k != NULL) && (k->getUpgradeLevel(UpgradeTypes::U_238_Shells))){
+		Broodwar->printf("U238 investigadouuu");
+	}
+	//--
+
 	// ---------------------------------------------------------------------------
 	//--						CODIGO DE REPARACION DE UNIDADES
 
