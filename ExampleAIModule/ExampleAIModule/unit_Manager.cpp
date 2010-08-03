@@ -17,11 +17,12 @@ int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 // Compañias de unidades
 compania* Easy = NULL;
+//compania* Fox = NULL; // compañia fox (no es por megan), defiende la base
 
 Scout* magallanes;
 Player* enemigo;
 
-TilePosition *centroComando;	// mantiene la posicion del centro de comando
+TilePosition *centroComando; // mantiene la posicion del centro de comando
 Unit *centroDeComando; //puntero a la posicion del centro;
 
 // Grupos de bunkers
@@ -37,6 +38,7 @@ unit_Manager::unit_Manager()
 {
 
 	Easy = new compania(Colors::Red);
+	//Fox = new compania(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
 
 	magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
 
@@ -110,6 +112,8 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		Easy->onFrame();
 	else
 		Broodwar->printf("ERROR: Easy es NULL");
+
+	//Fox->onFrame();
 
 
 	// verifica si se termino de construir alguna unidad en este frame
@@ -250,6 +254,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		delete building;
 	}
 
+	//-- COMSAT STATION (ADD-ON DE COMMAND CENTER)
+	if((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] < goalCantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]) /*&& (buildingSemaphore == 0)*/ && (cantUnidades[Utilidades::ID_ACADEMY] > 0)){
+		buildUnitAddOn(Utilidades::ID_COMSAT_STATION);
+	}
+
 	//-- SCV (construye 'goalLimiteSCV' de SCV), este valor deberia ser seteado por una llamada a setGoal
 	if ((cantUnidades[Utilidades::INDEX_GOAL_SCV] < goalCantUnidades[Utilidades::INDEX_GOAL_SCV]) && (Broodwar->self()->minerals() > 100)) {
 		trainWorker();
@@ -318,7 +327,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 
 	//-- MACHINE SHOP (ADD-ON DE FACTORY)
-	if((Broodwar->self()->minerals() > 50)&& (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] < goalCantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]) && (buildingSemaphore == 0)){
+	if((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] < goalCantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]) && (buildingSemaphore == 0)){
 		buildUnitAddOn(Utilidades::ID_MACHINESHOP);
 	}
 
@@ -380,6 +389,30 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_ENGINEERING_BAY);
+			delete posB;
+		}
+		delete building;
+	}
+
+	//-- ARMORY
+	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_ARMORY] < goalCantUnidades[Utilidades::INDEX_GOAL_ARMORY]) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_ARMORY);
+		TilePosition* posB = getTilePositionAviable(building);
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_ARMORY);
+			delete posB;
+		}
+		delete building;
+	}
+
+	//-- STARPORT
+	if((Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 100) && (cantUnidades[Utilidades::INDEX_GOAL_STARPORT] < goalCantUnidades[Utilidades::INDEX_GOAL_STARPORT]) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_STARPORT);
+		TilePosition* posB = getTilePositionAviable(building);
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_STARPORT);
 			delete posB;
 		}
 		delete building;
@@ -501,6 +534,28 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 	}
 
+	//-- VEHICLE WEAPONS LEVEL 1
+	if (!researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1]){
+		// mejora de armamento de vehiculos nivel 1 (se investiga en armory
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] == 1)){
+			Broodwar->printf("Intenta mejorar armamento vehiculos");
+			Unit *u;
+			u = getUnit(Utilidades::ID_ARMORY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando mejora de armamento de vehiculos (Nivel 1)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Vehicle_Weapons);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = true;
+				}
+			}
+		}
+	}
+
 	//--						FIN CODIGO PARA CONSTRUCCION DE UNIDADES
 	// ---------------------------------------------------------------------------
 
@@ -546,6 +601,15 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 							if (Easy->pertenece(*It1)){
 								Easy->moverCompania(*p);
 							}
+							else{
+								// mueve cada unidad en el tile a otra posicion (solamente si la unidad en cuestion no es una construccion fija)
+								while (It1 != Broodwar->unitsOnTile(t->x(), t->y()).end()){
+									if (((*It1)->exists()) && (!(*It1)->getType().isBuilding()))
+										(*It1)->move(*p);
+
+									It1++;
+								}
+							}
 
 							delete p;
 							Broodwar->printf("muevo los soldadillos");
@@ -564,25 +628,29 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 
 void unit_Manager::buildUnitAddOn(int id){
 	
-	Unit* factory = NULL;
+	Unit* owner = NULL;
 	UnitType *tipo = new UnitType(id);
 
-	if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
-	
-		/*for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
-			if ((*i)->getType().getID()==Utilidades::ID_FACTORY){
-				factory = (*i);
-				break;
-			}
-		}*/
+	if (id == Utilidades::ID_MACHINESHOP){
+		if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
+			owner = getUnit(Utilidades::ID_FACTORY);
 
-		factory = getUnit(Utilidades::ID_FACTORY);
+			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
+				owner->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP));
+		}
 
-		if ((factory != NULL) && (factory->exists()) && (factory->isCompleted()))
-			factory->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP));
+		delete tipo;
 	}
+	else if (id == Utilidades::ID_COMSAT_STATION){
+		if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
+			owner = getUnit(Utilidades::ID_COMMANDCENTER);
 
-	delete tipo;
+			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
+				owner->buildAddon(*new UnitType(Utilidades::ID_COMSAT_STATION));
+		}
+
+		delete tipo;
+	}
 }
 
 
@@ -901,8 +969,12 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 
 		if ((grupoB1 != NULL) && (grupoB1->faltanMarines()))
 			grupoB1->agregarUnidad(unit);
-		else
-			Easy->asignarUnidad(unit);
+		else{
+			/*if ((cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 16) && (Fox->countMarines() < 5))
+				Fox->asignarUnidad(unit);
+			else*/
+				Easy->asignarUnidad(unit);
+		}
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
 		Easy->asignarUnidad(unit);
@@ -1118,7 +1190,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_TANKSIEGE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
-				Broodwar->printf("creando a boby sin siege, tengo %d tanques", cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
+				//Broodwar->printf("creando a boby sin siege, tengo %d tanques", cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				asignarUnidadACompania(u);
 				break;
 /*			case Utilidades::ID_TANKSIEGE_SIEGEMODE:				
@@ -1127,6 +1199,15 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;*/
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
+				break;
+			case Utilidades::ID_ARMORY:
+				cantUnidades[Utilidades::INDEX_GOAL_ARMORY]++;
+				break;
+			case Utilidades::ID_STARPORT:
+				cantUnidades[Utilidades::INDEX_GOAL_STARPORT]++;
+				break;
+			case Utilidades::ID_COMSAT_STATION:
+				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]++;
 				break;
 		}
 
@@ -1191,14 +1272,23 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_TANKSIEGE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
-				Broodwar->printf("mataron a boby sin siege, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
+				//Broodwar->printf("mataron a boby sin siege, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				break;
 			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
-				Broodwar->printf("mataron a kenny, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
+				//Broodwar->printf("mataron a kenny, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				break;
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
+				break;
+			case Utilidades::ID_ARMORY:
+				cantUnidades[Utilidades::INDEX_GOAL_ARMORY]--;
+				break;
+			case Utilidades::ID_STARPORT:
+				cantUnidades[Utilidades::INDEX_GOAL_STARPORT]--;
+				break;
+			case Utilidades::ID_COMSAT_STATION:
+				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]--;
 				break;
 		}
 
@@ -1219,4 +1309,15 @@ void unit_Manager::finalizarConstruccion(Unit *u){
 
 bool* unit_Manager::getResearchsDone(){
 	return researchDone;
+}
+
+void unit_Manager::onNukeDetect(Position p){
+	if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
+		Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
+
+		if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() > 50)){
+			detector->useTech(TechTypes::Scanner_Sweep, p);
+			//Fox->moverCompania(p);
+		}
+	}
 }

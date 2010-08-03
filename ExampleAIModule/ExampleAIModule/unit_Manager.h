@@ -24,6 +24,7 @@ public:
 
 	void onUnitCreate(Unit *u);
 	void onUnitDestroy(Unit *u);
+	void onNukeDetect(Position p);
 
 	bool* getResearchsDone();
 

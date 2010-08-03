@@ -36,7 +36,7 @@ void ExampleAIModule::onStart()
 		Broodwar->self()->getRace().getName().c_str(),
 		Broodwar->enemy()->getRace().getName().c_str());
 
-		Broodwar->setLocalSpeed(8);
+		Broodwar->setLocalSpeed(0);
 
 		agente = new ManoloBot();
 	}
@@ -97,10 +97,12 @@ void ExampleAIModule::onPlayerLeft(BWAPI::Player* player)
 
 void ExampleAIModule::onNukeDetect(BWAPI::Position target)
 {
-  if (target!=Positions::Unknown)
-    Broodwar->printf("Nuclear Launch Detected at (%d,%d)",target.x(),target.y());
-  else
-    Broodwar->printf("Nuclear Launch Detected");
+	if (target!=Positions::Unknown){
+		Broodwar->printf("Nuclear Launch Detected at (%d,%d)",target.x(),target.y());
+		agente->onNukeDetect(target);
+	}
+	else
+		Broodwar->printf("Nuclear Launch Detected");
 }
 
 void ExampleAIModule::onUnitDiscover(BWAPI::Unit* unit)

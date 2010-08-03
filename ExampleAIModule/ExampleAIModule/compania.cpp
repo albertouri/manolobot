@@ -281,6 +281,18 @@ void compania::onFrame(){
 		}
 	}
 
+	if (listTanks.size() > 0){
+		std::list<Unit*>::iterator It1;
+		It1 = listTanks.begin();
+
+		while(It1 != listTanks.end()){
+			if(!(*It1)->exists()) It1 = listTanks.erase(It1);	
+			else {
+				Graficos::resaltarUnidad(*It1, c);
+				It1++; 
+			}
+		}
+	}
 
 
 	// ------------------------ verifica si el comandante esta seteado ------------------------
@@ -337,6 +349,7 @@ void compania::onFrame(){
 		}
 
 	}
+
 	if (!atacando){
 		if ((comandante!= NULL)&&(comandante->exists()))
 			if (posicionanteriorDelComandante != comandante->getPosition()){
@@ -370,7 +383,7 @@ void compania::onFrame(){
 			}
 
 
-			}
+		}
 	}
 
 	// ------------------------ Ubica los tanques en modo asedio ------------------------
@@ -398,7 +411,6 @@ void compania::onFrame(){
 	
 	if ((comandante != NULL)&& (comandante->exists())&&(posicionanteriorDelComandante != comandante->getPosition()) ){
 		posicionanteriorDelComandante = comandante->getPosition();
-
 	}
 	
 	// ----------------------------------------------------------------------------------------

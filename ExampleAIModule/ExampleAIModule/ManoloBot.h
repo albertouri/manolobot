@@ -10,5 +10,6 @@ public:
 	void checkGoals(void);
 	void onUnitCreate(Unit* u);
 	void onUnitDestroy(Unit* u);
+	void onNukeDetect(Position p);
 	~ManoloBot(void);
 };
