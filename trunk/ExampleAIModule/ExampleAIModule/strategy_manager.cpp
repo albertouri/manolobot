@@ -51,13 +51,14 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 10;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1)&&(cantUnidades[Utilidades::INDEX_GOAL_MARINE] < 4)){
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 20;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] >= 1)&& (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
 			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 		}
 		else if(cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2){
+			Broodwar->printf("Pase al estado 1 en el strategy manager");
 			estadoActual = 1;
 		}
 	}
@@ -70,19 +71,37 @@ void strategy_manager::checkGoals(void){
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 		}
-		else if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
+		
+		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50)){
+			Broodwar->printf("Pase al estado 2 en el strategy manager");
+			estadoActual = 2;
+		}
+	}
+	else if (estadoActual == 2){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] == 0)){
+			GoalUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
+		}
+
+		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] == 1){
+			Broodwar->printf("Pase al estado 3 en el strategy manager");
+			estadoActual = 3;
+		}
+	}
+	else if (estadoActual == 3){
+		if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 27;
 		}
-		else if (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK]){
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK])){
 			GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 			
-			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
+			//GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
+			//GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
 			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 
 			// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
@@ -94,12 +113,22 @@ void strategy_manager::checkGoals(void){
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 		}
+		else if (cantUnidades[Utilidades::INDEX_GOAL_ARMORY] == 0){
+			GoalUnidades[Utilidades::INDEX_GOAL_ARMORY] = 1;
+		}
+		/*else if (cantUnidades[Utilidades::INDEX_GOAL_STARPORT] == 0){
+			GoalUnidades[Utilidades::INDEX_GOAL_STARPORT] = 1;
+		}*/
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
+			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
 		}
+
+
 	}
 }
 
@@ -163,6 +192,15 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
 				break;
+			case Utilidades::ID_ARMORY:
+				cantUnidades[Utilidades::INDEX_GOAL_ARMORY]++;
+				break;
+			case Utilidades::ID_STARPORT:
+				cantUnidades[Utilidades::INDEX_GOAL_STARPORT]++;
+				break;
+			case Utilidades::ID_COMSAT_STATION:
+				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]++;
+				break;
 		}
 		
 	}
@@ -214,6 +252,15 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
+				break;
+			case Utilidades::ID_ARMORY:
+				cantUnidades[Utilidades::INDEX_GOAL_ARMORY]--;
+				break;
+			case Utilidades::ID_STARPORT:
+				cantUnidades[Utilidades::INDEX_GOAL_STARPORT]--;
+				break;
+			case Utilidades::ID_COMSAT_STATION:
+				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]--;
 				break;
 		}
 		

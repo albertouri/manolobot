@@ -77,3 +77,7 @@ void ManoloBot::onUnitDestroy(Unit *u){
 	strategyManager->onUnitDestroy(u);
 	unitManager->onUnitDestroy(u);
 }
+
+void ManoloBot::onNukeDetect(Position p){
+	unitManager->onNukeDetect(p);
+}
