@@ -143,9 +143,8 @@ void compania::actualizarEstado(std::list<Unit*> *lista){
 }
 
 void compania::atacar(Unit *u){
-	Broodwar->printf("voy a atacar!!!");
-	if (listMarines.size() > 0){
 
+	if (listMarines.size() > 0){
 		std::list<Unit*>::iterator It1;
 		It1 = listMarines.begin();
 
@@ -185,6 +184,27 @@ void compania::atacar(Unit *u){
 			//	(*It1)->rightClick(u->getPosition());
 				It1++;
 			}
+		}
+	}
+
+	if (listTanks.size() > 0){
+		std::list<Unit*>::iterator It1;
+		It1 = listTanks.begin();
+
+		while(It1 != listTanks.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(u->getPosition()) > (*It1)->getType().seekRange())){
+				if ((*It1)->isSieged()){
+					(*It1)->unsiege();
+				}
+				(*It1)->attackUnit(u);
+			}
+			else{
+				if (!(*It1)->isSieged()){
+						(*It1)->siege();
+				}
+				(*It1)->attackUnit(u);
+			}
+			It1++;
 		}
 	}
 	
@@ -354,7 +374,7 @@ void compania::onFrame(){
 	}
 
 	// ------------------------ Ubica los tanques en modo asedio ------------------------
-
+/*
 	if (listaDeTanquesAUbicar.size() > 0){
 		//Broodwar->printf("Entra a 6");
 		if (latencia>100){			
@@ -374,11 +394,11 @@ void compania::onFrame(){
 			
 		} else {latencia++;}
 	}
-	
+	*/
 	
 	if ((comandante != NULL)&& (comandante->exists())&&(posicionanteriorDelComandante != comandante->getPosition()) ){
 		posicionanteriorDelComandante = comandante->getPosition();
-		Broodwar->printf("cambie la posicion");
+
 	}
 	
 	// ----------------------------------------------------------------------------------------
