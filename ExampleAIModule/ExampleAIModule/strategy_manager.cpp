@@ -74,7 +74,7 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 		}
 		
-		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50)){
+		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 1)){
 			Broodwar->printf("Pase al estado 2 en el strategy manager");
 			estadoActual = 2;
 		}

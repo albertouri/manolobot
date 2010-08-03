@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="ExampleAIModule"
 	ProjectGUID="{56DDBBA2-58FB-467D-8923-A214B16649F5}"
 	RootNamespace="ExampleAIModule"
@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CompaniaDefensiva.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Dll.cpp"
 				>
 			</File>
@@ -234,6 +238,10 @@
 			</File>
 			<File
 				RelativePath=".\compania.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CompaniaDefensiva.h"
 				>
 			</File>
 			<File

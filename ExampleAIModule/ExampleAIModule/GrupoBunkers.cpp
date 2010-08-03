@@ -949,6 +949,14 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 						anguloGrupo = 0;
 
 						delete t;
+
+						TilePosition *aux = res;
+						if ((cuadrante == 1) || (cuadrante == 3))
+							res = new TilePosition(aux->x() - 1, aux->y());
+						else
+							res = new TilePosition(aux->x() + 1, aux->y());
+
+						delete aux;
 						//-- RETORNA LA POSICION DEL PRIMER BUNKER A CONSTRUIR
 						return res;
 
