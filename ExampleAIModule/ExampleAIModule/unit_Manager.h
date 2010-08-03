@@ -45,6 +45,7 @@ private:
 
 	TilePosition* getTilePositionAviable(UnitType* U); // despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria
 	TilePosition* getTilePositionAviable(UnitType* U, TilePosition* t); // despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria
+	TilePosition* getPosicionDistinta(TilePosition actual);
 
 	bool construyendo(int ID); // retorna true si una unidad del tipo pasado como parametro esta en construccion, false en caso contrario
 	void moverUnidades(TilePosition *t); // si hay unidades en el TilePosition pasado como parametro los mueve a otro build tile

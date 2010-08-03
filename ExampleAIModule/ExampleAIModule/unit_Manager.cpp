@@ -636,8 +636,21 @@ void unit_Manager::buildUnitAddOn(int id){
 		if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
 			owner = getUnit(Utilidades::ID_FACTORY);
 
-			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
-				owner->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP));
+			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())&&(!owner->isMoving()))
+				if (owner->isLifted()){
+					TilePosition actual = owner->getTilePosition();
+					TilePosition* nuevaPos = new TilePosition(*getPosicionDistinta(actual));
+					if (!owner->land(*nuevaPos)){
+						owner->rightClick(*new Position(*nuevaPos));
+					}
+				}
+				else{
+					if (!owner->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP)))
+						owner->lift();
+					else{
+						Broodwar->printf("estoy levantado en la pos %d,%d", owner->getTilePosition().x(), owner->getTilePosition().y());
+					}
+				}
 		}
 
 		delete tipo;
@@ -654,7 +667,79 @@ void unit_Manager::buildUnitAddOn(int id){
 	}
 }
 
+TilePosition* unit_Manager::getPosicionDistinta(TilePosition actual){
+	Unit * centro = getUnit(Utilidades::ID_COMMANDCENTER);
 
+	if ((centro!=NULL)&&(centro->exists())){
+		int orientacionEsteOeste = centro->getTilePosition().x() - actual.x();
+		int orientacionNorteSur = centro->getTilePosition().y() - actual.y();
+		
+		
+		if (orientacionNorteSur < 0) orientacionNorteSur = -orientacionNorteSur;
+
+		if (abs(orientacionEsteOeste)>abs(orientacionNorteSur)){
+			if (orientacionEsteOeste < 0) {
+				if (actual.x()+1 + 6 < Broodwar->mapWidth()*4){
+					return new TilePosition(actual.x()+1, actual.y());
+				}
+				else{
+					if (orientacionNorteSur < 0) {
+						if (actual.y()+1 + 3 < Broodwar->mapHeight()*4)
+							return new TilePosition(actual.x(), actual.y()+1);
+					}
+					else{
+						if (actual.y()-1 > 1)
+							return new TilePosition(actual.x(), actual.y()-1);
+					}				
+				}
+			}
+			else{
+				if (actual.x()-1 > 1){
+					return new TilePosition(actual.x()-1, actual.y());
+				}
+				else{
+					if (orientacionNorteSur < 0) {
+						if (actual.y()+1 + 3 < Broodwar->mapHeight()*4)
+							return new TilePosition(actual.x(), actual.y()+1);
+					}
+					else{
+						if (actual.y()-1 > 1)
+							return new TilePosition(actual.x(), actual.y()-1);
+					}
+				}
+			}
+		}
+		else{
+			if (orientacionNorteSur < 0) {
+				if (actual.y()+1 + 3 < Broodwar->mapHeight()*4){
+					return new TilePosition(actual.x(), actual.y()+1);
+				}
+				else{
+					if (orientacionEsteOeste < 0) {
+						if (actual.x()+1 + 6 < Broodwar->mapWidth()*4){
+							return new TilePosition(actual.x()+1, actual.y());
+						}
+										
+					}
+					else{
+						if (actual.x()-1 > 1){
+							return new TilePosition(actual.x()-1, actual.y());
+						}
+						
+					}
+				
+				}
+			}
+			else{
+				if (actual.y()-1 > 1)
+					return new TilePosition(actual.x(), actual.y()-1);
+			}		
+		
+		}
+	}
+	Broodwar->printf("no es posicion válida");
+	return new TilePosition(actual.x(), actual.y());
+}
 
 
 void unit_Manager::makeRefinery(TilePosition *pos){
