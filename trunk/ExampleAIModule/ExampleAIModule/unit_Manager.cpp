@@ -1,5 +1,6 @@
 #include "unit_Manager.h"
 #include "compania.h"
+#include "CompaniaDefensiva.h"
 #include "Scout.h"
 #include "Graficos.h"
 #include <math.h>
@@ -17,7 +18,7 @@ int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 // Compañias de unidades
 compania* Easy = NULL;
-//compania* Fox = NULL; // compañia fox (no es por megan), defiende la base
+CompaniaDefensiva* Fox = NULL; // compañia fox (no es por megan), defiende la base
 
 Scout* magallanes;
 Player* enemigo;
@@ -38,7 +39,7 @@ unit_Manager::unit_Manager()
 {
 
 	Easy = new compania(Colors::Red);
-	//Fox = new compania(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
+	Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
 
 	magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
 
@@ -113,7 +114,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	else
 		Broodwar->printf("ERROR: Easy es NULL");
 
-	//Fox->onFrame();
+	Fox->onFrame();
 
 
 	// verifica si se termino de construir alguna unidad en este frame
@@ -970,9 +971,9 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		if ((grupoB1 != NULL) && (grupoB1->faltanMarines()))
 			grupoB1->agregarUnidad(unit);
 		else{
-			/*if ((cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 16) && (Fox->countMarines() < 5))
+			if ((cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 16) && (Fox->countMarines() < 5))
 				Fox->asignarUnidad(unit);
-			else*/
+			else
 				Easy->asignarUnidad(unit);
 		}
 	}
@@ -1317,7 +1318,8 @@ void unit_Manager::onNukeDetect(Position p){
 
 		if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() > 50)){
 			detector->useTech(TechTypes::Scanner_Sweep, p);
-			//Fox->moverCompania(p);
+			Fox->atacar(p);
+			Broodwar->pingMinimap(p);
 		}
 	}
 }
