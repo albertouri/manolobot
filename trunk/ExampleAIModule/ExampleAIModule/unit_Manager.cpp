@@ -674,9 +674,7 @@ TilePosition* unit_Manager::getPosicionDistinta(TilePosition actual){
 		int orientacionEsteOeste = centro->getTilePosition().x() - actual.x();
 		int orientacionNorteSur = centro->getTilePosition().y() - actual.y();
 		
-		
-		if (orientacionNorteSur < 0) orientacionNorteSur = -orientacionNorteSur;
-
+				
 		if (abs(orientacionEsteOeste)>abs(orientacionNorteSur)){
 			if (orientacionEsteOeste < 0) {
 				if (actual.x()+1 + 6 < Broodwar->mapWidth()*4){
