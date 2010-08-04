@@ -3,6 +3,7 @@
 
 std::list<Unit*> lista;
 int latencia=0;
+
 bool atacando = false;
 Position posicionanteriorDelComandante;
 
@@ -19,7 +20,7 @@ compania::~compania(void)
 }
 
 void compania::asignarUnidad(Unit *u){
-	
+
 	if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
 		if ((comandante!=NULL)&&(comandante->exists())){
 			//Broodwar->printf("el comandante no es nulo");
@@ -239,7 +240,9 @@ void compania::onFrame(){
 		It1 = listMarines.begin();
 
 		while(It1 != listMarines.end()){
-			if(!(*It1)->exists()) It1 = listMarines.erase(It1);	
+			if(!(*It1)->exists()){
+				It1 = listMarines.erase(It1);	
+			}
 			else {
 				Unit *u;
 				
@@ -273,7 +276,9 @@ void compania::onFrame(){
 		It1 = listFirebats.begin();
 
 		while(It1 != listFirebats.end()){
-			if(!(*It1)->exists()) It1 = listFirebats.erase(It1);	
+			if(!(*It1)->exists()){
+				It1 = listFirebats.erase(It1);	
+			}
 			else {
 				if (!(*It1)->isLoaded()) Graficos::resaltarUnidad(*It1, c);
 				It1++; 
@@ -286,7 +291,9 @@ void compania::onFrame(){
 		It1 = listTanks.begin();
 
 		while(It1 != listTanks.end()){
-			if(!(*It1)->exists()) It1 = listTanks.erase(It1);	
+			if(!(*It1)->exists()) {
+				It1 = listTanks.erase(It1);	
+			}
 			else {
 				Graficos::resaltarUnidad(*It1, c);
 				It1++; 
@@ -352,8 +359,10 @@ void compania::onFrame(){
 
 	if (!atacando){
 		if ((comandante!= NULL)&&(comandante->exists()))
+			controlarDistancia(); // hace que los soldados sigan al comandante		
+		/*
 			if (posicionanteriorDelComandante != comandante->getPosition()){
-				controlarDistancia(); // hace que los soldados sigan al comandante
+				controlarDistancia(); // hace que los soldados sigan al comandante		
 			}
 			else{
 				if (listMedics.size() > 0){
@@ -381,9 +390,9 @@ void compania::onFrame(){
 					}
 				}
 			}
-
-
 		}
+*/
+
 	}
 
 	// ------------------------ Ubica los tanques en modo asedio ------------------------
@@ -448,6 +457,9 @@ void compania::moverCompania(Position pos){
 
 
 void compania::controlarDistancia(){
+	
+	std::list<Unit*> listaDeMarinesHeridos;
+	Unit* herido;
 
 	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists())){
 		std::list<Unit*>::iterator It1;
@@ -461,6 +473,10 @@ void compania::controlarDistancia(){
 			else{
 				if ((*It1)->getID() != comandante->getID())
 					(*It1)->stop();
+				
+				if (((*It1)->getType().maxHitPoints() > (*It1)->getHitPoints()) && (!(*It1)->isBeingHealed())){
+					listaDeMarinesHeridos.push_front(*It1);
+				}
 			}
 			It1++;
 		}
@@ -476,6 +492,13 @@ void compania::controlarDistancia(){
 				if ((*It1)->getID() != comandante->getID()){
 					if ((*It1)->isMoving())
 						(*It1)->stop();
+					if(!listaDeMarinesHeridos.empty()) {
+						herido = listaDeMarinesHeridos.front();
+						listaDeMarinesHeridos.pop_front();
+						if((herido!=NULL)&&(herido->exists())){
+							(*It1)->rightClick(herido);
+						}
+					}
 				}
 			}
 			It1++;
