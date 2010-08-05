@@ -132,6 +132,7 @@ void strategy_manager::checkGoals(void){
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
+			//GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 6;
 		}
 	}
 }

@@ -3,14 +3,14 @@
 
 //bool a = true;
 
-GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
+GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
 	int cuadrante, angulo;
 	TilePosition *aux;
 
 	analizador = a;
-	choke = a->obtenerChokepoint();
-	reg = a->regionInicial();
+	choke = c/*a->obtenerChokepoint()*/;
+	reg = r/*a->regionInicial()*/;
 
 	Broodwar->printf("Cantidad de bordes poligono region: %d", reg->getPolygon().size());
 
@@ -694,7 +694,8 @@ void GrupoBunkers::onFrame(){
 		contadorMovimientos--;
 	}
 
-	Graficos::dibujarCuadro(new TilePosition(posEncuentro->x() / 32, posEncuentro->y() / 32), 1, 1);
+	if (posEncuentro != NULL)
+		Graficos::dibujarCuadro(new TilePosition(posEncuentro->x() / 32, posEncuentro->y() / 32), 1, 1);
 }
 
 
@@ -1014,7 +1015,8 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 
 
 int GrupoBunkers::getAngulo(){
-	return anguloGrupo;
+	//return anguloGrupo;
+	return analizador->calcularAngulo(choke);
 }
 
 
