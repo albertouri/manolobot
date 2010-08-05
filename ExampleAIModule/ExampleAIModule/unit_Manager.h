@@ -53,8 +53,8 @@ private:
 	// esta variable es true si no se realizo ningun scan con el comsat station
 	bool primerScan;
 
-	// Grupos de bunkers
-	GrupoBunkers *grupoB1;
+	//-- Grupos de bunkers
+	GrupoBunkers *grupoB1, *grupoB2;
 
 	// mantiene la posicion del centro de comando
 	TilePosition *centroComando;

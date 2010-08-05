@@ -51,7 +51,9 @@ unit_Manager::unit_Manager()
 	// supongo que jugamos contra un solo enemigo
 	// TODO: arreglar para que se puede jugar contra varios enemigos
 	enemigo = Broodwar->enemy();
+	
 	grupoB1 = NULL;
+	grupoB2 = NULL;
 
 	//-- --//
 	//Position *pos = new Position(enemigo->getStartLocation().x() / 32, enemigo->getStartLocation().y() / 32);
@@ -67,10 +69,43 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// Crea un nuevo grupo de bunkers
 
 	if (analizador->analisisListo()){
-		if (grupoB1 == NULL)
-			grupoB1 = new GrupoBunkers(analizador);
+		if (grupoB1 == NULL){
+			grupoB1 = new GrupoBunkers(analizador, analizador->obtenerChokepoint() ,analizador->regionInicial());
+			//Broodwar->printf("Angulo B1: %d", grupoB1->getAngulo());
+		}
 		else
 			grupoB1->onFrame();
+
+		//-- MEJORAR ESTO PARA EL MAPA DESTINATION QUE TENGO VARIOS CHOKEPOINTS CERCA Y ES MEDIO RANDOM LA ELECCION DEL CHOKE A DEFENDER
+		/*if (grupoB2 == NULL){
+			if (analizador->obtenerChokepoint()->getRegions().first != analizador->regionInicial()){
+				std::set<Chokepoint*>::const_iterator It = analizador->obtenerChokepoint()->getRegions().first->getChokepoints().begin();
+
+				while (It != analizador->obtenerChokepoint()->getRegions().first->getChokepoints().end()){
+					if ((*It) != analizador->obtenerChokepoint()){
+						//Graficos::dibujarCuadro(new TilePosition((*It)->getCenter().x() / 32, (*It)->getCenter().y() / 32), 1, 1);
+						grupoB2 = new GrupoBunkers(analizador, *It, analizador->obtenerChokepoint()->getRegions().first);
+					}
+					It++;
+				}
+			}
+			else{
+				std::set<Chokepoint*>::const_iterator It = analizador->obtenerChokepoint()->getRegions().second->getChokepoints().begin();
+
+				while (It != analizador->obtenerChokepoint()->getRegions().second->getChokepoints().end()){
+					if ((*It) != analizador->obtenerChokepoint()){
+						grupoB2 = new GrupoBunkers(analizador, *It, analizador->obtenerChokepoint()->getRegions().second);
+						//Graficos::dibujarCuadro(new TilePosition((*It)->getCenter().x() / 32, (*It)->getCenter().y() / 32), 1, 1);
+					}
+					It++;
+				}
+			}
+
+			Broodwar->printf("Angulo B2: %d", grupoB2->getAngulo());
+		}
+		else
+			grupoB2->onFrame();*/
+
 	}
 
 	magallanes->explorar(); // manda al scout a explorar el mapa
@@ -87,13 +122,22 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 				if (primerScan){
 					if (z->getEnergy() >= 50){
-						z->useTech(TechTypes::Scanner_Sweep, grupoB1->getChoke()->getCenter());
-						primerScan = false;
+						if (grupoB1 != NULL){
+							z->useTech(TechTypes::Scanner_Sweep, grupoB1->getChoke()->getCenter());
+							primerScan = false;
+						}
+						else if (grupoB2 != NULL){
+							z->useTech(TechTypes::Scanner_Sweep, grupoB2->getChoke()->getCenter());
+							primerScan = false;
+						}
 					}
 				}
 				else{
 					if (z->getEnergy() > 150){
-						z->useTech(TechTypes::Scanner_Sweep, grupoB1->getChoke()->getCenter());
+						if (grupoB1 != NULL)
+							z->useTech(TechTypes::Scanner_Sweep, grupoB1->getChoke()->getCenter());
+						else if (grupoB2 != NULL)
+							z->useTech(TechTypes::Scanner_Sweep, grupoB2->getChoke()->getCenter());
 					}
 				}
 			}
@@ -349,11 +393,26 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 
 	//-- BUNKER
-	if((grupoB1 != NULL) && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
+	if((grupoB1 != NULL) && (grupoB1->getCantBunkers() < 3) && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
 		posB = grupoB1->posicionNuevoBunker();
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_BUNKER);
+
+			delete posB;
+		}
+		else
+			Broodwar->printf("ERROR: No encuentro posicion para construir el bunker");
+		delete building;
+	}//-- NUEVO
+	else if((grupoB2 != NULL) && (grupoB2->getCantBunkers() < 3) && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
+		TilePosition *posB = NULL;
+
+		posB = grupoB2->posicionNuevoBunker();
 
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_BUNKER);
@@ -373,6 +432,30 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 		if (grupoB1->faltanMisileTurrets()){
 			posB = grupoB1->posicionNuevaTorreta();
+
+			if (posB != NULL){
+				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
+
+				delete posB;
+			}
+		}
+		else{
+			posB = getTilePositionAviable(building);
+		
+			if (posB != NULL){
+				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
+				delete posB;
+			}
+		}
+
+		delete building;
+	} //-- NUEVO
+	else if((grupoB2 != NULL) && (cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < goalCantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
+		TilePosition *posB = NULL;
+
+		if (grupoB2->faltanMisileTurrets()){
+			posB = grupoB2->posicionNuevaTorreta();
 
 			if (posB != NULL){
 				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
@@ -629,7 +712,7 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 							if (Easy->pertenece(*It1)){
 								Easy->moverCompania(*p);
 							}
-							else if (grupoB1->perteneceMarine(*It1)){
+							else if ((grupoB1 != NULL) && (grupoB1->perteneceMarine(*It1))){
 								grupoB1->moverSoldadosPosEncuentro();
 							}
 							else{
@@ -1083,6 +1166,8 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 
 		if ((grupoB1 != NULL) && (grupoB1->faltanMarines()))
 			grupoB1->agregarUnidad(unit);
+		else if ((grupoB2 != NULL) && (grupoB2->faltanMarines()))
+			grupoB2->agregarUnidad(unit);
 		else{
 			if ((cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 16) && (Fox->countMarines() < 5))
 				Fox->asignarUnidad(unit);
@@ -1099,6 +1184,8 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 	else if (unit->getType().getID() == Utilidades::ID_TANKSIEGE){
 		if ((grupoB1 != NULL) && (grupoB1->faltanTanques()))
 			grupoB1->agregarUnidad(unit);
+		else if ((grupoB2 != NULL) && (grupoB2->faltanTanques()))
+			grupoB2->agregarUnidad(unit);
 		else
 			Easy->asignarUnidad(unit);
 	}
@@ -1188,8 +1275,15 @@ void unit_Manager::nuevaUnidadConstruccion(Unit *u){
 	if (u != NULL){
 		unidadesEnConstruccion.push_front(u);
 
-		if ((grupoB1 != NULL) && (u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
+		if ((grupoB1 != NULL) && (grupoB1->getCantBunkers() < 3) && (u->getType().getID() == Utilidades::ID_BUNKER))
 			grupoB1->agregarUnidad(u);
+		else if ((grupoB2 != NULL) && (grupoB2->getCantBunkers() < 3) && (u->getType().getID() == Utilidades::ID_BUNKER))
+			grupoB2->agregarUnidad(u);
+
+		if ((grupoB1 != NULL) && (grupoB1->getCantMisileTurrets() < 2) && (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
+			grupoB1->agregarUnidad(u);
+		else if ((grupoB2 != NULL) && (grupoB2->getCantMisileTurrets() < 2) && (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
+			grupoB2->agregarUnidad(u);
 	}
 }
 

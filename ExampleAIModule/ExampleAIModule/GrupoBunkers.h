@@ -12,7 +12,7 @@ using namespace BWTA;
 class GrupoBunkers
 {
 public:
-	GrupoBunkers(AnalizadorTerreno *a);
+	GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r);
 	~GrupoBunkers(void);
 
 
