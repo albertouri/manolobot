@@ -17,6 +17,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 	bunkerCentral = NULL;
 	bunkerCentral = posicionPrimerBunker(reg, choke);
 
+	contadorMovimientos = 0;
+
 	// ------------------------------------------------------------------------------------------
 	// calcula la posicion de reunion de los soldados, a la cual se dirigiran si el bunker en el que estaban es destruido, para
 	// liberar la posicion del bunker asi se puede reconstruir rapidamente
@@ -687,12 +689,23 @@ void GrupoBunkers::onFrame(){
 		ubicarModoSiege();
 	}
 
+	if (contadorMovimientos > 0){
+		moverSoldadosPosEncuentro();
+		contadorMovimientos--;
+	}
+
 	Graficos::dibujarCuadro(new TilePosition(posEncuentro->x() / 32, posEncuentro->y() / 32), 1, 1);
 }
 
 
 void GrupoBunkers::onUnitDestroy(Unit *u){
-	if ((u->getType().getID() == Utilidades::ID_BUNKER) || (u->getType().getID() == Utilidades::ID_MISSILE_TURRET) || (u->getType().getID() == Utilidades::ID_TANKSIEGE) || (u->getType().getID() == Utilidades::ID_TANKSIEGE_SIEGEMODE))
+	if (u->getType().getID() == Utilidades::ID_BUNKER){
+		if (perteneceBunker(u)){
+			controlDestruidos();
+			contadorMovimientos++;
+		}
+	}
+	else if ((u->getType().getID() == Utilidades::ID_MISSILE_TURRET) || (u->getType().getID() == Utilidades::ID_TANKSIEGE) || (u->getType().getID() == Utilidades::ID_TANKSIEGE_SIEGEMODE))
 		controlDestruidos();
 }
 
@@ -1005,6 +1018,23 @@ int GrupoBunkers::getAngulo(){
 }
 
 
-TilePosition* GrupoBunkers::tileBunkerCentral(){
+TilePosition* GrupoBunkers::getTileBunkerCentral(){
 	return bunkerCentral;
+}
+
+Chokepoint* GrupoBunkers::getChoke(){
+	return choke;
+}
+
+bool GrupoBunkers::perteneceMarine(Unit *u){
+	std::list<Unit*>::iterator It;
+
+	It = listMarines.begin();
+	while (It != listMarines.end()){
+		if ((*It)->getID() == u->getID())
+			return true;
+		It++;
+	}
+
+	return false;
 }

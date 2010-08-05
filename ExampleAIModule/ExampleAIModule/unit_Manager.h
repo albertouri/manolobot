@@ -50,6 +50,9 @@ private:
 	// puntero a un SCV que se encargara de reparar los bunkers que sean atacados
 	Unit *reparador1, *reparador2;
 
+	// esta variable es true si no se realizo ningun scan con el comsat station
+	bool primerScan;
+
 	// Grupos de bunkers
 	GrupoBunkers *grupoB1;
 

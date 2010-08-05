@@ -9,6 +9,7 @@ int goalLimiteBarracas = 1;*/
 
 unit_Manager::unit_Manager()
 {
+	primerScan = true;
 	SCVgatheringMinerals = 0;
 	SCVgatheringGas = 0;
 	ultimaFinalizada = NULL;
@@ -73,6 +74,33 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	}
 
 	magallanes->explorar(); // manda al scout a explorar el mapa
+
+	
+	//-- busca unidades ocultas cerca del grupo de bunkers
+
+	if (Broodwar->getFrameCount() % 300 == 0){
+		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
+			Unit *z = getUnit(Utilidades::ID_COMSAT_STATION);
+
+			if ((z != NULL) && (z->exists())){
+				Broodwar->printf("Energia comsat: %d", z->getEnergy());
+
+				if (primerScan){
+					if (z->getEnergy() >= 50){
+						z->useTech(TechTypes::Scanner_Sweep, grupoB1->getChoke()->getCenter());
+						primerScan = false;
+					}
+				}
+				else{
+					if (z->getEnergy() > 150){
+						z->useTech(TechTypes::Scanner_Sweep, grupoB1->getChoke()->getCenter());
+					}
+				}
+			}
+		}
+	}
+
+	//--
 
 	// ---------------------------------------------------------------------------
 	/*	si la unidad apuntada no esta reparando, setea el apuntador reparador a NULL, para 
@@ -190,11 +218,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 
 		//if ((Broodwar->self()->completedUnitCount(*(new UnitType(Utilidades::ID_REFINERY)))>0) && (SCVgatheringCristal+SCVgatheringGas>10)){
-		if ((cantUnidades[Utilidades::ID_REFINERY] > 0) && (SCVgatheringCristal+SCVgatheringGas>10)){
-			if (SCVgatheringGas < 4){
+		if ((cantUnidades[Utilidades::ID_REFINERY] > 0) && (SCVgatheringCristal+SCVgatheringGas > 8/*10*/)){
+			if (SCVgatheringGas < 3/*4*/){
 				for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 				{
-					if (SCVgatheringGas<4){
+					if (SCVgatheringGas < 3/*4*/){
 						if ((*i)->getType().isWorker()){
 							trabajador = (*i);
 
@@ -240,9 +268,12 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	}
 
 	//-- COMSAT STATION (ADD-ON DE COMMAND CENTER)
-	if((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] < goalCantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]) /*&& (buildingSemaphore == 0)*/ && (cantUnidades[Utilidades::ID_ACADEMY] > 0)){
+	if((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] > 0) && (Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] < goalCantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]) /*&& (buildingSemaphore == 0)*/ && (cantUnidades[Utilidades::ID_ACADEMY] > 0)){
+		//Broodwar->printf("Entra a comsat");
 		buildUnitAddOn(Utilidades::ID_COMSAT_STATION);
 	}
+	/*else
+		Broodwar->printf("No entra a comsat");*/
 
 	//-- SCV (construye 'goalLimiteSCV' de SCV), este valor deberia ser seteado por una llamada a setGoal
 	if ((cantUnidades[Utilidades::INDEX_GOAL_SCV] < goalCantUnidades[Utilidades::INDEX_GOAL_SCV]) && (Broodwar->self()->minerals() > 100)) {
@@ -597,6 +628,9 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 							std::set<Unit*>::iterator It1 = Broodwar->unitsOnTile(t->x(), t->y()).begin();
 							if (Easy->pertenece(*It1)){
 								Easy->moverCompania(*p);
+							}
+							else if (grupoB1->perteneceMarine(*It1)){
+								grupoB1->moverSoldadosPosEncuentro();
 							}
 							else{
 								// mueve cada unidad en el tile a otra posicion (solamente si la unidad en cuestion no es una construccion fija)
