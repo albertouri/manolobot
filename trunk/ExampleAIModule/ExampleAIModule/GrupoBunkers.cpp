@@ -12,6 +12,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a)
 	choke = a->obtenerChokepoint();
 	reg = a->regionInicial();
 
+	Broodwar->printf("Cantidad de bordes poligono region: %d", reg->getPolygon().size());
+
 	bunkerCentral = NULL;
 	bunkerCentral = posicionPrimerBunker(reg, choke);
 
@@ -703,6 +705,10 @@ bool GrupoBunkers::faltanTanques(){
 	return (getCantTanks() < 3);
 }
 
+bool GrupoBunkers::faltanMisileTurrets(){
+	return (getCantMisileTurrets() < 2);
+}
+
 void GrupoBunkers::moverSoldadosPosEncuentro(){
 	if (posEncuentro != NULL){
 		std::list<Unit*>::iterator It1;
@@ -811,7 +817,7 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 
 	int angulo1 = 0;
 	angulo1 = analizador->calcularAnguloGrupo(angulo);
-	
+
 	// calcula el cuadrante donde se ubicara el grupo de bunkers
 	if (cuadrante == 1){
 		//-- NUEVO CODIGO
@@ -875,6 +881,15 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 						anguloGrupo = 90;
 
 						delete t;
+
+						TilePosition *aux = res;
+						if ((cuadrante == 1) || (cuadrante == 2))
+							res = new TilePosition(aux->x(), aux->y() - 1);
+						else
+							res = new TilePosition(aux->x(), aux->y() + 1);
+
+						delete aux;
+
 						//-- RETORNA LA POSICION DEL PRIMER BUNKER A CONSTRUIR
 						return res;
 					}
@@ -985,5 +1000,11 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 }
 
 
+int GrupoBunkers::getAngulo(){
+	return anguloGrupo;
+}
 
 
+TilePosition* GrupoBunkers::tileBunkerCentral(){
+	return bunkerCentral;
+}
