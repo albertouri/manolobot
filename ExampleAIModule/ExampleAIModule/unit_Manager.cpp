@@ -1,42 +1,18 @@
 #include "unit_Manager.h"
-#include "compania.h"
-#include "CompaniaDefensiva.h"
-#include "Scout.h"
-#include "Graficos.h"
-#include <math.h>
-#include "GrupoBunkers.h"
 
 int goalLimiteGeiser = 1;
-int goalLimiteSCV = 8;
-int goalLimiteBarracas = 1;
-
-int SCVgatheringMinerals= 0, SCVgatheringGas = 0;
-int frameLatency;
-int buildingSemaphore =0;
-
-int goalCantUnidades[34] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
-
-// Compañias de unidades
-compania* Easy = NULL;
-CompaniaDefensiva* Fox = NULL; // compañia fox (no es por megan), defiende la base
-
-Scout* magallanes;
-Player* enemigo;
-
-TilePosition *centroComando; // mantiene la posicion del centro de comando
-Unit *centroDeComando; //puntero a la posicion del centro;
-
-// Grupos de bunkers
-GrupoBunkers *grupoB1;
-
-std::list<Unit*> unidadesEnConstruccion; // Lista de unidades que estan en construccion actualmente
-Unit *ultimaFinalizada = NULL; // puntero a la ultima unidad finalizada, se calcula en cada frame con una llamada a controlarFinalizacion()
+/*int goalLimiteSCV = 8;
+int goalLimiteBarracas = 1;*/
 
 //int tiempoProxFinalizacion = 0; // mantiene el tiempo hasta la proxima finalizacion de la construccion o entrenamiento de una unidad para evitar ejecutar en todos los frames el metodo controlarFinalizacion
 //int contProxFinalizacion = 0; // contador que se incrementa en cada frame, para controlar la finalizacion de una construccion o entrenamiento
 
 unit_Manager::unit_Manager()
 {
+	SCVgatheringMinerals = 0;
+	SCVgatheringGas = 0;
+	ultimaFinalizada = NULL;
+	buildingSemaphore = 0;
 
 	Easy = new compania(Colors::Red);
 	Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
@@ -61,6 +37,7 @@ unit_Manager::unit_Manager()
 	}
 
 	for (int x = 0; x < 34; x++){
+		goalCantUnidades[x] = 0;
 		this->cantUnidades[x] = 0;
 	}
 	
@@ -70,11 +47,18 @@ unit_Manager::unit_Manager()
 	reparador1 = NULL;
 	reparador2 = NULL;
 
-
 	// supongo que jugamos contra un solo enemigo
 	// TODO: arreglar para que se puede jugar contra varios enemigos
 	enemigo = Broodwar->enemy();
 	grupoB1 = NULL;
+
+	//-- --//
+	//Position *pos = new Position(enemigo->getStartLocation().x() / 32, enemigo->getStartLocation().y() / 32);
+	//Broodwar->pingMinimap(*pos);
+	//Broodwar->pingMinimap(4,4);
+	//Broodwar->printf("Hice ping en el minimap");
+	//delete pos;
+	
 }
 
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
@@ -356,15 +340,23 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
 		TilePosition *posB = NULL;
 
-		posB = grupoB1->posicionNuevaTorreta();
+		if (grupoB1->faltanMisileTurrets()){
+			posB = grupoB1->posicionNuevaTorreta();
 
-		if (posB != NULL){
-			buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
+			if (posB != NULL){
+				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
 
-			delete posB;
+				delete posB;
+			}
 		}
-		/*else
-			Broodwar->printf("ERROR: No encuentro posicion para construir el misile turret");*/
+		else{
+			posB = getTilePositionAviable(building);
+		
+			if (posB != NULL){
+				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
+				delete posB;
+			}
+		}
 
 		delete building;
 	}
@@ -537,14 +529,19 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 	//-- VEHICLE WEAPONS LEVEL 1
 	if (!researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1]){
+		/*Broodwar->printf("Cantidad armory: %d", cantUnidades[Utilidades::INDEX_GOAL_ARMORY]);
+		Broodwar->printf("minerales: %d", Broodwar->self()->minerals());
+		Broodwar->printf("gas: %d", Broodwar->self()->gas());
+		Broodwar->printf("goal research armamento vehiculos: %d", goalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1]);
+*/
+
 		// mejora de armamento de vehiculos nivel 1 (se investiga en armory
 		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] == 1)){
-			Broodwar->printf("Intenta mejorar armamento vehiculos");
+			//Broodwar->printf("Intenta mejorar armamento vehiculos");
 			Unit *u;
 			u = getUnit(Utilidades::ID_ARMORY);
 
 			if (u != NULL){
-
 				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
 					Broodwar->printf("Investigando mejora de armamento de vehiculos (Nivel 1)");
 					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Vehicle_Weapons);
@@ -559,7 +556,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 	//--						FIN CODIGO PARA CONSTRUCCION DE UNIDADES
 	// ---------------------------------------------------------------------------
-
 }
 
 
@@ -1041,8 +1037,8 @@ void unit_Manager::setGoals(int goals[34]){
 	}
 }
 
-void unit_Manager::setResearchs(int researchs[10]){
-	for (int i=0; i<10; i++){
+void unit_Manager::setResearchs(int researchs[Utilidades::maxResearch]){
+	for (int i=0; i < Utilidades::maxResearch; i++){
 		goalResearch[i] = researchs[i];
 	}
 }
@@ -1147,6 +1143,8 @@ void unit_Manager::verificarBunkers(){
 				break;
 			}
 		}
+		
+
 	}
 }
 
@@ -1293,6 +1291,9 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_COMSAT_STATION:
 				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]++;
 				break;
+			case Utilidades::ID_MISSILE_TURRET:
+				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]++;
+				break;
 		}
 
 	}
@@ -1373,6 +1374,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_COMSAT_STATION:
 				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]--;
+				break;
+			case Utilidades::ID_MISSILE_TURRET:
+				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]--;
 				break;
 		}
 

@@ -71,10 +71,10 @@ void strategy_manager::checkGoals(void){
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
+			//GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 		}
 		
-		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 1)){
+		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0)){
 			Broodwar->printf("Pase al estado 2 en el strategy manager");
 			estadoActual = 2;
 		}
@@ -86,6 +86,7 @@ void strategy_manager::checkGoals(void){
 		}
 
 		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] == 1){
+			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 			Broodwar->printf("Pase al estado 3 en el strategy manager");
 			estadoActual = 3;
 		}
@@ -111,24 +112,26 @@ void strategy_manager::checkGoals(void){
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
+			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 4;
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ARMORY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ARMORY] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 6;
 		}
 		/*else if (cantUnidades[Utilidades::INDEX_GOAL_STARPORT] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_STARPORT] = 1;
 		}*/
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1])){
+			//Broodwar->printf("Deberia investigar mejora armas vehiculos cuando tenga mas de 100 100");
+			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = 1;
+		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
-			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
 		}
-
-
 	}
 }
 
@@ -201,6 +204,9 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_COMSAT_STATION:
 				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]++;
 				break;
+			case Utilidades::ID_MISSILE_TURRET:
+				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]++;
+				break;
 		}
 		
 	}
@@ -261,6 +267,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_COMSAT_STATION:
 				cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]--;
+				break;
+			case Utilidades::ID_MISSILE_TURRET:
+				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]--;
 				break;
 		}
 		

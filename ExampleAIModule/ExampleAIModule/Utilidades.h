@@ -75,6 +75,6 @@ public:
 	static const int INDEX_GOAL_VEHICLE_WEAPONS_LVL3 = 14;
 
 	// cantidad de investigaciones que provee el juego
-	static const int maxResearch = 14;
+	static const int maxResearch = 15;
 
 };

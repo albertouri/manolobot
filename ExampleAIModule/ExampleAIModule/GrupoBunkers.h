@@ -49,8 +49,17 @@ public:
 	// retorna true si hay menos de 3 tanques cuidando los bunkers
 	bool faltanTanques();
 
+	// retorna true si hay menos de las cantidad de misile turrets necesaria para el grupo de bunkers
+	bool faltanMisileTurrets();
+
 	// metodo invocado cuando una unidad fue destruida
 	void onUnitDestroy(Unit *u);
+
+	// retorna el angulo de inclinacion del grupo de bunkers (0: vertical - 90: horizontal)
+	int getAngulo();
+
+	// retorna un puntero al tile position donde esta ubicado el bunker central del grupo
+	TilePosition* tileBunkerCentral();
 
 private:
 	//-- CONSTANTES
