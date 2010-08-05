@@ -59,7 +59,14 @@ public:
 	int getAngulo();
 
 	// retorna un puntero al tile position donde esta ubicado el bunker central del grupo
-	TilePosition* tileBunkerCentral();
+	TilePosition* getTileBunkerCentral();
+
+	Chokepoint* getChoke();
+
+	// mueve los soldados que estan fuera de los bunkers a un punto de encuentro, asi, en caso de que los soldados estaban en un bunker que fue destruido, liberan la zona para reconstruir el bunker
+	void moverSoldadosPosEncuentro(); 
+
+	bool perteneceMarine(Unit *u);
 
 private:
 	//-- CONSTANTES
@@ -84,6 +91,8 @@ private:
 	// puntero al analizador del terreno
 	AnalizadorTerreno *analizador; 
 
+	int contadorMovimientos;
+
 	// listas de unidades pertenecientes al grupo de bunkers
 	std::list<Unit*> listBunkers;
 	std::list<Unit*> listMisileTurrets;
@@ -93,15 +102,14 @@ private:
 
 	//-- METODOS
 	bool perteneceBunker(Unit *u);
-
+	
 	// controla si algun bunker, misile turret o soldado del grupo fue destruido y lo elimina de la lista de bunkers
 	void controlDestruidos();
 
 	// ordena a los soldados que esten fuera de bunkers que ingresen en ellos
 	void ponerACubierto(); 
 
-	// mueve los soldados que estan fuera de los bunkers a un punto de encuentro, asi, en caso de que los soldados estaban en un bunker que fue destruido, liberan la zona para reconstruir el bunker
-	void moverSoldadosPosEncuentro(); 
+
 	
 	// posicion de encuentro de los soldados del grupo de bunkers
 	Position *posEncuentro; 

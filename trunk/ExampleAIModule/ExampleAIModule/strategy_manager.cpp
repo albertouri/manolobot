@@ -63,15 +63,15 @@ void strategy_manager::checkGoals(void){
 		}
 	}
 	else if (estadoActual == 1){
-		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
-			GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
-		}
-		else if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
+		if(cantUnidades[Utilidades::INDEX_GOAL_REFINERY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 1;
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
 			//GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
+		}
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
+			GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
 		}
 		
 		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0)){
@@ -84,6 +84,7 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
 		}
+
 
 		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] == 1){
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
@@ -110,7 +111,7 @@ void strategy_manager::checkGoals(void){
 			// que exista mas de un edificio de este tipo
 			//ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
 		}
-		else if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 4;
 		}
