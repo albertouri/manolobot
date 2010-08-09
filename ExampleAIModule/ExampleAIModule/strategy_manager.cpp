@@ -95,7 +95,7 @@ void strategy_manager::checkGoals(void){
 	else if (estadoActual == 3){
 		if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
+			//GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 27;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK])){
@@ -117,7 +117,7 @@ void strategy_manager::checkGoals(void){
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ARMORY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ARMORY] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 6;
+			//GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 6;
 		}
 		/*else if (cantUnidades[Utilidades::INDEX_GOAL_STARPORT] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_STARPORT] = 1;
