@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GrupoAntiaereo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GrupoBunkers.cpp"
 				>
 			</File>
@@ -250,6 +254,10 @@
 			</File>
 			<File
 				RelativePath=".\Graficos.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GrupoAntiaereo.h"
 				>
 			</File>
 			<File

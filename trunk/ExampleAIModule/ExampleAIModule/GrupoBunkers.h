@@ -49,8 +49,11 @@ public:
 	// retorna true si hay menos de 3 tanques cuidando los bunkers
 	bool faltanTanques();
 
-	// retorna true si hay menos de las cantidad de misile turrets necesaria para el grupo de bunkers
+	// retorna true si hay menos de la cantidad de misile turrets necesaria para el grupo de bunkers
 	bool faltanMisileTurrets();
+
+	// retorna true si hay menos de la cantidad de bunkers necesaria para el grupo de bunkers
+	bool faltanBunkers();
 
 	// metodo invocado cuando una unidad fue destruida
 	void onUnitDestroy(Unit *u);
@@ -67,6 +70,9 @@ public:
 	void moverSoldadosPosEncuentro(); 
 
 	bool perteneceMarine(Unit *u);
+
+	// retorna la cantidad maxima de misile turrets necesaria para el grupo de bunkers
+	int cantMaximaTurrets();
 
 private:
 	//-- CONSTANTES

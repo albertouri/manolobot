@@ -1,5 +1,7 @@
 #include "unit_Manager.h"
+#include "GrupoAntiaereo.h"
 
+GrupoAntiaereo *anti = NULL;
 int goalLimiteGeiser = 1;
 /*int goalLimiteSCV = 8;
 int goalLimiteBarracas = 1;*/
@@ -61,6 +63,7 @@ unit_Manager::unit_Manager()
 	//Broodwar->pingMinimap(4,4);
 	//Broodwar->printf("Hice ping en el minimap");
 	//delete pos;
+
 	
 }
 
@@ -106,6 +109,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		else
 			grupoB2->onFrame();*/
 
+
+		if (anti == NULL)
+			anti = new GrupoAntiaereo(analizador->regionInicial());
+		else
+			anti->onFrame();
 	}
 
 	magallanes->explorar(); // manda al scout a explorar el mapa
@@ -113,7 +121,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	
 	//-- busca unidades ocultas cerca del grupo de bunkers
 
-	if (Broodwar->getFrameCount() % 300 == 0){
+	/*if (Broodwar->getFrameCount() % 300 == 0){
 		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
 			Unit *z = getUnit(Utilidades::ID_COMSAT_STATION);
 
@@ -142,7 +150,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				}
 			}
 		}
-	}
+	}*/
 
 	//--
 
@@ -199,6 +207,36 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 
 		t333 = grupoB1->posicionNuevoTanque();		
+		if (t333 != NULL){
+			Graficos::dibujarCuadro(t333, 1, 1);
+			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
+			delete t333;
+		}
+		/*else
+			Broodwar->printf("posicion nuevo tanque es NULL");*/
+		
+	}
+
+	if ((analizador->analisisListo()) && (grupoB2 != NULL)){
+
+		TilePosition *t111 = NULL;
+		TilePosition *t222 = NULL;
+		TilePosition *t333 = NULL;
+		
+		t111 = grupoB2->posicionNuevoBunker();
+		
+		if (t111 != NULL){
+			Graficos::dibujarCuadro(t111, 3, 2);
+			Broodwar->drawLine(CoordinateType::Map, grupoB2->getChoke()->getCenter().x(), grupoB2->getChoke()->getCenter().y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
+		}
+
+		t222 = grupoB2->posicionNuevaTorreta();
+		if (t222 != NULL){
+			Graficos::dibujarCuadro(t222, 2, 2);
+			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
+		}
+
+		t333 = grupoB2->posicionNuevoTanque();		
 		if (t333 != NULL){
 			Graficos::dibujarCuadro(t333, 1, 1);
 			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
@@ -393,7 +431,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 
 	//-- BUNKER
-	if((grupoB1 != NULL) && (grupoB1->getCantBunkers() < 3) && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
+	if((grupoB1 != NULL) && grupoB1->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
@@ -408,7 +446,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			Broodwar->printf("ERROR: No encuentro posicion para construir el bunker");
 		delete building;
 	}//-- NUEVO
-	else if((grupoB2 != NULL) && (grupoB2->getCantBunkers() < 3) && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
+	else if((grupoB2 != NULL) && grupoB2->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
@@ -426,11 +464,22 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 
 	//-- MISILE TURRET
-	if((grupoB1 != NULL) && (cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < goalCantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+	int cantTurrets = 0;
+
+	if (grupoB1 != NULL)
+		cantTurrets += grupoB1->cantMaximaTurrets();
+
+	if (anti != NULL)
+		cantTurrets += anti->cantMaximaTurrets();
+
+	if (grupoB2 != NULL)
+		cantTurrets += grupoB2->cantMaximaTurrets();
+
+	if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < cantTurrets)){
 		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
 		TilePosition *posB = NULL;
 
-		if (grupoB1->faltanMisileTurrets()){
+		if((grupoB1 != NULL) && (grupoB1->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 			posB = grupoB1->posicionNuevaTorreta();
 
 			if (posB != NULL){
@@ -439,22 +488,16 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				delete posB;
 			}
 		}
-		else{
-			posB = getTilePositionAviable(building);
-		
+		else if ((anti != NULL) && (!grupoB1->faltanTanques()) && (anti->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+			posB = anti->getPosicionMisileTurret();
+
 			if (posB != NULL){
 				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
+
 				delete posB;
 			}
 		}
-
-		delete building;
-	} //-- NUEVO
-	else if((grupoB2 != NULL) && (cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < goalCantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
-		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
-		TilePosition *posB = NULL;
-
-		if (grupoB2->faltanMisileTurrets()){
+		else if((grupoB2 != NULL) && (!grupoB1->faltanTanques()) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 			posB = grupoB2->posicionNuevaTorreta();
 
 			if (posB != NULL){
@@ -463,18 +506,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				delete posB;
 			}
 		}
-		else{
-			posB = getTilePositionAviable(building);
-		
-			if (posB != NULL){
-				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
-				delete posB;
-			}
-		}
 
 		delete building;
 	}
-
+	
+	
 
 	//-- ACADEMY
 	if((Broodwar->self()->minerals() > 200) && (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] < goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY]) && (buildingSemaphore == 0)){
@@ -1248,6 +1284,15 @@ void unit_Manager::verificarBunkers(){
 		u = (*i);
 
 		if ((u != NULL) && (u->exists()) && (u->isAttacking())){
+
+			if ((u->isCloaked()) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0)){
+				Unit *comsat = getUnit(Utilidades::ID_COMSAT_STATION);
+
+				if ((comsat != NULL) && (comsat->exists()) && (comsat->getEnergy() >= 50)){
+					comsat->useTech(TechTypes::Scanner_Sweep, u->getPosition());
+				}
+			}
+
 			atacado = u->getOrderTarget();
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
@@ -1264,8 +1309,6 @@ void unit_Manager::verificarBunkers(){
 				break;
 			}
 		}
-		
-
 	}
 }
 
@@ -1282,6 +1325,8 @@ void unit_Manager::nuevaUnidadConstruccion(Unit *u){
 
 		if ((grupoB1 != NULL) && (grupoB1->getCantMisileTurrets() < 2) && (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
 			grupoB1->agregarUnidad(u);
+		else if ((anti != NULL) && (anti->faltanMisileTurrets()) && (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
+			anti->agregarUnidad(u);
 		else if ((grupoB2 != NULL) && (grupoB2->getCantMisileTurrets() < 2) && (u->getType().getID() == Utilidades::ID_MISSILE_TURRET))
 			grupoB2->agregarUnidad(u);
 	}

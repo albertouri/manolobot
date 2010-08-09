@@ -965,13 +965,13 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 				res = new TilePosition(t->x() /*- factorX*/, t->y());
 
 				delete t;
-				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + 2 + contY);
+				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + 2 + contY/* + 1*/);
 
 				if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
 					// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
 
 					delete t;
-					t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 - 2 + contY);
+					t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 - 2 + contY/* - 1*/);
 
 					if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
 						//-- SETEA EL ANGULO UTILIZADO POR EL GRUPO DE BUNKERS (VARIABLE GLOBAL)
@@ -1039,4 +1039,12 @@ bool GrupoBunkers::perteneceMarine(Unit *u){
 	}
 
 	return false;
+}
+
+bool GrupoBunkers::faltanBunkers(){
+	return (getCantBunkers() < 3);
+}
+
+int GrupoBunkers::cantMaximaTurrets(){
+	return 2;
 }
