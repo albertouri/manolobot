@@ -122,6 +122,12 @@ private:
 	// despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria
 	TilePosition* getTilePositionAviable(UnitType* U);
 
+	//método especial para ubicar los supply depot
+	TilePosition* getTilePositionForSupply(AnalizadorTerreno *analizador);
+
+	//método para determinar si una unidad entra en la region
+	bool isInsideRegion(AnalizadorTerreno *analizador, UnitType* U, TilePosition* P);
+
 	// despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria
 	TilePosition* getTilePositionAviable(UnitType* U, TilePosition* t);
 
