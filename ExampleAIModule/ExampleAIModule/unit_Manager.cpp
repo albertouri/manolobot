@@ -791,7 +791,7 @@ void unit_Manager::buildUnitAddOn(int id){
 			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())&&(!owner->isMoving()))
 				if (owner->isLifted()){
 					TilePosition actual = owner->getTilePosition();
-					TilePosition* nuevaPos = new TilePosition(*getPosicionDistinta(actual));
+					TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
 					if (!owner->land(*nuevaPos)){
 						owner->rightClick(*new Position(*nuevaPos));
 					}
@@ -1391,17 +1391,43 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t){
 	TilePosition* pos = NULL;
 	Unit* worker = getWorker();
-
-	int x = t->x();
-	int y = t->y();
-
-	int i = 6;
-	int j, k;
-	int encontre=0;
-	if (worker != NULL) {
-		while (encontre==0){
-			j = -i;
-			if (x+j>=0){
+	Unit* centro = getUnit(Utilidades::ID_COMMANDCENTER);
+	if ((centro!=NULL) && (centro->exists())){
+		int i = ceil(centro->getTilePosition().getDistance(*t)+0.1);
+		int x = t->x();
+		int y = t->y();
+		int j, k;
+		int encontre=0;
+		if (worker != NULL) {
+			while (encontre==0){
+				j = -i;
+				if (x+j>=0){
+					k = i;
+					while((k>=-i) && (encontre==0)){
+						if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+							pos = new TilePosition(x + j, y + k);
+							if(Broodwar->isExplored(*pos)){
+								if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
+							}
+						}
+						k = k-1;
+					}
+				}
+				k = -i;
+				if (y+k>=0){
+					j = i;
+					while((j>=-i) && (encontre==0)){
+						if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
+							pos = new TilePosition(x + j, y + k);
+							if(Broodwar->isExplored(*pos)){
+								if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
+							}
+						}
+						j = j-1;
+					}
+				}
+				
+				j = i;
 				k = i;
 				while((k>=-i) && (encontre==0)){
 					if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
@@ -1412,9 +1438,8 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 					}
 					k = k-1;
 				}
-			}
-			k = -i;
-			if (y+k>=0){
+
+				k=i;
 				j = i;
 				while((j>=-i) && (encontre==0)){
 					if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
@@ -1425,33 +1450,9 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 					}
 					j = j-1;
 				}
-			}
-			
-			j = i;
-			k = i;
-			while((k>=-i) && (encontre==0)){
-				if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
-					pos = new TilePosition(x + j, y + k);
-					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
-					}
-				}
-				k = k-1;
-			}
 
-			k=i;
-			j = i;
-			while((j>=-i) && (encontre==0)){
-				if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
-					pos = new TilePosition(x + j, y + k);
-					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
-					}
-				}
-				j = j-1;
+				i++;
 			}
-
-			i++;
 		}
 	}
 	return pos;
