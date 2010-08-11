@@ -23,7 +23,6 @@ void compania::asignarUnidad(Unit *u){
 
 	if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
 		if ((comandante!=NULL)&&(comandante->exists())){
-			//Broodwar->printf("el comandante no es nulo");
 			u->rightClick(comandante->getPosition());
 		}
 		else{
@@ -52,9 +51,8 @@ void compania::asignarUnidad(Unit *u){
 		else if (u->getType().getID() == Utilidades::ID_FIREBAT)
 			//listFirebats.push_front(u);
 			listFirebats.push_back(u);
-		else if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
-			Broodwar->printf("lo agrego a la lista de tanques");		
-			
+		else if (u->getType().getID() == Utilidades::ID_GOLIATH){
+			listGoliath.push_back(u);
 		}
 		if ((comandante != NULL)&&(comandante->exists()))
 			u->rightClick(comandante);
@@ -188,6 +186,20 @@ void compania::atacar(Unit *u){
 		}
 	}
 
+	if (listGoliath.size() > 0){
+
+		std::list<Unit*>::iterator It1;
+		It1 = listGoliath.begin();
+
+		while(It1 != listGoliath.end()){
+			if(!(*It1)->exists()) It1 = listGoliath.erase(It1);	
+			else {
+				(*It1)->attackUnit(u);
+				It1++;
+			}
+		}
+	}
+
 	if (listTanks.size() > 0){
 		std::list<Unit*>::iterator It1;
 		It1 = listTanks.begin();
@@ -285,6 +297,23 @@ void compania::onFrame(){
 			}
 		}
 	}
+
+	if (listGoliath.size() > 0){
+		std::list<Unit*>::iterator It1;
+		It1 = listGoliath.begin();
+
+		while(It1 != listGoliath.end()){
+			if(!(*It1)->exists()) {
+				It1 = listGoliath.erase(It1);	
+			}
+			else {
+				Graficos::resaltarUnidad(*It1, c);
+				It1++; 
+			}
+		}
+	}
+
+
 
 	if (listTanks.size() > 0){
 		std::list<Unit*>::iterator It1;

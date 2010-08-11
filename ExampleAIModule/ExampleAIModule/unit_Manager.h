@@ -115,6 +115,9 @@ private:
 	// manda a entrenar un medico
 	void trainMedic();
 
+	// manda a entrenar un Goliath
+	void trainGoliath();
+
 	// manda a entrenar un tanque de asedio
 	void trainTankSiege();
 

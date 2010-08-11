@@ -372,6 +372,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		trainMedic();
 	}
 
+	//-- GOLIATHS
+	if(cantUnidades[Utilidades::INDEX_GOAL_ARMORY] && (cantUnidades[Utilidades::INDEX_GOAL_GOLIATH] < goalCantUnidades[Utilidades::INDEX_GOAL_GOLIATH]) && (Broodwar->self()->minerals()>= 100) && (Broodwar->self()->gas()>= 50)) {
+		trainGoliath();
+	}
+
 	//-- SIEGE TANKS
 	if(cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] < goalCantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {
 		trainTankSiege();
@@ -987,6 +992,24 @@ void unit_Manager::trainMedic(){
 	}
 }
 
+
+void unit_Manager::trainGoliath(){
+	Unit* firstFactory = NULL;
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType().getID() == Utilidades::ID_FACTORY){
+			firstFactory = (*i);
+
+			if ((firstFactory != NULL) && (Broodwar->canMake(firstFactory, Utilidades::ID_GOLIATH)) && (firstFactory->getTrainingQueue().size() < 2)){
+				firstFactory->train(*(new UnitType(Utilidades::ID_GOLIATH)));
+				break;
+			}
+		}
+	}
+}
+
+
+
 void unit_Manager::trainTankSiege(){
 	Unit* firstFactory = NULL;
 	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
@@ -1501,6 +1524,9 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		else
 			Easy->asignarUnidad(unit);
 	}
+	else if (unit->getType().getID() == Utilidades::ID_GOLIATH){
+		Easy->asignarUnidad(unit);
+	}
 
 }
 
@@ -1721,13 +1747,8 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_TANKSIEGE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
-				//Broodwar->printf("creando a boby sin siege, tengo %d tanques", cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				asignarUnidadACompania(u);
 				break;
-/*			case Utilidades::ID_TANKSIEGE_SIEGEMODE:				
-				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]++;
-				Broodwar->printf("creando a bobyTOOOON!! CON siege, tengo %d tanques", cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
-				break;*/
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
 				break;
@@ -1742,6 +1763,10 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_MISSILE_TURRET:
 				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]++;
+				break;
+			case Utilidades::ID_GOLIATH:
+				cantUnidades[Utilidades::INDEX_GOAL_GOLIATH]++;
+				asignarUnidadACompania(u);
 				break;
 		}
 
@@ -1826,6 +1851,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_MISSILE_TURRET:
 				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]--;
+				break;
+			case Utilidades::ID_GOLIATH:
+				cantUnidades[Utilidades::INDEX_GOAL_GOLIATH]--;
 				break;
 		}
 

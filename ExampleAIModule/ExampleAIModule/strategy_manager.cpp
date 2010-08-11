@@ -129,6 +129,8 @@ void strategy_manager::checkGoals(void){
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
+			GoalUnidades[Utilidades::INDEX_GOAL_GOLIATH] = 4;
+			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 7;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
@@ -209,6 +211,9 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_MISSILE_TURRET:
 				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]++;
 				break;
+			case Utilidades::ID_GOLIATH:
+				cantUnidades[Utilidades::INDEX_GOAL_GOLIATH]++;
+				break;
 		}
 		
 	}
@@ -272,6 +277,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_MISSILE_TURRET:
 				cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET]--;
+				break;
+			case Utilidades::ID_GOLIATH:
+				cantUnidades[Utilidades::INDEX_GOAL_GOLIATH]--;
 				break;
 		}
 		

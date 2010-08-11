@@ -34,6 +34,7 @@ private:
 	std::list<Unit*> listMedics;
 	std::list<Unit*> listFirebats;
 	std::list<Unit*> listTanks;
+	std::list<Unit*> listGoliath;
 
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);
