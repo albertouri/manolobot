@@ -73,8 +73,9 @@ public:
 	static const int INDEX_GOAL_VEHICLE_WEAPONS_LVL1 = 12;
 	static const int INDEX_GOAL_VEHICLE_WEAPONS_LVL2 = 13;
 	static const int INDEX_GOAL_VEHICLE_WEAPONS_LVL3 = 14;
+	static const int INDEX_GOAL_RESTORATION = 15;
 
 	// cantidad de investigaciones que provee el juego
-	static const int maxResearch = 15;
+	static const int maxResearch = 16;
 
 };

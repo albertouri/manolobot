@@ -282,7 +282,6 @@ void compania::onFrame(){
 	}
 
 	if (listFirebats.size() > 0){
-		//Broodwar->printf("Entra a 2");
 
 		std::list<Unit*>::iterator It1;
 		It1 = listFirebats.begin();
@@ -357,7 +356,6 @@ void compania::onFrame(){
 	// ------------------------  Ordenes de ataque ------------------------
 
 	if ((comandante != NULL)&& (comandante->exists())){
-		//Broodwar->printf("Entra a 5");
 		// si el comandante no esta atacando ningun objetivo, se busca algun nuevo objetivo para atacar
 		if ((comandante->getTarget() == NULL) || (!comandante->getTarget()->exists())){
 			
