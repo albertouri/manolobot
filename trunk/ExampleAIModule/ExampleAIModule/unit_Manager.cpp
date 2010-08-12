@@ -621,6 +621,31 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 	}
 
+	//-- RESTORATION
+	if (!researchDone[Utilidades::INDEX_GOAL_RESTORATION]){
+		// Recupera a las maquinas de lás paralisis
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_RESTORATION] == 1)){
+			Unit *u;
+
+			u = getUnit(Utilidades::ID_ACADEMY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					// Construccion de la academia finalizada, se puede investigar mejoras
+
+					Broodwar->printf("Investigando Restoration en academia...");
+					TechType *t = new TechType(TechTypes::Restoration);
+					u->research(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_RESTORATION] = true;
+				}
+			}
+		}
+	}
+
+
 	//-- SIEGE MODE
 	if (!researchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE]){
 		// investigacion de modo asedio de tanques
