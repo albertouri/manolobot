@@ -3,6 +3,7 @@
 
 GrupoAntiaereo *anti = NULL;
 int goalLimiteGeiser = 1;
+
 /*int goalLimiteSCV = 8;
 int goalLimiteBarracas = 1;*/
 
@@ -274,61 +275,35 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// ---------------------------------------------------------------------------
 	//--					CODIGO DE GESTION DE RECOLECCION DE RECURSOS
 
-	if (frameLatency >= 150){
+	if (frameLatency >= 100){
 		int SCVgatheringCristal= 0, SCVgatheringGas = 0;
 		Unit* trabajador;
 		frameLatency=0;
 		buildingSemaphore=0;
-		
-		
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 		{
 			if ((*i)->getType().isWorker()){
 				trabajador = (*i);
-
-				// estas condiciones evitan que un SCV que esta reparando una unidad sea enviado a recolectar recursos
-				// si el reparador no esta seteado se manda a trabajar a todos los SCV
-				bool condicion1 = ((reparador1 != NULL) && (trabajador->getID() != reparador1->getID())) || reparador1 == NULL;
-				bool condicion2 = ((reparador2 != NULL) && (trabajador->getID() != reparador2->getID())) || reparador2 == NULL;
-
-				if (condicion1 && condicion2){
-					if(trabajador->isGatheringMinerals()) SCVgatheringCristal++;
-					else if (trabajador->isGatheringGas())SCVgatheringGas++;
-					else if (trabajador->isIdle()){ sendGatherCristal(trabajador); SCVgatheringCristal++;}
+				if(trabajador->isGatheringGas()){
+					SCVgatheringGas++;
 				}
-			}
-		}
 
-		//if ((Broodwar->self()->completedUnitCount(*(new UnitType(Utilidades::ID_REFINERY)))>0) && (SCVgatheringCristal+SCVgatheringGas>10)){
-		if ((cantUnidades[Utilidades::ID_REFINERY] > 0) && (SCVgatheringCristal+SCVgatheringGas > 8/*10*/)){
-			if (SCVgatheringGas < 3/*4*/){
-				for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
-				{
-					if (SCVgatheringGas < 3/*4*/){
-						if ((*i)->getType().isWorker()){
-							trabajador = (*i);
-
-							// estas condiciones evitan que un SCV que esta reparando una unidad sea enviado a recolectar recursos
-							// si el reparador no esta seteado se manda a trabajar a todos los SCV
-							bool condicion1 = ((reparador1 != NULL) && (trabajador->getID() != reparador1->getID())) || reparador1 == NULL;
-							bool condicion2 = ((reparador2 != NULL) && (trabajador->getID() != reparador2->getID())) || reparador2 == NULL;
-
-							if (condicion1 && condicion2){
-								if(trabajador->isGatheringMinerals()) {
-									SCVgatheringCristal--;
-									SCVgatheringGas++;
-									sendGatherGas(trabajador); 
-								}
-							}
-						}
-					}
-					else{
-						break;
+				if ((Broodwar->self()->completedUnitCount(Utilidades::ID_REFINERY) > 0) && (SCVgatheringGas <4)){
+					if((trabajador->isIdle())||(trabajador->isGatheringMinerals())){
+						SCVgatheringGas++;
+						Broodwar->printf("debo mandar a buscar gas");
+						sendGatherGas(trabajador);
 					}
 				}
+				else {
+					if(trabajador->isIdle()||((SCVgatheringGas>4)&&(trabajador->isGatheringGas()))){
+						SCVgatheringCristal++;
+						sendGatherCristal(trabajador);
+					}
+				}
+
 			}
 		}
-
 	}
 	else{
 		frameLatency++;
@@ -820,10 +795,12 @@ void unit_Manager::buildUnitAddOn(int id){
 
 			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())&&(!owner->isMoving()))
 				if (owner->isLifted()){
-					TilePosition actual = owner->getTilePosition();
-					TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
-					if (!owner->land(*nuevaPos)){
-						owner->rightClick(*new Position(*nuevaPos));
+					if (!owner->isMoving()){
+						TilePosition actual = owner->getTilePosition();
+						TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
+						if (!owner->land(*nuevaPos)){
+							owner->rightClick(*new Position(*nuevaPos));
+						}
 					}
 				}
 				else{
