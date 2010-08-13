@@ -242,7 +242,9 @@ Unit* compania::buscarDañado(std::list<Unit*> lista){
 
 
 void compania::onFrame(){
-
+	Unit* herido;
+	std::list<Unit*> listaDeUnidadesAfectadas;
+	listaDeUnidadesAfectadas.clear();
 	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
 
 	if (listMarines.size() > 0){
@@ -306,6 +308,8 @@ void compania::onFrame(){
 				It1 = listGoliath.erase(It1);	
 			}
 			else {
+				if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+					listaDeUnidadesAfectadas.push_back(*It1);
 				Graficos::resaltarUnidad(*It1, c);
 				It1++; 
 			}
@@ -323,6 +327,8 @@ void compania::onFrame(){
 				It1 = listTanks.erase(It1);	
 			}
 			else {
+				if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+					listaDeUnidadesAfectadas.push_back(*It1);
 				Graficos::resaltarUnidad(*It1, c);
 				It1++; 
 			}
@@ -386,64 +392,23 @@ void compania::onFrame(){
 
 	if (!atacando){
 		if ((comandante!= NULL)&&(comandante->exists()))
-			controlarDistancia(); // hace que los soldados sigan al comandante		
-		/*
-			if (posicionanteriorDelComandante != comandante->getPosition()){
-				controlarDistancia(); // hace que los soldados sigan al comandante		
-			}
-			else{
-				if (listMedics.size() > 0){
-				std::list<Unit*>::iterator It1;
-				It1 = listMedics.begin();
+			controlarDistancia(); 
+	}
+	else{
+		std::list<Unit*>::iterator It1;	
+		It1 = listMedics.begin();
 
-				while(It1 != listMedics.end()){
-					if(!(*It1)->exists()) It1 = listMedics.erase(It1);	
-					else {
-						if (!(*It1)->isLoaded()) {
-							Graficos::resaltarUnidad(*It1, c);
-							// manda a los medicos a curar a los soldados de su unidad
-							Unit *u;
-							if ((*It1)->isIdle() || (*It1)->isMoving()){
-								// recorre la lista de marines y firebats buscando alguna unidad dañada
-								u = buscarDañado(listMarines);
-
-								if ((u != NULL)&& (u->exists())){
-									(*It1)->rightClick(u);
-								}
-							}
-						}
-
-						It1++;
-					}
+		while((It1 != listMedics.end())&&(!listaDeUnidadesAfectadas.empty())){
+			if ((*It1)->getEnergy()>50){
+				herido = listaDeUnidadesAfectadas.front();
+				listaDeUnidadesAfectadas.pop_front();
+				if((herido!=NULL)&&(herido->exists())){
+					(*It1)->useTech(TechTypes::Restoration, herido);
 				}
 			}
+			It1++;
 		}
-*/
-
 	}
-
-	// ------------------------ Ubica los tanques en modo asedio ------------------------
-/*
-	if (listaDeTanquesAUbicar.size() > 0){
-		//Broodwar->printf("Entra a 6");
-		if (latencia>100){			
-			
-			//revisar si hay que ubicar algun tanque en modo asedio
-			std::list<Unit*>::iterator It1;
-			It1 = listaDeTanquesAUbicar.begin();
-
-			while(It1 != listaDeTanquesAUbicar.end()){
-				if(!(*It1)->exists()) It1 = listaDeTanquesAUbicar.erase(It1);	
-				else {
-					if (!(*It1)->isMoving()) (*It1)->siege();
-					It1++;
-				}
-			}
-			latencia = 0;
-			
-		} else {latencia++;}
-	}
-	*/
 	
 	if ((comandante != NULL)&& (comandante->exists())&&(posicionanteriorDelComandante != comandante->getPosition()) ){
 		posicionanteriorDelComandante = comandante->getPosition();
@@ -484,9 +449,10 @@ void compania::moverCompania(Position pos){
 
 
 void compania::controlarDistancia(){
-	
+	std::list<Unit*> listaDeUnidadesAfectadas;
 	std::list<Unit*> listaDeMarinesHeridos;
 	Unit* herido;
+	listaDeUnidadesAfectadas.clear();
 
 	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists())){
 		std::list<Unit*>::iterator It1;
@@ -509,6 +475,46 @@ void compania::controlarDistancia(){
 		}
 
 
+		//muevo los tanques
+		It1 = listTanks.begin();
+
+		while(It1 != listTanks.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 160) && ((*It1)->getID() != comandante->getID())){
+				if ((*It1)->isSieged()){
+					(*It1)->unsiege();
+				}
+
+				(*It1)->rightClick(comandante->getPosition());
+			}
+			else{
+				if ((*It1)->getID() != comandante->getID())
+					(*It1)->stop();
+					(*It1)->siege();
+			}
+
+			if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+				listaDeUnidadesAfectadas.push_back(*It1);
+
+			It1++;
+		}
+
+		//muevo los Goliaths
+		It1 = listGoliath.begin();
+
+		while(It1 != listGoliath.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 140) && ((*It1)->getID() != comandante->getID())){
+				(*It1)->rightClick(comandante->getPosition());
+			}
+			else{
+				if ((*It1)->isMoving())
+					(*It1)->stop();				
+			}
+			if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+				listaDeUnidadesAfectadas.push_back(*It1);
+			It1++;
+		}
+
+
 		It1 = listMedics.begin();
 
 		while(It1 != listMedics.end()){
@@ -519,6 +525,15 @@ void compania::controlarDistancia(){
 				if ((*It1)->getID() != comandante->getID()){
 					if ((*It1)->isMoving())
 						(*It1)->stop();
+
+					if ((!listaDeUnidadesAfectadas.empty()) && ((*It1)->getEnergy()>50)){
+						herido = listaDeUnidadesAfectadas.front();
+						listaDeUnidadesAfectadas.pop_front();
+						if((herido!=NULL)&&(herido->exists())){
+							(*It1)->useTech(TechTypes::Restoration, herido);
+						}
+					}
+					
 					if(!listaDeMarinesHeridos.empty()) {
 						herido = listaDeMarinesHeridos.front();
 						listaDeMarinesHeridos.pop_front();
@@ -544,24 +559,7 @@ void compania::controlarDistancia(){
 			It1++;
 		}
 
-		//muevo los tanques
-		It1 = listTanks.begin();
 
-		while(It1 != listTanks.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 140) && ((*It1)->getID() != comandante->getID())){
-				if ((*It1)->isSieged()){
-					(*It1)->unsiege();
-				}
-
-				(*It1)->rightClick(comandante->getPosition());
-			}
-			else{
-				if ((*It1)->getID() != comandante->getID())
-					(*It1)->stop();
-					(*It1)->siege();
-			}
-			It1++;
-		}
 	}
 	/*else{
 		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
