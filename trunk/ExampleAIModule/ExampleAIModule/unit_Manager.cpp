@@ -793,7 +793,7 @@ void unit_Manager::buildUnitAddOn(int id){
 		if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
 			owner = getUnit(Utilidades::ID_FACTORY);
 
-			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())&&(!owner->isMoving()))
+			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
 				if (owner->isLifted()){
 					if (!owner->isMoving()){
 						TilePosition actual = owner->getTilePosition();
