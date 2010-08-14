@@ -68,6 +68,8 @@ unit_Manager::unit_Manager()
 	//delete pos;
 
 	primerConstruccionDescubierta = true;
+	baseEnemiga = NULL;
+	analisisListo = false;
 }
 
 void unit_Manager::executeActions(AnalizadorTerreno *analizador){
@@ -75,6 +77,9 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// Crea un nuevo grupo de bunkers
 
 	if (analizador->analisisListo()){
+
+		if (!analisisListo)
+			analisisListo = true;
 
 		if (grf == NULL)
 			grf = new Grafo(BWTA::getRegions().size());
@@ -133,6 +138,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			anti = new GrupoAntiaereo(analizador->regionInicial());
 		else
 			anti->onFrame();
+
+
+		// borrar esto porque puede dar error de puntero nulo
+		if (baseEnemiga != NULL)
+			Broodwar->drawLineMap(getUnit(Utilidades::ID_COMMANDCENTER)->getPosition().x(), getUnit(Utilidades::ID_COMMANDCENTER)->getPosition().y(), baseEnemiga->x(), baseEnemiga->y(), Colors::White);
 	}
 
 
@@ -157,8 +167,17 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	// ---------------------------------------------------------------------------
 
 	// error raro numero 1: puse un if y empezo a funcionar magicamente...
-	if (Easy != NULL)
+	if (Easy != NULL){
 		Easy->onFrame();
+		
+		if ((Easy->listaParaAtacar()) && (baseEnemiga != NULL)){
+			Unit *cs = getUnit(Utilidades::ID_COMSAT_STATION);
+
+			if ((cs != NULL) && (cs->exists()) && (cs->getEnergy() > 150) && (Broodwar->getFrameCount() % 150 == 0)){
+				cs->useTech(TechTypes::Scanner_Sweep, *baseEnemiga);
+			}
+		}
+	}
 	else
 		Broodwar->printf("ERROR: Easy es NULL");
 
@@ -543,12 +562,12 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		trainUnit(Utilidades::ID_DROPSHIP);
 	}
 
-	Position* p100 = new Position(Broodwar->enemy()->getStartLocation().x() * TILE_SIZE, Broodwar->enemy()->getStartLocation().y() * TILE_SIZE);
+	/*Position* p100 = new Position(Broodwar->enemy()->getStartLocation().x() * TILE_SIZE, Broodwar->enemy()->getStartLocation().y() * TILE_SIZE);
 	Broodwar->drawCircleMap(p100->x(), p100->y(), 16, Colors::Green, true);
 	Position *p200 = new Position(Broodwar->self()->getStartLocation().x() * TILE_SIZE, Broodwar->self()->getStartLocation().y() * TILE_SIZE);
 	Broodwar->drawLineMap(p100->x(), p100->y(), p200->x(), p200->y(), Colors::White);
 	delete p100;
-	delete p200;
+	delete p200;*/
 
 	/*if (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] == 4){
 		if (Broodwar->getFrameCount() % 250 == 0){
@@ -1968,9 +1987,23 @@ void unit_Manager::onNukeDetect(Position p){
 
 
 void unit_Manager::onUnitShow(Unit *u){
-	if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && (u->getType().isBuilding()) && (primerConstruccionDescubierta)){
+
+	if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && (u->getType().isBuilding()) && (primerConstruccionDescubierta) && (analisisListo)){
 		primerConstruccionDescubierta = false;
 
+		std::set<Region*>::const_iterator It = BWTA::getRegions().begin();
 
+		while (It != BWTA::getRegions().end()){
+			// obtiene la region donde esta ubicada la construccion enemiga
+			if ((*It)->getPolygon().isInside(u->getPosition())){
+
+				// obtiene la posicion del centro de comando de esa region
+				if (!(*It)->getBaseLocations().empty())
+					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
+
+				break;
+			}
+			It++;
+		}
 	}
 }

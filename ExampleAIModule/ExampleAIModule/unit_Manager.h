@@ -54,6 +54,7 @@ private:
 
 	Position *baseEnemiga;
 	bool primerConstruccionDescubierta;
+	bool analisisListo;
 
 	//-- Grupos de bunkers
 	GrupoBunkers *grupoB1, *grupoB2;
