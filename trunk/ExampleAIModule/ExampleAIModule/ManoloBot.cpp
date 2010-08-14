@@ -86,5 +86,5 @@ void ManoloBot::onNukeDetect(Position p){
 }
 
 void ManoloBot::onUnitShow(Unit* u){
-
+	unitManager->onUnitShow(u);
 }

@@ -112,6 +112,14 @@ int compania::countFirebats(){
 	return contarUnidades(&listFirebats);
 }
 
+int compania::countTanks(){
+	return contarUnidades(&listTanks);
+}
+
+int compania::countGoliaths(){
+	return contarUnidades(&listGoliath);
+}
+
 int compania::contarUnidades(std::list<Unit*> *lista){
 	int j = 0;
 
@@ -600,4 +608,11 @@ bool compania::pertenece(Unit *u){
 	}
 
 	return false;
+}
+
+bool compania::listaParaAtacar(){
+	if ((countGoliaths() > 2) && (countTanks() > 2))
+		return true;
+	else
+		return false;
 }
