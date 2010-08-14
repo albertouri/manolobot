@@ -9,6 +9,7 @@
 #include <math.h>
 #include "GrupoBunkers.h"
 #include <stdlib.h>
+#include "Grafo.h"
 
 using namespace BWAPI;
 using namespace BWTA;
@@ -31,6 +32,7 @@ public:
 	void onUnitCreate(Unit *u);
 	void onUnitDestroy(Unit *u);
 	void onNukeDetect(Position p);
+	void onUnitShow(Unit *u);
 
 	bool* getResearchsDone();
 
@@ -50,8 +52,8 @@ private:
 	// puntero a un SCV que se encargara de reparar los bunkers que sean atacados
 	Unit *reparador1, *reparador2;
 
-	// esta variable es true si no se realizo ningun scan con el comsat station
-	bool primerScan;
+	Position *baseEnemiga;
+	bool primerConstruccionDescubierta;
 
 	//-- Grupos de bunkers
 	GrupoBunkers *grupoB1, *grupoB2;
@@ -120,6 +122,8 @@ private:
 
 	// manda a entrenar un tanque de asedio
 	void trainTankSiege();
+
+	void trainUnit(int ID);
 
 	// calcula una TilePosition disponible para construir una unidad del tipo pasado como parametro
 	// despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria

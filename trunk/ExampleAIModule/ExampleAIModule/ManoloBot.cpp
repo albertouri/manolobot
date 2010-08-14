@@ -15,6 +15,7 @@ int goals[34];
 
 ManoloBot::ManoloBot(void)
 {	
+	
 	//TilePosition *cc;
 	/*for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 	{
@@ -82,4 +83,8 @@ void ManoloBot::onUnitDestroy(Unit *u){
 
 void ManoloBot::onNukeDetect(Position p){
 	unitManager->onNukeDetect(p);
+}
+
+void ManoloBot::onUnitShow(Unit* u){
+
 }

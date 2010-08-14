@@ -153,6 +153,11 @@ Scout::Scout(BWAPI::Unit *unidad)
 
 	explorer->rightClick(*posiciones[cont]);
 	cont++;
+
+	//-- NUEVO
+	regActual = NULL;
+	grafo = NULL;
+	tiempoMax = 0;
 }
 
 
@@ -161,25 +166,217 @@ Scout::~Scout(void)
 {
 }
 
+// Nuevo constructor
+Scout::Scout(Unit *unidad, Grafo *g){
+	explorer = unidad;
+	ID = explorer->getID();
 
+	//-- calcula las posiciones a explorar para la primera exploracion
+
+	// Crea un arreglo de posiciones a explorar
+	int maxX, maxY;
+	int termX, termY;
+	int posX, posY;
+	int nPosX, nPosY;
+
+	//int nPosX, nPosY;
+
+	maxX = Broodwar->mapWidth();
+	maxY = Broodwar->mapHeight();
+
+	termX = maxX / 6;
+	termY = maxY / 6;
+
+	// posicion de referencia sobre la cual se calculan las posiciones a explorar
+	posX = Broodwar->self()->getStartLocation().x();
+	posY = Broodwar->self()->getStartLocation().y();
+
+	// a la derecha
+	if (posX + termX < maxX){
+		posiciones[cantPosiciones] = new TilePosition(posX + termX, posY);
+		cantPosiciones++;
+
+		// arriba a la derecha
+		if (posY - termY >= 0){
+			posiciones[cantPosiciones] = new TilePosition(posX + termX, posY - termY);
+			cantPosiciones++;
+		}
+	}
+
+	// arriba
+	if (posY - termY >= 0){
+		posiciones[cantPosiciones] = new TilePosition(posX, posY - termY);
+		cantPosiciones++;
+
+		// arriba a la izq
+		if (posX - termX >= 0){
+			posiciones[cantPosiciones] = new TilePosition(posX - termX, posY - termY);
+			cantPosiciones++;
+		}
+	}
+
+	// izquierda
+	if (posX - termX >= 0){
+		posiciones[cantPosiciones] = new TilePosition(posX - termX, posY);
+		cantPosiciones++;
+
+		// abajo a la izq
+		if (posY - termY < maxY){
+			posiciones[cantPosiciones] = new TilePosition(posX - termX, posY + termY);
+			cantPosiciones++;
+		}
+	}
+
+	// abajo
+	if (posY + termY < maxY){
+		posiciones[cantPosiciones] = new TilePosition(posX, posY + termY);
+		cantPosiciones++;
+
+		// abajo a la derecha
+		if (posX + termX < maxX){
+			posiciones[cantPosiciones] = new TilePosition(posX + termX, posY + termY);
+			cantPosiciones++;
+		}
+	}
+
+	posiciones[cantPosiciones] = new TilePosition(*posiciones[0]);
+	cantPosiciones++;
+	// Hasta aca deberia haber 4 posiciones a explorar
+
+	
+	
+	for(std::set<TilePosition>::iterator p=Broodwar->getStartLocations().begin(); p != Broodwar->getStartLocations().end(); p++){
+		nPosX = (*p).x();
+		nPosY = (*p).y();
+
+		if ((nPosY != posY) || (nPosX != posX)){
+			
+			// a la derecha
+			if (nPosX + termX < maxX){
+				posiciones[cantPosiciones] = new TilePosition(nPosX + termX, nPosY);
+				cantPosiciones++;
+
+				// arriba a la derecha
+				if (nPosY - termY >= 0){
+					posiciones[cantPosiciones] = new TilePosition(nPosX + termX, nPosY - termY);
+					cantPosiciones++;
+				}
+			}
+
+			// arriba
+			if (nPosY - termY >= 0){
+				posiciones[cantPosiciones] = new TilePosition(nPosX, nPosY - termY);
+				cantPosiciones++;
+
+				// arriba a la izq
+				if (posX - termX >= 0){
+					posiciones[cantPosiciones] = new TilePosition(nPosX - termX, nPosY - termY);
+					cantPosiciones++;
+				}
+			}
+
+			// izquierda
+			if (nPosX - termX >= 0){
+				posiciones[cantPosiciones] = new TilePosition(nPosX - termX, nPosY);
+				cantPosiciones++;
+
+				// abajo a la izq
+				if (nPosY - termY < maxY){
+					posiciones[cantPosiciones] = new TilePosition(nPosX - termX, nPosY + termY);
+					cantPosiciones++;
+				}
+			}
+
+			// abajo
+			if (nPosY + termY < maxY){
+				posiciones[cantPosiciones] = new TilePosition(nPosX, nPosY + termY);
+				cantPosiciones++;
+
+				// abajo a la derecha
+				if (nPosX + termX < maxX){
+					posiciones[cantPosiciones] = new TilePosition(nPosX + termX, nPosY + termY);
+					cantPosiciones++;
+				}
+			}
+		}
+	}
+
+
+
+	//Broodwar->printf("Hay %d posiciones a explorar", cantPosiciones);
+
+	explorer->rightClick(*posiciones[cont]);
+	cont++;
+
+	//-- 
+
+
+
+
+	regActual = g->primerNodoNiveles();
+	grafo = g;
+	tiempoMax = 0;
+	primeraExploracion = true;
+}
 
 void Scout::explorar(void){
 
 	/*for(std::set<Unit*>::iterator i=Broodwar->getSelectedUnits().begin();i!=Broodwar->getSelectedUnits().end();i++){
 		dibujarGrilla();
 	}*/
-	
-	if (explorer->exists()){
-		if (cont < cantPosiciones){
-			if (explorer->isIdle()){
-				//Broodwar->printf("Me muevo...");
-				explorer->rightClick(*posiciones[cont]);
-				cont++;
+
+	if (primeraExploracion){
+		if ((explorer != NULL) && (explorer->exists())){
+			if (cont < cantPosiciones){
+				if (explorer->isIdle()){
+					//Broodwar->printf("Me muevo...");
+					explorer->rightClick(*posiciones[cont]);
+					cont++;
+				}
 			}
 		}
 	}
+	else{
+		//dibujarPosiciones();
+		tiempoMax++;
 
-	//dibujarPosiciones();
+		//-- dibuja la region que se esta explorando actualmente
+
+		if ((explorer != NULL) && (explorer->exists()) && (regActual != NULL)){
+			Polygon p = regActual->getPolygon();
+			for(int j=0;j<(int)p.size();j++)
+			{
+				Position point1=p[j];
+				Position point2=p[(j+1) % p.size()];
+				Broodwar->drawLine(CoordinateType::Map,point1.x(),point1.y(),point2.x(),point2.y(),Colors::Green);
+			}
+
+			Broodwar->drawLineMap(explorer->getPosition().x(), explorer->getPosition().y(), regActual->getCenter().x(), regActual->getCenter().y(), Colors::White);
+		}
+
+		//grafo->dibujarRegionesNiveles();
+
+		//--
+
+		if (Broodwar->getFrameCount() % 100 == 0){
+			if ((regActual != NULL) && (grafo != NULL)){
+				if ((explorer != NULL) && (explorer->exists()) && (explorer->getPosition().getDistance(regActual->getCenter()) < 30)){
+					regActual = grafo->siguienteNodoNiveles();
+					tiempoMax = 0;
+				}
+				else{
+					if (tiempoMax > 900){
+						tiempoMax = 0;
+						regActual = grafo->siguienteNodoNiveles();
+					}
+					else{
+						explorer->move(regActual->getCenter());
+						//tiempoMax++;
+					}
+				}
+			}
+		}
+	}
 }
 
 
@@ -299,4 +496,13 @@ void Scout::dibujarGrilla(void){
 		}
 
 	}
+}
+
+
+void Scout::setExplorador(Unit *unidad){
+	explorer = unidad;
+	ID = explorer->getID();
+	regActual = grafo->primerNodoNiveles();
+	tiempoMax = 0;
+	primeraExploracion = false;
 }

@@ -480,3 +480,16 @@ void GrupoAntiaereo::agregarUnidad(Unit *u){
 int GrupoAntiaereo::cantMaximaTurrets(){
 	return cantidadNecesariaTurrets;
 }
+
+
+void onUnitShow(Unit *u){
+	/*if (objetivoActual == NULL)
+		objetivoActual = u;
+	else{
+		if (u->getType().isFlyer())
+			if ((u->getType().size() == UnitSizeTypes::Large) && (u->getHitPoints() < objetivoActual->getHitPoints()))
+
+
+	}*/
+
+}

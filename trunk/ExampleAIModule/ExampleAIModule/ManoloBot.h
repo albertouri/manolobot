@@ -11,5 +11,6 @@ public:
 	void onUnitCreate(Unit* u);
 	void onUnitDestroy(Unit* u);
 	void onNukeDetect(Position p);
+	void onUnitShow(Unit* u);
 	~ManoloBot(void);
 };

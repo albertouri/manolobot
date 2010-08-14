@@ -119,7 +119,8 @@ void ExampleAIModule::onUnitEvade(BWAPI::Unit* unit)
 
 void ExampleAIModule::onUnitShow(BWAPI::Unit* unit)
 {
-	//if (!Broodwar->isReplay() && Broodwar->getFrameCount()>1)
+	if (!Broodwar->isReplay() && Broodwar->getFrameCount()>1)
+		agente->onUnitShow(unit);
 		//Broodwar->sendText("A %s [%x] has been spotted at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 }
 

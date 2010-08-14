@@ -26,10 +26,14 @@ public:
 
 	int cantMaximaTurrets();
 
+	void onUnitShow(Unit *u);
+
 private:
 	int cantidadNecesariaTurrets;
 	bool puedoConstruir(TilePosition t, UnitType tipo);
 	TilePosition *encontrarPosicion(int orientacion, Position posCentral);
+
+	Unit *objetivoActual;
 
 	int getCantMisileTurrets();
 

@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Grafo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GrupoAntiaereo.cpp"
 				>
 			</File>
@@ -212,6 +216,10 @@
 			</File>
 			<File
 				RelativePath=".\ManoloBot.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Nodo.cpp"
 				>
 			</File>
 			<File
@@ -257,6 +265,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Grafo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GrupoAntiaereo.h"
 				>
 			</File>
@@ -266,6 +278,10 @@
 			</File>
 			<File
 				RelativePath=".\ManoloBot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Nodo.h"
 				>
 			</File>
 			<File

@@ -681,6 +681,9 @@ void GrupoBunkers::onFrame(){
 
 	resaltarUnidades();
 
+	Broodwar->drawBoxMap(reg->getCenter().x(), reg->getCenter().y(), reg->getCenter().x() + 16, reg->getCenter().y() + 16, Colors::Yellow, true);
+
+
 	if (Broodwar->getFrameCount() % frameLatency == 0){
 
 		if (getCantBunkers() > 1)
