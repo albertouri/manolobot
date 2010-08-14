@@ -18,6 +18,7 @@ public:
 	static const int INDEX_GOAL_COMMANDCENTER = 5;
 	static const int INDEX_GOAL_COMSAT_STATION = 6;
 	static const int INDEX_GOAL_CONTROL_TOWER = 7;
+	static const int INDEX_GOAL_DROPSHIP = 9;
 	static const int INDEX_GOAL_ENGINEERING_BAY = 10;
 	static const int INDEX_GOAL_FACTORY = 11;
 	static const int INDEX_GOAL_FIREBAT = 12;
@@ -33,12 +34,15 @@ public:
 	static const int INDEX_GOAL_TANKSIEGE = 27;
 	static const int INDEX_GOAL_STARPORT = 28;
 	static const int INDEX_GOAL_DEPOT = 29;
+	static const int INDEX_GOAL_VULTURE = 31;
 	
 	// constantes que representan el ID de cada tipo de unidad terran
 	static const int ID_MARINE = 0;
+	static const int ID_VULTURE = 2;
 	static const int ID_GOLIATH = 3;
 	static const int ID_SCV = 7;
 	static const int ID_TANKSIEGE = 5;
+	static const int ID_DROPSHIP = 11;
 	static const int ID_TANKSIEGE_SIEGEMODE = 30;
 	static const int ID_FIREBAT = 32;
 	static const int ID_MEDIC = 34;

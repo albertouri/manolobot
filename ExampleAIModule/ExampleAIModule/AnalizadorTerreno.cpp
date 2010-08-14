@@ -31,7 +31,7 @@ AnalizadorTerreno::~AnalizadorTerreno(void)
 
 void AnalizadorTerreno::dibujarResultados(void){
 
-	Graficos::dibujarTerreno(show_visibility_data, analyzed);
+	//Graficos::dibujarTerreno(show_visibility_data, analyzed);
 
 	if (analysis_just_finished)
 	{
