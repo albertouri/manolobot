@@ -566,6 +566,19 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		buildUnitAddOn(Utilidades::ID_CONTROL_TOWER);
 	}
 
+	//-- SCIENCE FACILITY
+	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] < goalCantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]) && (buildingSemaphore == 0)){
+		UnitType* building = new UnitType(Utilidades::ID_SCIENCE_FACILITY);
+		TilePosition* posB = getTilePositionAviable(building);
+
+		if (posB != NULL){
+			buildUnit(posB, Utilidades::ID_SCIENCE_FACILITY);
+			delete posB;
+		}
+		delete building;
+	}
+
+
 	//-- DROPSHIP
 	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < goalCantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]) && (buildingSemaphore == 0)){
 		trainUnit(Utilidades::ID_DROPSHIP);
@@ -859,6 +872,7 @@ void unit_Manager::buildUnitAddOn(int id){
 	Unit* owner = NULL;
 	UnitType *tipo = new UnitType(id);
 
+
 	if((tipo->mineralPrice() < Broodwar->self()->minerals()) && (tipo->gasPrice() < Broodwar->self()->gas())){
 
 		if (id == Utilidades::ID_MACHINESHOP){
@@ -873,6 +887,7 @@ void unit_Manager::buildUnitAddOn(int id){
 
 
 		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
+			
 			if (owner->isLifted()){
 				if (!owner->isMoving()){
 					TilePosition actual = owner->getTilePosition();
@@ -1506,7 +1521,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 		int y = t->y();
 		int j, k;
 		int encontre=0;
-		if (worker != NULL) {
+		if ((worker != NULL)&& (worker->exists())) {
 			while (encontre==0){
 				j = -i;
 				if (x+j>=0){
@@ -1515,7 +1530,8 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 						if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 							pos = new TilePosition(x + j, y + k);
 							if(Broodwar->isExplored(*pos)){
-								if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
+								if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	}
+								
 							}
 						}
 						k = k-1;
@@ -1859,6 +1875,9 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_DROPSHIP:
 				cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]++;
 				break;
+			case Utilidades::ID_SCIENCE_FACILITY:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
+				break;
 		}
 	}
 
@@ -1950,6 +1969,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_DROPSHIP:
 				cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]--;
+				break;
+			case Utilidades::ID_SCIENCE_FACILITY:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]--;
 				break;
 		}
 	}
