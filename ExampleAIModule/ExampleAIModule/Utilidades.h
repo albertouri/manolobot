@@ -55,6 +55,7 @@ public:
 	static const int ID_ACADEMY = 112;
 	static const int ID_FACTORY = 113;
 	static const int ID_STARPORT = 114;
+	static const int ID_SCIENCE_FACILITY = 116;
 	static const int ID_MACHINESHOP = 120;
 	static const int ID_ENGINEERING_BAY = 122;
 	static const int ID_ARMORY = 123;

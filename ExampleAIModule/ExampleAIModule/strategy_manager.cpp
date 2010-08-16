@@ -133,6 +133,7 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
 			GoalUnidades[Utilidades::INDEX_GOAL_GOLIATH] = 4;
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 7;
+			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] = 1;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
@@ -226,6 +227,9 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_DROPSHIP:
 				cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]++;
 				break;
+			case Utilidades::ID_SCIENCE_FACILITY:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
+				break;
 		}
 		
 	}
@@ -298,6 +302,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_DROPSHIP:
 				cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]--;
+				break;
+			case Utilidades::ID_SCIENCE_FACILITY:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]--;
 				break;
 		}
 		
