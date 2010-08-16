@@ -282,6 +282,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		Unit* trabajador;
 		frameLatency=0;
 		buildingSemaphore=0;
+		int limiteSCVbuscandoGas = 4;
+		
+		if (Broodwar->self()->gas() > Broodwar->self()->minerals()) limiteSCVbuscandoGas =1;
+
+
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 		{
 			if ((*i)->getType().isWorker()){
@@ -292,14 +297,14 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 						SCVgatheringGas++;
 					}
 
-					if ((Broodwar->self()->completedUnitCount(Utilidades::ID_REFINERY) > 0) && (SCVgatheringGas <4)){
+					if ((Broodwar->self()->completedUnitCount(Utilidades::ID_REFINERY) > 0) && (SCVgatheringGas <limiteSCVbuscandoGas)){
 						if((trabajador->isIdle())||(trabajador->isGatheringMinerals())){
 							SCVgatheringGas++;
 							sendGatherGas(trabajador);
 						}
 					}
 					else {
-						if(trabajador->isIdle()||((SCVgatheringGas>4)&&(trabajador->isGatheringGas()))){
+						if(trabajador->isIdle()||((SCVgatheringGas>limiteSCVbuscandoGas)&&(trabajador->isGatheringGas()))){
 							SCVgatheringCristal++;
 							sendGatherCristal(trabajador);
 						}
