@@ -854,40 +854,41 @@ void unit_Manager::buildUnitAddOn(int id){
 	Unit* owner = NULL;
 	UnitType *tipo = new UnitType(id);
 
+	if((tipo->mineralPrice() < Broodwar->self()->minerals()) && (tipo->gasPrice() < Broodwar->self()->gas())){
 
-	if (id == Utilidades::ID_MACHINESHOP){
-		owner = getUnit(Utilidades::ID_FACTORY);
-	}
-	else if (id == Utilidades::ID_COMSAT_STATION){
-		owner = getUnit(Utilidades::ID_COMMANDCENTER);
-	}
-	else if (id == Utilidades::ID_CONTROL_TOWER){
-		owner = getUnit(Utilidades::ID_STARPORT);
-	}
+		if (id == Utilidades::ID_MACHINESHOP){
+			owner = getUnit(Utilidades::ID_FACTORY);
+		}
+		else if (id == Utilidades::ID_COMSAT_STATION){
+			owner = getUnit(Utilidades::ID_COMMANDCENTER);
+		}
+		else if (id == Utilidades::ID_CONTROL_TOWER){
+			owner = getUnit(Utilidades::ID_STARPORT);
+		}
 
 
-	if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
-		if (owner->isLifted()){
-			if (!owner->isMoving()){
-				TilePosition actual = owner->getTilePosition();
-				TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
-				if (!owner->land(*nuevaPos)){
-					owner->rightClick(*new Position(*nuevaPos));
+		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
+			if (owner->isLifted()){
+				if (!owner->isMoving()){
+					TilePosition actual = owner->getTilePosition();
+					TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
+					if (!owner->land(*nuevaPos)){
+						owner->rightClick(*new Position(*nuevaPos));
+					}
 				}
 			}
-		}
-		else{
-			if (!owner->buildAddon(*tipo))
-				owner->lift();
 			else{
-				Broodwar->printf("estoy levantado en la pos %d,%d", owner->getTilePosition().x(), owner->getTilePosition().y());
+				if ((!owner->buildAddon(*tipo))&&(id != Utilidades::ID_COMSAT_STATION))
+					owner->lift();
+				else{
+					Broodwar->printf("estoy levantado en la pos %d,%d", owner->getTilePosition().x(), owner->getTilePosition().y());
+				}
 			}
-		}
 
 
-	delete tipo;
+		delete tipo;
 
-
+	}
 }
 
 
