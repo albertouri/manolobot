@@ -286,24 +286,29 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		{
 			if ((*i)->getType().isWorker()){
 				trabajador = (*i);
-				if(trabajador->isGatheringGas()){
-					SCVgatheringGas++;
-				}
-
-				if ((Broodwar->self()->completedUnitCount(Utilidades::ID_REFINERY) > 0) && (SCVgatheringGas <4)){
-					if((trabajador->isIdle())||(trabajador->isGatheringMinerals())){
+				
+				if(Broodwar->self()->completedUnitCount(Utilidades::ID_SCV)>5){
+					if(trabajador->isGatheringGas()){
 						SCVgatheringGas++;
-						Broodwar->printf("debo mandar a buscar gas");
-						sendGatherGas(trabajador);
 					}
-				}
-				else {
-					if(trabajador->isIdle()||((SCVgatheringGas>4)&&(trabajador->isGatheringGas()))){
-						SCVgatheringCristal++;
-						sendGatherCristal(trabajador);
-					}
-				}
 
+					if ((Broodwar->self()->completedUnitCount(Utilidades::ID_REFINERY) > 0) && (SCVgatheringGas <4)){
+						if((trabajador->isIdle())||(trabajador->isGatheringMinerals())){
+							SCVgatheringGas++;
+							sendGatherGas(trabajador);
+						}
+					}
+					else {
+						if(trabajador->isIdle()||((SCVgatheringGas>4)&&(trabajador->isGatheringGas()))){
+							SCVgatheringCristal++;
+							sendGatherCristal(trabajador);
+						}
+					}
+				}
+				else{
+					if((trabajador->isGatheringGas())||(trabajador->isIdle()))
+						sendGatherCristal(trabajador);
+				}
 			}
 		}
 	}
@@ -410,7 +415,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	if((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] < goalCantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]) && (buildingSemaphore == 0)){
 		buildUnitAddOn(Utilidades::ID_MACHINESHOP);
 	}
-
 
 	//-- BUNKER
 	if((grupoB1 != NULL) && grupoB1->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
@@ -850,52 +854,40 @@ void unit_Manager::buildUnitAddOn(int id){
 	Unit* owner = NULL;
 	UnitType *tipo = new UnitType(id);
 
+
 	if (id == Utilidades::ID_MACHINESHOP){
-		if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
-			owner = getUnit(Utilidades::ID_FACTORY);
-
-			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
-				if (owner->isLifted()){
-					if (!owner->isMoving()){
-						TilePosition actual = owner->getTilePosition();
-						TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
-						if (!owner->land(*nuevaPos)){
-							owner->rightClick(*new Position(*nuevaPos));
-						}
-					}
-				}
-				else{
-					if (!owner->buildAddon(*new UnitType(Utilidades::ID_MACHINESHOP)))
-						owner->lift();
-					else{
-						Broodwar->printf("estoy levantado en la pos %d,%d", owner->getTilePosition().x(), owner->getTilePosition().y());
-					}
-				}
-		}
-
-		delete tipo;
+		owner = getUnit(Utilidades::ID_FACTORY);
 	}
 	else if (id == Utilidades::ID_COMSAT_STATION){
-		if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
-			owner = getUnit(Utilidades::ID_COMMANDCENTER);
-
-			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
-				owner->buildAddon(*new UnitType(Utilidades::ID_COMSAT_STATION));
-		}
-
-		delete tipo;
+		owner = getUnit(Utilidades::ID_COMMANDCENTER);
 	}
 	else if (id == Utilidades::ID_CONTROL_TOWER){
+		owner = getUnit(Utilidades::ID_STARPORT);
+	}
 
-		if ((Broodwar->self()->minerals() > tipo->mineralPrice()) && (Broodwar->self()->gas() >= tipo->gasPrice())) {
-			owner = getUnit(Utilidades::ID_STARPORT);
 
-			if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
-				owner->buildAddon(*new UnitType(Utilidades::ID_CONTROL_TOWER));
+	if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
+		if (owner->isLifted()){
+			if (!owner->isMoving()){
+				TilePosition actual = owner->getTilePosition();
+				TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
+				if (!owner->land(*nuevaPos)){
+					owner->rightClick(*new Position(*nuevaPos));
+				}
+			}
+		}
+		else{
+			if (!owner->buildAddon(*tipo))
+				owner->lift();
+			else{
+				Broodwar->printf("estoy levantado en la pos %d,%d", owner->getTilePosition().x(), owner->getTilePosition().y());
+			}
 		}
 
-		delete tipo;	
-	}
+
+	delete tipo;
+
+
 }
 
 
