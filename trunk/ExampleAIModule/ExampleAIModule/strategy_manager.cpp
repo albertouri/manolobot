@@ -86,7 +86,7 @@ void strategy_manager::checkGoals(void){
 		}
 
 
-		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] == 1){
+		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 			Broodwar->printf("Pase al estado 3 en el strategy manager");
 			estadoActual = 3;
@@ -95,7 +95,6 @@ void strategy_manager::checkGoals(void){
 	else if (estadoActual == 3){
 		if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
 			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
-			//GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 2;
 			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 27;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK])){
@@ -113,17 +112,15 @@ void strategy_manager::checkGoals(void){
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 4;
+			//GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 4;
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ARMORY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ARMORY] = 1;
-			//GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 6;
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_STARPORT] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_STARPORT] = 1;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1])){
-			//Broodwar->printf("Deberia investigar mejora armas vehiculos cuando tenga mas de 100 100");
 			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_OPTICAL_FLARE] = 1;
 		}
@@ -137,7 +134,6 @@ void strategy_manager::checkGoals(void){
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
-			//GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 6;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_STARPORT] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] == 0)){
 			GoalUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] = 1;

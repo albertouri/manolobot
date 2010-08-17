@@ -10,6 +10,7 @@
 #include "GrupoBunkers.h"
 #include <stdlib.h>
 #include "Grafo.h"
+#include "CompaniaTransporte.h"
 
 using namespace BWAPI;
 using namespace BWTA;
@@ -52,8 +53,12 @@ private:
 	// puntero a un SCV que se encargara de reparar los bunkers que sean atacados
 	Unit *reparador1, *reparador2;
 
+	// puntero a la posicion del centro de comando enemigo
 	Position *baseEnemiga;
+	Region *regionBaseEnemiga;
+	// variable auxiliar para encontrar la posicion del centro de comando enemigo
 	bool primerConstruccionDescubierta;
+	// esta variable es true si el analisis del terreno finalizo
 	bool analisisListo;
 
 	//-- Grupos de bunkers
