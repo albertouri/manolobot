@@ -577,7 +577,11 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 		}
 		delete building;
 	}
-
+	
+	//-- NAVE DE LA CIENCIA - SCIENCE VESSEL
+	if(cantUnidades[Utilidades::INDEX_GOAL_STARPORT] && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] < goalCantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]) && (Broodwar->self()->minerals()>= 100) && (Broodwar->self()->gas()>= 225)) {
+		trainUnit(Utilidades::ID_SCIENCE_VESSEL);
+	}
 
 	//-- DROPSHIP
 	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < goalCantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]) && (buildingSemaphore == 0)){
@@ -886,7 +890,7 @@ void unit_Manager::buildUnitAddOn(int id){
 		}
 
 
-		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted()))
+		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())){
 			
 			if (owner->isLifted()){
 				if (!owner->isMoving()){
@@ -894,20 +898,24 @@ void unit_Manager::buildUnitAddOn(int id){
 					TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
 					if (!owner->land(*nuevaPos)){
 						owner->rightClick(*new Position(*nuevaPos));
+						Broodwar->printf("pos actual %d,%d --- nueva pos %d,%d",owner->getTilePosition().x(), owner->getTilePosition().y(),nuevaPos->x(), nuevaPos->y());
+					}
+					else {
+						Broodwar->printf("deberia aterrizar en: %d , %d",nuevaPos->x(), nuevaPos->y());
+						Graficos::dibujarCuadro(nuevaPos,2,2);
 					}
 				}
 			}
 			else{
+				Broodwar->printf("no estoy lifted");
 				if ((!owner->buildAddon(*tipo))&&(id != Utilidades::ID_COMSAT_STATION))
 					owner->lift();
-				else{
-					Broodwar->printf("estoy levantado en la pos %d,%d", owner->getTilePosition().x(), owner->getTilePosition().y());
-				}
+
 			}
 
-
+		}
 		delete tipo;
-
+		
 	}
 }
 
@@ -1112,8 +1120,11 @@ void unit_Manager::trainTankSiege(){
 	}
 }
 
+
+
+
 void unit_Manager::trainUnit(int id){
-	if (id == Utilidades::ID_DROPSHIP){
+	if ((id == Utilidades::ID_DROPSHIP)|| (id == Utilidades::ID_SCIENCE_VESSEL)){
 		Unit *constructor = getUnit(Utilidades::ID_STARPORT);
 		UnitType *tipo = new UnitType(id);
 
@@ -1878,6 +1889,9 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_SCIENCE_FACILITY:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
 				break;
+			case Utilidades::ID_SCIENCE_VESSEL:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]++;
+				break;
 		}
 	}
 
@@ -1972,6 +1986,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_SCIENCE_FACILITY:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]--;
+				break;
+			case Utilidades::ID_SCIENCE_VESSEL:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]--;
 				break;
 		}
 	}

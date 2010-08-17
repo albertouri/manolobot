@@ -141,6 +141,7 @@ void strategy_manager::checkGoals(void){
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_STARPORT] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] == 0)){
 			GoalUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_DROPSHIP] = 4;
 		}
 	}
@@ -230,6 +231,9 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_SCIENCE_FACILITY:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
 				break;
+			case Utilidades::ID_SCIENCE_VESSEL:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]--;
+				break;
 		}
 		
 	}
@@ -305,6 +309,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_SCIENCE_FACILITY:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]--;
+				break;
+			case Utilidades::ID_SCIENCE_VESSEL:
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]--;
 				break;
 		}
 		
