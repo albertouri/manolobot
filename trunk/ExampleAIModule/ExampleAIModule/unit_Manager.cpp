@@ -907,7 +907,6 @@ void unit_Manager::buildUnitAddOn(int id){
 				}
 			}
 			else{
-				Broodwar->printf("no estoy lifted");
 				if ((!owner->buildAddon(*tipo))&&(id != Utilidades::ID_COMSAT_STATION))
 					owner->lift();
 
@@ -1639,6 +1638,9 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 	else if (unit->getType().getID() == Utilidades::ID_GOLIATH){
 		Easy->asignarUnidad(unit);
 	}
+	else if (unit->getType().getID() == Utilidades::ID_SCIENCE_VESSEL){
+		Easy->asignarUnidad(unit);
+	}
 
 }
 
@@ -1891,6 +1893,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_SCIENCE_VESSEL:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]++;
+				asignarUnidadACompania(u);
 				break;
 		}
 	}

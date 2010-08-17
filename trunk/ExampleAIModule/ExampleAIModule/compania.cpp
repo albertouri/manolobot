@@ -54,6 +54,10 @@ void compania::asignarUnidad(Unit *u){
 		else if (u->getType().getID() == Utilidades::ID_GOLIATH){
 			listGoliath.push_back(u);
 		}
+		else if (u->getType().getID() == Utilidades::ID_SCIENCE_VESSEL){
+			listScienceVessel.push_back(u);
+		}
+
 		if ((comandante != NULL)&&(comandante->exists()))
 			u->rightClick(comandante);
 	}
@@ -252,7 +256,10 @@ Unit* compania::buscarDañado(std::list<Unit*> lista){
 void compania::onFrame(){
 	Unit* herido;
 	std::list<Unit*> listaDeUnidadesAfectadas;
+	std::list<Unit*> listaDeUnidadesNotMatrixed;
+
 	listaDeUnidadesAfectadas.clear();
+	listaDeUnidadesNotMatrixed.clear();
 	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
 
 	if (listMarines.size() > 0){
@@ -318,6 +325,7 @@ void compania::onFrame(){
 			else {
 				if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
 					listaDeUnidadesAfectadas.push_back(*It1);
+				
 				Graficos::resaltarUnidad(*It1, c);
 				It1++; 
 			}
@@ -337,6 +345,8 @@ void compania::onFrame(){
 			else {
 				if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
 					listaDeUnidadesAfectadas.push_back(*It1);
+				if(!(*It1)->isDefenseMatrixed())
+					listaDeUnidadesNotMatrixed.push_back(*It1);
 				Graficos::resaltarUnidad(*It1, c);
 				It1++; 
 			}
@@ -412,6 +422,19 @@ void compania::onFrame(){
 				listaDeUnidadesAfectadas.pop_front();
 				if((herido!=NULL)&&(herido->exists())){
 					(*It1)->useTech(TechTypes::Restoration, herido);
+				}
+			}
+			It1++;
+		}
+
+		It1 = listScienceVessel.begin();
+
+		while((It1 != listScienceVessel.end())&&(!listaDeUnidadesNotMatrixed.empty())){
+			if ((*It1)->getEnergy()>100){
+				herido = listaDeUnidadesNotMatrixed.front();
+				listaDeUnidadesNotMatrixed.pop_front();
+				if((herido!=NULL)&&(herido->exists())){
+					(*It1)->useTech(TechTypes::Defensive_Matrix, herido);
 				}
 			}
 			It1++;
@@ -523,6 +546,21 @@ void compania::controlarDistancia(){
 		}
 
 
+		//muevo las naves de ciencia
+		It1 = listScienceVessel.begin();
+
+		while(It1 != listScienceVessel.end()){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 200) && ((*It1)->getID() != comandante->getID())){
+				(*It1)->rightClick(comandante->getPosition());
+			}
+			else{
+				if ((*It1)->isMoving())
+					(*It1)->stop();				
+			}
+			It1++;
+		}
+
+
 		It1 = listMedics.begin();
 
 		while(It1 != listMedics.end()){
@@ -569,6 +607,10 @@ void compania::controlarDistancia(){
 
 
 	}
+
+
+
+
 	/*else{
 		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
 	}*/
