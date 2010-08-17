@@ -30,6 +30,7 @@ public:
 	static const int INDEX_GOAL_REFINERY = 22;
 	static const int INDEX_GOAL_SCV = 23;
 	static const int INDEX_GOAL_SCIENCE_FACILITY = 24;
+	static const int INDEX_GOAL_SCIENCE_VESSEL = 25;
 	static const int INDEX_GOAL_TANKSIEGE_SIEGEMODE = 26;
 	static const int INDEX_GOAL_TANKSIEGE = 27;
 	static const int INDEX_GOAL_STARPORT = 28;
@@ -42,6 +43,7 @@ public:
 	static const int ID_GOLIATH = 3;
 	static const int ID_SCV = 7;
 	static const int ID_TANKSIEGE = 5;
+	static const int ID_SCIENCE_VESSEL = 9;
 	static const int ID_DROPSHIP = 11;
 	static const int ID_TANKSIEGE_SIEGEMODE = 30;
 	static const int ID_FIREBAT = 32;
