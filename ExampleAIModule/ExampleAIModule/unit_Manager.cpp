@@ -8,6 +8,7 @@ int goalLimiteGeiser = 1;
 int goalLimiteBarracas = 1;*/
 
 Grafo *grf = NULL;
+CompaniaTransporte *ct = NULL;
 
 //int tiempoProxFinalizacion = 0; // mantiene el tiempo hasta la proxima finalizacion de la construccion o entrenamiento de una unidad para evitar ejecutar en todos los frames el metodo controlarFinalizacion
 //int contProxFinalizacion = 0; // contador que se incrementa en cada frame, para controlar la finalizacion de una construccion o entrenamiento
@@ -69,6 +70,7 @@ unit_Manager::unit_Manager()
 
 	primerConstruccionDescubierta = true;
 	baseEnemiga = NULL;
+	regionBaseEnemiga = NULL;
 	analisisListo = false;
 }
 
@@ -80,6 +82,9 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 
 		if (!analisisListo)
 			analisisListo = true;
+
+		if (ct != NULL)
+			ct->onFrame();
 
 		if (grf == NULL)
 			grf = new Grafo(BWTA::getRegions().size());
@@ -138,11 +143,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 			anti = new GrupoAntiaereo(analizador->regionInicial());
 		else
 			anti->onFrame();
-
-
-		// borrar esto porque puede dar error de puntero nulo
-		if (baseEnemiga != NULL)
-			Broodwar->drawLineMap(getUnit(Utilidades::ID_COMMANDCENTER)->getPosition().x(), getUnit(Utilidades::ID_COMMANDCENTER)->getPosition().y(), baseEnemiga->x(), baseEnemiga->y(), Colors::White);
+			
 	}
 
 
@@ -251,13 +252,6 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	}
 
 
-	//--
-	Unit *k = getUnit(Utilidades::ID_ACADEMY);
-	if ((k != NULL) && (k->getUpgradeLevel(UpgradeTypes::U_238_Shells))){
-		Broodwar->printf("U238 investigadouuu");
-	}
-	//--
-
 	// ---------------------------------------------------------------------------
 	//--						CODIGO DE REPARACION DE UNIDADES
 
@@ -337,7 +331,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	}
 
 	//-- COMSAT STATION (ADD-ON DE COMMAND CENTER)
-	if((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] > 0) && (Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] < goalCantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]) /*&& (buildingSemaphore == 0)*/ && (cantUnidades[Utilidades::ID_ACADEMY] > 0)){
+	if((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] > 0) && (Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] < goalCantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION]) /*&& (buildingSemaphore == 0)*/ && (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] > 0)){
 		buildUnitAddOn(Utilidades::ID_COMSAT_STATION);
 	}
 
@@ -884,6 +878,7 @@ void unit_Manager::buildUnitAddOn(int id){
 		}
 		else if (id == Utilidades::ID_COMSAT_STATION){
 			owner = getUnit(Utilidades::ID_COMMANDCENTER);
+			Broodwar->printf("entra a comsat");
 		}
 		else if (id == Utilidades::ID_CONTROL_TOWER){
 			owner = getUnit(Utilidades::ID_STARPORT);
@@ -891,6 +886,7 @@ void unit_Manager::buildUnitAddOn(int id){
 
 
 		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())){
+			Broodwar->printf("entra a 1");
 			
 			if (owner->isLifted()){
 				if (!owner->isMoving()){
@@ -909,9 +905,7 @@ void unit_Manager::buildUnitAddOn(int id){
 			else{
 				if ((!owner->buildAddon(*tipo))&&(id != Utilidades::ID_COMSAT_STATION))
 					owner->lift();
-
 			}
-
 		}
 		delete tipo;
 		
@@ -1701,7 +1695,7 @@ void unit_Manager::verificarBunkers(){
 
 		if ((u != NULL) && (u->exists()) && (u->isAttacking())){
 
-			if ((u->isCloaked()) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0)){
+			if ((u->isCloaked() || u->isBurrowed()) && (!u->isDetected()) && (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0)){
 				Unit *comsat = getUnit(Utilidades::ID_COMSAT_STATION);
 
 				if ((comsat != NULL) && (comsat->exists()) && (comsat->getEnergy() >= 50)){
@@ -1957,11 +1951,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_TANKSIEGE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
-				//Broodwar->printf("mataron a boby sin siege, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				break;
 			case Utilidades::ID_TANKSIEGE_SIEGEMODE:
 				cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE]--;
-				//Broodwar->printf("mataron a kenny, quedan %d tanques",cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] );
 				break;
 			case Utilidades::ID_ENGINEERING_BAY:
 				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]--;
@@ -2013,6 +2005,7 @@ bool* unit_Manager::getResearchsDone(){
 	return researchDone;
 }
 
+
 void unit_Manager::onNukeDetect(Position p){
 	if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
 		Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
@@ -2027,7 +2020,7 @@ void unit_Manager::onNukeDetect(Position p){
 
 
 void unit_Manager::onUnitShow(Unit *u){
-
+	// calcula la posicion donde esta ubicada la base enemiga, solamente realiza el calculo cuando la primer edificacion enemiga se hace visible
 	if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && (u->getType().isBuilding()) && (primerConstruccionDescubierta) && (analisisListo)){
 		primerConstruccionDescubierta = false;
 
@@ -2037,13 +2030,26 @@ void unit_Manager::onUnitShow(Unit *u){
 			// obtiene la region donde esta ubicada la construccion enemiga
 			if ((*It)->getPolygon().isInside(u->getPosition())){
 
+				regionBaseEnemiga = (*It);
 				// obtiene la posicion del centro de comando de esa region
 				if (!(*It)->getBaseLocations().empty())
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
+
+				ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga);
 
 				break;
 			}
 			It++;
 		}
 	}
+	else if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && ((u->isCloaked()) || (u->isBurrowed())) && (!u->isDetected())){
+		// si la unidad que genero el evento es "invisible" o esta oculta debajo de la tierra realiza un scan de la posicion de esa unidad con el comsat station
+		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
+			Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
+
+			if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() > 50))
+				detector->useTech(TechTypes::Scanner_Sweep, u->getPosition());
+		}
+	}
+
 }

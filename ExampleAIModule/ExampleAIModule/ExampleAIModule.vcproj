@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CompaniaTransporte.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Dll.cpp"
 				>
 			</File>
@@ -254,6 +258,10 @@
 			</File>
 			<File
 				RelativePath=".\CompaniaDefensiva.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CompaniaTransporte.h"
 				>
 			</File>
 			<File
