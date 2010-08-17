@@ -38,6 +38,7 @@ private:
 	std::list<Unit*> listFirebats;
 	std::list<Unit*> listTanks;
 	std::list<Unit*> listGoliath;
+	std::list<Unit*> listScienceVessel;
 
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);
@@ -49,4 +50,5 @@ private:
 	void controlarDistancia(); // controla que los soldados de la compañia se mantengan cerca del comandante
 
 };
+
 
