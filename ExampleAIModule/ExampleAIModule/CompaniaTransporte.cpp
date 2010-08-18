@@ -159,14 +159,14 @@ void CompaniaTransporte::asignarUnidad(Unit* u){
 
 
 bool CompaniaTransporte::listaTransportar(){
-	Broodwar->printf("tengo %d dropships", listDropships.size());
+	/*Broodwar->printf("tengo %d dropships", listDropships.size());
 	Broodwar->printf("necesito %d dropships para la compañia", aero->cantidadTransportes());
 	Broodwar->printf("tengo %d marines, %d medics, %d goliaths y %d tanques", aero->countMarines(), aero->countMedics(), aero->countGoliaths(), aero->countTanks());
 
 	if (aero->listaParaAtacar())
 		Broodwar->printf("compañia lista para atacar");
 	else
-		Broodwar->printf("compañia NO ESTA lista para atacar");
+		Broodwar->printf("compañia NO ESTA lista para atacar");*/
 
 
 	if ((listDropships.size() == aero->cantidadTransportes()) && (aero->listaParaAtacar())){
