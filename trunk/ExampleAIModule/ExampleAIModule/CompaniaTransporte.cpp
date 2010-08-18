@@ -1,6 +1,6 @@
 #include "CompaniaTransporte.h"
 
-CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem){
+CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, compania* c){
 	baseEnemiga = baseEnem;
 	regionBaseEnemiga = regEnem;
 
@@ -28,7 +28,9 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem){
 
 	liderFormacion = NULL;
 	ready = false;
-
+	aero = c;
+	comandanteCargado = false;
+	ejecutandoTransporte = false;
 }
 
 
@@ -126,15 +128,29 @@ void CompaniaTransporte::onFrame(){
 		if (!ready)
 			ready = listaTransportar();
 
-		/*if (ready)
-			ejecutarTransporte();*/
+		if ((ready) && (aero->companiaAbordo())){
+			ejecutarTransporte();
+		}
+		else
+			aero->abordarTransporte(listDropships);
+		/*else if (!(ready))
+			Broodwar->printf("No ejecuta transporte porque no esta ready");
+		else if (!aero->companiaAbordo())
+			Broodwar->printf("No ejecuta transporte porque la compañia no esta a bordo");*/
 	}
 }
 
 
 void CompaniaTransporte::asignarUnidad(Unit* u){
+	controlarEliminados();
+
 	if (u->getType().getID() == Utilidades::ID_DROPSHIP){
 		listDropships.push_back(u);
+
+		if ((aero != NULL) && (aero->getComandante() != NULL) && (!comandanteCargado)){
+			(*listDropships.begin())->load(aero->getComandante());
+			comandanteCargado = true;
+		}
 
 		if (liderFormacion == NULL)
 			liderFormacion = u;
@@ -143,7 +159,22 @@ void CompaniaTransporte::asignarUnidad(Unit* u){
 
 
 bool CompaniaTransporte::listaTransportar(){
-	return (listDropships.size() > 1);
+	Broodwar->printf("tengo %d dropships", listDropships.size());
+	Broodwar->printf("necesito %d dropships para la compañia", aero->cantidadTransportes());
+	Broodwar->printf("tengo %d marines, %d medics, %d goliaths y %d tanques", aero->countMarines(), aero->countMedics(), aero->countGoliaths(), aero->countTanks());
+
+	if (aero->listaParaAtacar())
+		Broodwar->printf("compañia lista para atacar");
+	else
+		Broodwar->printf("compañia NO ESTA lista para atacar");
+
+
+	if ((listDropships.size() == aero->cantidadTransportes()) && (aero->listaParaAtacar())){
+		aero->abordarTransporte(listDropships);
+		return true;
+	}
+	else
+		return false;
 }
 
 

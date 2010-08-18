@@ -2049,7 +2049,7 @@ void unit_Manager::onUnitShow(Unit *u){
 				if (!(*It)->getBaseLocations().empty())
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
 
-				ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga);
+				ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
 
 				break;
 			}
