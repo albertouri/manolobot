@@ -3,6 +3,7 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 #include "Utilidades.h"
+#include "compania.h"
 
 using namespace BWAPI;
 using namespace BWTA;
@@ -10,7 +11,7 @@ using namespace BWTA;
 class CompaniaTransporte
 {
 public:
-	CompaniaTransporte(Position* baseEnem, Region* regEnem);
+	CompaniaTransporte(Position* baseEnem, Region* regEnem, compania* c);
 	~CompaniaTransporte(void);
 	void onFrame();
 	void asignarUnidad(Unit* u);
@@ -44,4 +45,12 @@ private:
 
 	// variable que una vez que se hace true evita realizar un control mejorando la eficiencia
 	bool ready;
+
+	// puntero a la compañia a transportar
+	compania *aero;
+
+	// es true si el comandante fue cargado en una nave de transporte
+	bool comandanteCargado;
+
+	bool ejecutandoTransporte;
 };

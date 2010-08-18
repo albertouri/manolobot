@@ -33,7 +33,11 @@ public:
 	int cantidadTransportes();
 
 	void abordarTransporte(std::list<Unit*> transportes);
+
+	// retorna true si todas las unidades de la compañia estan cargadas
 	bool companiaAbordo();
+
+	Unit* getComandante();
 
 private:
 	Color c; // color especifico para cada compañia, seteado en el constructor
