@@ -581,7 +581,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && /*(cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < goalCantUnidades[Utilidades::INDEX_GOAL_DROPSHIP])*/ (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < Easy->cantidadTransportes()) && (buildingSemaphore == 0)){
 		trainUnit(Utilidades::ID_DROPSHIP);
 	}
-	else{
+	/*else{
 		if (Easy->listaParaAtacar()){
 			if (ct->listaTransportar()){
 				ct->ejecutarTransporte();
@@ -590,7 +590,7 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 				ct->
 			}
 		}
-	}
+	}*/
 
 
 	/*Position* p100 = new Position(Broodwar->enemy()->getStartLocation().x() * TILE_SIZE, Broodwar->enemy()->getStartLocation().y() * TILE_SIZE);
