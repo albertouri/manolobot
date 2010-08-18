@@ -16,6 +16,7 @@ public:
 	int countFirebats(); // elimina de la lista correspondiente las unidades destruidas, y retorna la cantidad de unidades vivas
 	int countTanks();
 	int countGoliaths();
+	int countScienceVessels();
 
 	void atacar(Unit *u); // manda a la compañia a atacar a la unidad pasada como parametro
 	void onFrame();
@@ -27,6 +28,12 @@ public:
 	~compania(void);
 
 	bool listaParaAtacar();
+
+	// retorna la cantidad de transportes necesarios para cargar todas las unidades de la compañia
+	int cantidadTransportes();
+
+	void abordarTransporte(std::list<Unit*> transportes);
+	bool companiaAbordo();
 
 private:
 	Color c; // color especifico para cada compañia, seteado en el constructor
@@ -49,6 +56,11 @@ private:
 
 	void controlarDistancia(); // controla que los soldados de la compañia se mantengan cerca del comandante
 
+	// variable que mantiene la cantidad de transportes necesarios para cargar la compañia completa
+	int cantTransportes;
+
+	// recalcula la cantidad de transportes necesarios para cargar la compañia completa
+	void calcularTransportes();
 };
 
 

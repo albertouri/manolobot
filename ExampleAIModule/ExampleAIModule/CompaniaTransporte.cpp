@@ -26,6 +26,9 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem){
 		crearPath();
 	}
 
+	liderFormacion = NULL;
+	ready = false;
+
 }
 
 
@@ -38,8 +41,11 @@ CompaniaTransporte::~CompaniaTransporte(void)
 void CompaniaTransporte::crearPath(){
 	//-- region donde manolobot inicia el juego
 	Region *inicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
-	Position *p1, *p2;
+	Position *p1, *p2, *centroBase;
 	Chokepoint *choke = NULL;
+
+	centroBase = new Position(inicial->getCenter().x(), inicial->getCenter().y());
+	pathBaseEnemiga.push_back(centroBase);
 
 	p1 = new Position(inicial->getCenter().x(), bordeMasLejano->y());
 	p2 = new Position(bordeMasLejano->x(), inicial->getCenter().y());
@@ -89,6 +95,8 @@ void CompaniaTransporte::crearPath(){
 		pathBaseEnemiga.push_back(bordeMasLejano);
 	}
 
+
+	ItPosiciones = pathBaseEnemiga.begin();
 	
 }
 
@@ -112,14 +120,25 @@ void CompaniaTransporte::dibujarPath(){
 void CompaniaTransporte::onFrame(){
 	dibujarPath();
 
-	if (Broodwar->getFrameCount() % 100 == 0)
+	if (Broodwar->getFrameCount() % 100 == 0){
 		controlarEliminados();
+
+		if (!ready)
+			ready = listaTransportar();
+
+		/*if (ready)
+			ejecutarTransporte();*/
+	}
 }
 
 
 void CompaniaTransporte::asignarUnidad(Unit* u){
-	if (u->getType().getID() == Utilidades::ID_DROPSHIP)
+	if (u->getType().getID() == Utilidades::ID_DROPSHIP){
 		listDropships.push_back(u);
+
+		if (liderFormacion == NULL)
+			liderFormacion = u;
+	}
 }
 
 
@@ -141,6 +160,17 @@ void CompaniaTransporte::controlarEliminados(){
 }
 
 
-/*void CompaniaTransporte::ejecutarTransporte(){
-	
-}*/
+void CompaniaTransporte::ejecutarTransporte(){
+	std::list<Unit*>::iterator It;
+
+	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (ItPosiciones != pathBaseEnemiga.end())){
+		// falta armar la formacion
+
+		It = listDropships.begin();
+		while (It != listDropships.end()){
+			(*It)->move(**ItPosiciones);
+			It++;
+		}
+		ItPosiciones++;
+	}
+}
