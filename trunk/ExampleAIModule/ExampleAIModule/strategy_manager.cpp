@@ -138,7 +138,6 @@ void strategy_manager::checkGoals(void){
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_STARPORT] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] == 0)){
 			GoalUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_DROPSHIP] = 4;
 		}
 	}
 }

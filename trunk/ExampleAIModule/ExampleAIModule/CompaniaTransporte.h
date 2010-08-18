@@ -14,7 +14,12 @@ public:
 	~CompaniaTransporte(void);
 	void onFrame();
 	void asignarUnidad(Unit* u);
+
+	// retorna true si la compañia de transporte esta lista a transportar las unidades
 	bool listaTransportar();
+
+	// ejecuta los movimientos hacia la base enemiga
+	void ejecutarTransporte();
 
 private:
 	std::list<Unit*> listDropships;
@@ -34,4 +39,9 @@ private:
 
 	void controlarEliminados();
 	
+	std::list<Position*>::iterator ItPosiciones;
+	Unit *liderFormacion;
+
+	// variable que una vez que se hace true evita realizar un control mejorando la eficiencia
+	bool ready;
 };

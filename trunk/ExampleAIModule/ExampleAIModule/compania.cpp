@@ -13,6 +13,7 @@ compania::compania(Color ID)
 {
 	c = ID;
 	comandante = NULL;
+	cantTransportes = 0;
 }
 
 compania::~compania(void)
@@ -36,23 +37,25 @@ void compania::asignarUnidad(Unit *u){
 			if ((bunker != NULL)&&(bunker->exists())) u->rightClick(bunker->getPosition());
 		}
 		listTanks.push_front(u);
-//		listaDeTanquesAUbicar.push_front(u);
+
+		calcularTransportes();
 	}
 	else{
 		if (u->getType().getID() == Utilidades::ID_MARINE){
-			//listMarines.push_front(u);
 			listMarines.push_back(u);
-			
-			//ponerACubierto(u);
+			calcularTransportes();
 		}
-		else if (u->getType().getID() == Utilidades::ID_MEDIC)
-			//listMedics.push_front(u);
+		else if (u->getType().getID() == Utilidades::ID_MEDIC){
 			listMedics.push_back(u);
-		else if (u->getType().getID() == Utilidades::ID_FIREBAT)
-			//listFirebats.push_front(u);
+			calcularTransportes();
+		}
+		else if (u->getType().getID() == Utilidades::ID_FIREBAT){
 			listFirebats.push_back(u);
+			calcularTransportes();
+		}
 		else if (u->getType().getID() == Utilidades::ID_GOLIATH){
 			listGoliath.push_back(u);
+			calcularTransportes();
 		}
 		else if (u->getType().getID() == Utilidades::ID_SCIENCE_VESSEL){
 			listScienceVessel.push_back(u);
@@ -86,6 +89,7 @@ void compania::ponerACubierto(Unit* U){
 	
 	if (bunker!=NULL) {bunker->load(U); }
 }
+
 
 void compania::aplicarStim(std::list<Unit*> lista){
 
@@ -122,6 +126,10 @@ int compania::countTanks(){
 
 int compania::countGoliaths(){
 	return contarUnidades(&listGoliath);
+}
+
+int compania::countScienceVessels(){
+	return contarUnidades(&listScienceVessel);
 }
 
 int compania::contarUnidades(std::list<Unit*> *lista){
@@ -260,8 +268,8 @@ void compania::onFrame(){
 
 	listaDeUnidadesAfectadas.clear();
 	listaDeUnidadesNotMatrixed.clear();
-	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
 
+	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
 	if (listMarines.size() > 0){
 		//Broodwar->printf("Entra a 1");
 
@@ -446,7 +454,26 @@ void compania::onFrame(){
 	}
 	
 	// ----------------------------------------------------------------------------------------
-
+	//-- controla las unidades eliminando las unidades muertas de la lista correspondiente
+	if (Broodwar->getFrameCount() % 200 == 0){
+		countMarines();
+	}
+	else if(Broodwar->getFrameCount() % 200 == 10){
+		countMedics();
+	}
+	else if(Broodwar->getFrameCount() % 200 == 20){
+		countTanks();
+	}
+	else if(Broodwar->getFrameCount() % 200 == 30){
+		countGoliaths();
+	}
+	else if(Broodwar->getFrameCount() % 200 == 40){
+		countScienceVessels();
+	}
+	else if(Broodwar->getFrameCount() % 200 == 50){
+		countFirebats();
+	}
+	
 }
 
 
@@ -652,9 +679,36 @@ bool compania::pertenece(Unit *u){
 	return false;
 }
 
+
 bool compania::listaParaAtacar(){
-	if ((countGoliaths() > 2) && (countTanks() > 2))
+	//if ((countGoliaths() == 4) && (countTanks() == 4) && (countTanks())
+	if ((listGoliath.size() == 4) && (listTanks.size() == 4) && (listScienceVessel.size() == 1))
 		return true;
 	else
 		return false;
+}
+
+
+int compania::cantidadTransportes(){
+	return cantTransportes;
+}
+
+
+void compania::calcularTransportes(){
+	cantTransportes = listMarines.size() + listMedics.size() + listFirebats.size() + 2 * listGoliath.size() + 4 * listTanks.size();
+
+	// si alguna unidad no alcanza a entrar en el transporte se necesita un transporte mas
+	if (cantTransportes % 8 > 0)
+		cantTransportes++;
+}
+
+
+void compania::abordarTransporte(std::list<Unit*> transportes){
+	/*std::list<Unit*>::iterator It;
+
+	It = transportes.begin();
+
+	while (It != transportes.end()){
+		if ((*It)
+	}*/
 }

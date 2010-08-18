@@ -578,9 +578,20 @@ void unit_Manager::executeActions(AnalizadorTerreno *analizador){
 	}
 
 	//-- DROPSHIP
-	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < goalCantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]) && (buildingSemaphore == 0)){
+	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && /*(cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < goalCantUnidades[Utilidades::INDEX_GOAL_DROPSHIP])*/ (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < Easy->cantidadTransportes()) && (buildingSemaphore == 0)){
 		trainUnit(Utilidades::ID_DROPSHIP);
 	}
+	else{
+		if (Easy->listaParaAtacar()){
+			if (ct->listaTransportar()){
+				ct->ejecutarTransporte();
+			}
+			else{
+				ct->
+			}
+		}
+	}
+
 
 	/*Position* p100 = new Position(Broodwar->enemy()->getStartLocation().x() * TILE_SIZE, Broodwar->enemy()->getStartLocation().y() * TILE_SIZE);
 	Broodwar->drawCircleMap(p100->x(), p100->y(), 16, Colors::Green, true);
@@ -878,7 +889,6 @@ void unit_Manager::buildUnitAddOn(int id){
 		}
 		else if (id == Utilidades::ID_COMSAT_STATION){
 			owner = getUnit(Utilidades::ID_COMMANDCENTER);
-			Broodwar->printf("entra a comsat");
 		}
 		else if (id == Utilidades::ID_CONTROL_TOWER){
 			owner = getUnit(Utilidades::ID_STARPORT);
@@ -886,7 +896,6 @@ void unit_Manager::buildUnitAddOn(int id){
 
 
 		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())){
-			Broodwar->printf("entra a 1");
 			
 			if (owner->isLifted()){
 				if (!owner->isMoving()){
@@ -1635,6 +1644,10 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 	else if (unit->getType().getID() == Utilidades::ID_SCIENCE_VESSEL){
 		Easy->asignarUnidad(unit);
 	}
+	else if (unit->getType().getID() == Utilidades::ID_DROPSHIP){
+		ct->asignarUnidad(unit);
+	}
+		
 
 }
 
@@ -1881,6 +1894,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_DROPSHIP:
 				cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]++;
+				asignarUnidadACompania(u);
 				break;
 			case Utilidades::ID_SCIENCE_FACILITY:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
