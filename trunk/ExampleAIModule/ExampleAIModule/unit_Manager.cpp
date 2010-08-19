@@ -894,7 +894,6 @@ void unit_Manager::buildUnitAddOn(int id){
 			owner = getUnit(Utilidades::ID_STARPORT);
 		}
 
-
 		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())){
 			
 			if (owner->isLifted()){

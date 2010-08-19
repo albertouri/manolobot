@@ -270,6 +270,14 @@ void compania::onFrame(){
 	listaDeUnidadesNotMatrixed.clear();
 
 	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
+
+
+
+	if ((comandante != NULL) && (comandante->exists())){
+		Graficos::resaltarUnidad(comandante, c);
+		//Graficos::dibujarCirculo(*(new TilePosition((*It1)->getTilePosition().x() + 1, (*It1)->getTilePosition().y() + 1)), 1, 1);
+	}
+	/*
 	if (listMarines.size() > 0){
 		//Broodwar->printf("Entra a 1");
 
@@ -360,7 +368,7 @@ void compania::onFrame(){
 			}
 		}
 	}
-
+*/
 
 	// ------------------------ verifica si el comandante esta seteado ------------------------
 
@@ -421,6 +429,49 @@ void compania::onFrame(){
 			controlarDistancia(); 
 	}
 	else{
+// de aca 
+		if (listGoliath.size() > 0){
+			std::list<Unit*>::iterator It1;
+			It1 = listGoliath.begin();
+
+			while(It1 != listGoliath.end()){
+				if(!(*It1)->exists()) {
+					It1 = listGoliath.erase(It1);	
+				}
+				else {
+					if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+						listaDeUnidadesAfectadas.push_back(*It1);
+					
+					Graficos::resaltarUnidad(*It1, c);
+					It1++; 
+				}
+			}
+		}
+
+
+
+		if (listTanks.size() > 0){
+			std::list<Unit*>::iterator It1;
+			It1 = listTanks.begin();
+
+			while(It1 != listTanks.end()){
+				if(!(*It1)->exists()) {
+					It1 = listTanks.erase(It1);	
+				}
+				else {
+					if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+						listaDeUnidadesAfectadas.push_back(*It1);
+					if(!(*It1)->isDefenseMatrixed())
+						listaDeUnidadesNotMatrixed.push_back(*It1);
+					Graficos::resaltarUnidad(*It1, c);
+					It1++; 
+				}
+			}
+		}
+
+
+
+// hasta aca agregué
 		std::list<Unit*>::iterator It1;	
 		It1 = listMedics.begin();
 
