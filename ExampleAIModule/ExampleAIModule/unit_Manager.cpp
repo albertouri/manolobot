@@ -1455,10 +1455,10 @@ bool unit_Manager::isInsideRegion(AnalizadorTerreno *analizador, UnitType* U, Ti
 // Obtiene un TilePosition disponible en las cercanias del centro de comando
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 	TilePosition* pos = NULL;
+	int i = 6;
 	Unit* worker = getWorker();
 	int x = centroComando->x();
 	int y = centroComando->y();
-	int i = 6;
 	int j, k;
 	int encontre=0;
 	if (worker != NULL) {
@@ -1470,7 +1470,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 					if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
 						if(Broodwar->isExplored(*pos)){
-							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
+							if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 						}
 					}
 					k = k-1;
@@ -1483,7 +1483,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 					if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
 						if(Broodwar->isExplored(*pos)){
-							if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
+							if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 						}
 					}
 					j = j-1;
@@ -1496,7 +1496,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 				if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
 					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
+						if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 					}
 				}
 				k = k-1;
@@ -1508,7 +1508,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 				if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
 					if(Broodwar->isExplored(*pos)){
-						if (Broodwar->canBuildHere(worker, *pos, *U)) {encontre = 1;	/*Broodwar->printf("cord(%d , %d) quiero (%d , %d)", x, y, pos->x(), pos->y());*/}
+						if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 					}
 				}
 				j = j-1;
@@ -1517,6 +1517,8 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 			i++;
 		}
 	}
+
+
 	return pos;
 
 }
@@ -1529,6 +1531,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 	Unit* centro = getUnit(Utilidades::ID_COMMANDCENTER);
 	if ((centro!=NULL) && (centro->exists())){
 		int i = ceil(centro->getTilePosition().getDistance(*t)+0.1);
+		Broodwar->printf("LA DISTANCIA ES: %d", i);
 		int x = t->x();
 		int y = t->y();
 		int j, k;
@@ -1593,6 +1596,55 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 	}
 	return pos;
 
+}
+
+bool unit_Manager::isFreeOfBuildingsRightAndLeft(UnitType* U, TilePosition* t){
+
+	int x = 1;
+	int y = 0;
+	bool free = true;
+
+//reviso a la izquierda de la construccion
+	while ((x<=2) && (free == true)){
+		if (t->x()-x>0){
+			y=0;
+			while((y < U->tileHeight()) && (free == true)){
+				std::set< Unit* > unidadesEnTile = Broodwar->unitsOnTile(t->x()-x, t->y()-y);
+				std::set<Unit*>::iterator It1;
+				It1 = unidadesEnTile.begin();
+				while(It1 != unidadesEnTile.end()){
+					if((*It1)->getType().isBuilding()) return false;
+					else {It1++;}
+				}
+				y++;
+			}
+		}
+		x++;
+	}
+//reviso a la derecha de la construccion
+	x=0;
+	while ((x<2) && (free == true)){
+		if (t->x()+ U->tileWidth()+x < Broodwar->mapWidth()){
+			y=0;
+			while((y < U->tileHeight()) && (free == true)){
+				std::set< Unit* > unidadesEnTile = Broodwar->unitsOnTile(t->x()+ U->tileWidth()+x, t->y()-y);
+				std::set<Unit*>::iterator It1;
+				It1 = unidadesEnTile.begin();
+				while(It1 != unidadesEnTile.end()){
+					if((*It1)->getType().isBuilding()) {
+						return false;
+					}
+					else {It1++;}
+				}
+				y++;
+			}
+		}
+		x++;
+	}
+
+
+	
+	return true;
 }
 
 

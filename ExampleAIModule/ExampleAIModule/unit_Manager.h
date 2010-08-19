@@ -144,7 +144,8 @@ private:
 	// despues de usar este metodo ejecutar delete sobre el resultado para liberar memoria
 	TilePosition* getTilePositionAviable(UnitType* U, TilePosition* t);
 
-
+	bool isFreeOfBuildingsRightAndLeft(UnitType* U, TilePosition* t);
+	
 	TilePosition* getPosicionDistinta(TilePosition actual);
 
 	// retorna true si una unidad del tipo pasado como parametro esta en construccion, false en caso contrario
