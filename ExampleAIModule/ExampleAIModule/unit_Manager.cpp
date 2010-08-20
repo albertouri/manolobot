@@ -880,7 +880,7 @@ void unit_Manager::buildUnitAddOn(int id){
 	
 	Unit* owner = NULL;
 	UnitType *tipo = new UnitType(id);
-
+	
 
 	if((tipo->mineralPrice() < Broodwar->self()->minerals()) && (tipo->gasPrice() < Broodwar->self()->gas())){
 
@@ -895,26 +895,68 @@ void unit_Manager::buildUnitAddOn(int id){
 		}
 
 		if ((owner != NULL) && (owner->exists()) && (owner->isCompleted())){
-			
+			Unit* bunk = getUnit(Utilidades::ID_BUNKER);
+			if (!owner->buildAddon(*tipo)){
+				int x=0;
+				bool libre = true;
+				while ((x<2)&&(libre)){
+					if (owner->getTilePosition().x()+ tipo->tileWidth()+x < Broodwar->mapWidth()){
+							int y=0;
+							while((y < tipo->tileHeight())&& (libre)){
+								
+								if (Broodwar->isBuildable(owner->getTilePosition().x()+ owner->getType().tileWidth()+x, owner->getTilePosition().y()+y)){
+									std::set< Unit* > unidadesEnTile = Broodwar->unitsOnTile(owner->getTilePosition().x()+ owner->getType().tileWidth()+x, owner->getTilePosition().y()+y);
+									std::set<Unit*>::iterator It1;
+									It1 = unidadesEnTile.begin();
+									while((It1 != unidadesEnTile.end())&& (libre)){
+										if((*It1)->getType().isBuilding()) {
+											libre = false;
+											owner->lift();
+										}
+										else{
+											if ((bunk!=NULL)&&(bunk->exists()))
+												(*It1)->rightClick(bunk);
+											It1++;
+										}
+									}
+								}
+								else{
+									libre = false;
+									Broodwar->printf("no es buildable");
+									owner->lift();
+								}
+								y++;
+							}
+						}
+						else{
+							libre = false;
+							Broodwar->printf("fuera del mapa");
+							owner->lift();
+						}
+						x++;
+				}
+							
+
+			}
+		}
+			/*
 			if (owner->isLifted()){
 				if (!owner->isMoving()){
 					TilePosition actual = owner->getTilePosition();
 					TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
 					if (!owner->land(*nuevaPos)){
 						owner->rightClick(*new Position(*nuevaPos));
-						Broodwar->printf("pos actual %d,%d --- nueva pos %d,%d",owner->getTilePosition().x(), owner->getTilePosition().y(),nuevaPos->x(), nuevaPos->y());
 					}
 					else {
 						Broodwar->printf("deberia aterrizar en: %d , %d",nuevaPos->x(), nuevaPos->y());
-						Graficos::dibujarCuadro(nuevaPos,2,2);
+						//owner->rightClick(*new Position(*nuevaPos));
 					}
 				}
 			}
-			else{
-				if ((!owner->buildAddon(*tipo))&&(id != Utilidades::ID_COMSAT_STATION))
-					owner->lift();
-			}
-		}
+
+	
+		*/
+
 		delete tipo;
 		
 	}
