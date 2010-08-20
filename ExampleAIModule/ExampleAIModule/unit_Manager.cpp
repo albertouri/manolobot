@@ -1609,7 +1609,7 @@ bool unit_Manager::isFreeOfBuildingsRightAndLeft(UnitType* U, TilePosition* t){
 		if (t->x()-x>0){
 			y=0;
 			while((y < U->tileHeight()) && (free == true)){
-				std::set< Unit* > unidadesEnTile = Broodwar->unitsOnTile(t->x()-x, t->y()-y);
+				std::set< Unit* > unidadesEnTile = Broodwar->unitsOnTile(t->x()-x, t->y()+y);
 				std::set<Unit*>::iterator It1;
 				It1 = unidadesEnTile.begin();
 				while(It1 != unidadesEnTile.end()){
@@ -1623,21 +1623,32 @@ bool unit_Manager::isFreeOfBuildingsRightAndLeft(UnitType* U, TilePosition* t){
 	}
 //reviso a la derecha de la construccion
 	x=0;
-	while ((x<2) && (free == true)){
+	while (x<2){
 		if (t->x()+ U->tileWidth()+x < Broodwar->mapWidth()){
 			y=0;
-			while((y < U->tileHeight()) && (free == true)){
-				std::set< Unit* > unidadesEnTile = Broodwar->unitsOnTile(t->x()+ U->tileWidth()+x, t->y()-y);
-				std::set<Unit*>::iterator It1;
-				It1 = unidadesEnTile.begin();
-				while(It1 != unidadesEnTile.end()){
-					if((*It1)->getType().isBuilding()) {
-						return false;
+			while(y < U->tileHeight()){
+				
+				if (Broodwar->isBuildable(t->x()+ U->tileWidth()+x, t->y()+y)){
+					std::set< Unit* > unidadesEnTile = Broodwar->unitsOnTile(t->x()+ U->tileWidth()+x, t->y()+y);
+					std::set<Unit*>::iterator It1;
+					It1 = unidadesEnTile.begin();
+					while(It1 != unidadesEnTile.end()){
+						if((*It1)->getType().isBuilding()) {
+							return false;
+						}
+						else{
+							It1++;
+						}
 					}
-					else {It1++;}
+				}
+				else{
+					return false;
 				}
 				y++;
 			}
+		}
+		else{
+			return false;
 		}
 		x++;
 	}
