@@ -277,98 +277,7 @@ void compania::onFrame(){
 		Graficos::resaltarUnidad(comandante, c);
 		//Graficos::dibujarCirculo(*(new TilePosition((*It1)->getTilePosition().x() + 1, (*It1)->getTilePosition().y() + 1)), 1, 1);
 	}
-	/*
-	if (listMarines.size() > 0){
-		//Broodwar->printf("Entra a 1");
 
-		std::list<Unit*>::iterator It1;
-		It1 = listMarines.begin();
-
-		while(It1 != listMarines.end()){
-			if(!(*It1)->exists()){
-				It1 = listMarines.erase(It1);	
-			}
-			else {
-				Unit *u;
-				
-				if (!(*It1)->isLoaded()){
-					// dibuja una linea conectando a la unidad con su objetivo actual
-					if ((*It1)->getTarget() != NULL){
-						u = (*It1)->getTarget();
-						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
-					}
-					else if ((*It1)->getOrderTarget() != NULL){
-						u = (*It1)->getOrderTarget();
-						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getPosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
-					}
-
-					Graficos::resaltarUnidad(*It1, c);
-
-					if ((comandante != NULL) && (*It1)->getID() == comandante->getID()){
-						Graficos::dibujarCirculo(*(new TilePosition((*It1)->getTilePosition().x() + 1, (*It1)->getTilePosition().y() + 1)), 1, 1);
-					}
-				}
-
-				It1++;
-			}
-		}
-	}
-
-	if (listFirebats.size() > 0){
-
-		std::list<Unit*>::iterator It1;
-		It1 = listFirebats.begin();
-
-		while(It1 != listFirebats.end()){
-			if(!(*It1)->exists()){
-				It1 = listFirebats.erase(It1);	
-			}
-			else {
-				if (!(*It1)->isLoaded()) Graficos::resaltarUnidad(*It1, c);
-				It1++; 
-			}
-		}
-	}
-
-	if (listGoliath.size() > 0){
-		std::list<Unit*>::iterator It1;
-		It1 = listGoliath.begin();
-
-		while(It1 != listGoliath.end()){
-			if(!(*It1)->exists()) {
-				It1 = listGoliath.erase(It1);	
-			}
-			else {
-				if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
-					listaDeUnidadesAfectadas.push_back(*It1);
-				
-				Graficos::resaltarUnidad(*It1, c);
-				It1++; 
-			}
-		}
-	}
-
-
-
-	if (listTanks.size() > 0){
-		std::list<Unit*>::iterator It1;
-		It1 = listTanks.begin();
-
-		while(It1 != listTanks.end()){
-			if(!(*It1)->exists()) {
-				It1 = listTanks.erase(It1);	
-			}
-			else {
-				if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
-					listaDeUnidadesAfectadas.push_back(*It1);
-				if(!(*It1)->isDefenseMatrixed())
-					listaDeUnidadesNotMatrixed.push_back(*It1);
-				Graficos::resaltarUnidad(*It1, c);
-				It1++; 
-			}
-		}
-	}
-*/
 
 	// ------------------------ verifica si el comandante esta seteado ------------------------
 
@@ -400,7 +309,7 @@ void compania::onFrame(){
 		if ((comandante->getTarget() == NULL) || (!comandante->getTarget()->exists())){
 			
 //			if(listMarines.size() > 9){
-				double minDist = 10000;
+				double minDist = 90;
 				Unit *masCercana = NULL;
 				
 				for(std::set<Unit*>::const_iterator i=Broodwar->enemy()->getUnits().begin();i!=Broodwar->enemy()->getUnits().end();i++){
