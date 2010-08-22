@@ -1,13 +1,14 @@
 #pragma once
 #include <BWAPI.h>
 #include "Graficos.h"
+#include "AnalizadorTerreno.h"
 
 using namespace BWAPI;
 
 class compania
 {
 public:
-	compania(Color ID);
+	compania(AnalizadorTerreno *at, Color ID);
 	void asignarUnidad(Unit *U);
 	void aplicarStim(std::list<Unit*> lista); // aplica el stim_pack a las unidades pertenecientes a la compañia si no estan dentro de un contenedor (bunker, dropship)
 
@@ -42,6 +43,7 @@ public:
 private:
 	Color c; // color especifico para cada compañia, seteado en el constructor
 	Unit *comandante;
+	AnalizadorTerreno* analizador;
 
 	// listas de unidades de la compañia
 	std::list<Unit*> listMarines;
