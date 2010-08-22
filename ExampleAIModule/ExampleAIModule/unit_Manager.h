@@ -19,8 +19,9 @@ using namespace BWTA;
 class unit_Manager
 {
 public:
-	unit_Manager();
-	void executeActions(AnalizadorTerreno *analizador);
+	unit_Manager(AnalizadorTerreno *analizador);
+	//void executeActions(AnalizadorTerreno *analizador);
+	void executeActions();
 	void resetBuildingSemaphore();
 	
 	void setGoals(int goals[34]);
@@ -88,7 +89,7 @@ private:
 	int frameLatency;
 	int buildingSemaphore;
 
-
+	AnalizadorTerreno* analizador;
 
 
 	//-- METODOS

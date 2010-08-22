@@ -1,7 +1,7 @@
 #include "ManoloBot.h"
 #include "unit_Manager.h"
 #include "strategy_manager.h"
-#include "AnalizadorTerreno.h"
+//#include "AnalizadorTerreno.h"
 #include "Graficos.h"
 
 
@@ -33,9 +33,10 @@ ManoloBot::ManoloBot(void)
 	}
 
 	if ((cc->x() == 116) || (cc->y() == 40)) {*/
-		unitManager = new unit_Manager();
+		
 		strategyManager = new strategy_manager();
 		analizador = new AnalizadorTerreno();
+		unitManager = new unit_Manager(analizador);
 	//}
 
 }
@@ -60,7 +61,7 @@ void ManoloBot::checkGoals(void){
 	}
 
 	if (unitManager != NULL)
-		unitManager->executeActions(analizador);
+		unitManager->executeActions();
 	
 	if ((analizador != NULL) && (analizador->analisisListo()))
 		analizador->dibujarResultados();

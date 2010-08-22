@@ -9,9 +9,10 @@ Position posicionanteriorDelComandante;
 
 std::list<Unit*> listaDeTanquesAUbicar;
 
-compania::compania(Color ID)
+compania::compania(AnalizadorTerreno *at, Color ID)
 {
 	c = ID;
+	analizador = at;
 	comandante = NULL;
 	cantTransportes = 0;
 }

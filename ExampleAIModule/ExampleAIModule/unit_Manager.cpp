@@ -10,17 +10,18 @@ int goalLimiteBarracas = 1;*/
 Grafo *grf = NULL;
 CompaniaTransporte *ct = NULL;
 
+
 //int tiempoProxFinalizacion = 0; // mantiene el tiempo hasta la proxima finalizacion de la construccion o entrenamiento de una unidad para evitar ejecutar en todos los frames el metodo controlarFinalizacion
 //int contProxFinalizacion = 0; // contador que se incrementa en cada frame, para controlar la finalizacion de una construccion o entrenamiento
 
-unit_Manager::unit_Manager()
+unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 {
 	SCVgatheringMinerals = 0;
 	SCVgatheringGas = 0;
 	ultimaFinalizada = NULL;
 	buildingSemaphore = 0;
 
-	Easy = new compania(Colors::Red);
+	Easy = new compania(analizador, Colors::Red);
 	Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
 
 	//magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
@@ -74,7 +75,7 @@ unit_Manager::unit_Manager()
 	analisisListo = false;
 }
 
-void unit_Manager::executeActions(AnalizadorTerreno *analizador){
+void unit_Manager::executeActions(){
 
 	// Crea un nuevo grupo de bunkers
 
@@ -911,7 +912,7 @@ void unit_Manager::buildUnitAddOn(int id){
 									while((It1 != unidadesEnTile.end())&& (libre)){
 										if((*It1)->getType().isBuilding()) {
 											libre = false;
-											owner->lift();
+											//owner->lift();
 										}
 										else{
 											if ((bunk!=NULL)&&(bunk->exists()))
@@ -923,7 +924,7 @@ void unit_Manager::buildUnitAddOn(int id){
 								else{
 									libre = false;
 									Broodwar->printf("no es buildable");
-									owner->lift();
+									//owner->lift();
 								}
 								y++;
 							}
@@ -931,7 +932,7 @@ void unit_Manager::buildUnitAddOn(int id){
 						else{
 							libre = false;
 							Broodwar->printf("fuera del mapa");
-							owner->lift();
+							//owner->lift();
 						}
 						x++;
 				}
@@ -939,23 +940,7 @@ void unit_Manager::buildUnitAddOn(int id){
 
 			}
 		}
-			/*
-			if (owner->isLifted()){
-				if (!owner->isMoving()){
-					TilePosition actual = owner->getTilePosition();
-					TilePosition* nuevaPos = getTilePositionAviable(tipo, new TilePosition(actual));
-					if (!owner->land(*nuevaPos)){
-						owner->rightClick(*new Position(*nuevaPos));
-					}
-					else {
-						Broodwar->printf("deberia aterrizar en: %d , %d",nuevaPos->x(), nuevaPos->y());
-						//owner->rightClick(*new Position(*nuevaPos));
-					}
-				}
-			}
 
-	
-		*/
 
 		delete tipo;
 		
