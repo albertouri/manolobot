@@ -34,12 +34,13 @@ Grafo::Grafo(int cantNodos)
 		It++;
 	}
 
-	Broodwar->printf("Grafo creado con exito");
+	//Broodwar->printf("Grafo creado con exito");
+
 	// crea la lista para visitar las regiones con un recorrido por niveles
 	crearListaNiveles();
 
-	Broodwar->printf("El mapa tiene %d regiones", BWTA::getRegions().size());
-	Broodwar->printf("La lista niveles tiene %d elementos", niveles.size());
+	//Broodwar->printf("El mapa tiene %d regiones", BWTA::getRegions().size());
+	//Broodwar->printf("La lista niveles tiene %d elementos", niveles.size());
 
 
 }

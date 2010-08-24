@@ -233,7 +233,7 @@ void compania::atacar(Unit *u){
 				(*It1)->attackUnit(u);
 			}
 			else{
-				if (!(*It1)->isSieged()){
+				if ((!(*It1)->isSieged()) /* codigo agregado por mi */ && (!comandante->isLoaded())){
 						(*It1)->siege();
 				}
 				(*It1)->attackUnit(u);
@@ -269,6 +269,7 @@ void compania::onFrame(){
 
 	listaDeUnidadesAfectadas.clear();
 	listaDeUnidadesNotMatrixed.clear();
+
 
 	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
 
@@ -506,7 +507,7 @@ void compania::controlarDistancia(){
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
-				if ((*It1)->getID() != comandante->getID())
+				if (((*It1)->getID() != comandante->getID()) /*codigo agregado por mi ->*/ && (!comandante->isLoaded()))
 					(*It1)->stop();
 					(*It1)->siege();
 			}
@@ -597,8 +598,6 @@ void compania::controlarDistancia(){
 	}
 
 
-
-
 	/*else{
 		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
 	}*/
@@ -642,9 +641,8 @@ bool compania::pertenece(Unit *u){
 
 
 bool compania::listaParaAtacar(){
-	//if ((countGoliaths() == 4) && (countTanks() == 4) && (countTanks())
-	//if ((listGoliath.size() == 4) && (listTanks.size() == 4) && (listScienceVessel.size() == 1) && (listMarines.size() == 10) && (listMedics.size() == 6))
-	if ((listGoliath.size() > 1) && (listTanks.size() > 1) && (listScienceVessel.size() == 1) && (listMarines.size() > 8) && (listMedics.size() > 4))
+
+	if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) &&*/ (listScienceVessel.size() == 1) && (listMedics.size() > 4) && (listMarines.size() >= 12))
 		return true;
 	else
 		return false;
@@ -657,86 +655,103 @@ int compania::cantidadTransportes(){
 
 
 void compania::calcularTransportes(){
-	cantTransportes = (listMarines.size() + listMedics.size() + listFirebats.size() + 2 * listGoliath.size() + 4 * listTanks.size()) / 8;
+	cantTransportes = (listMarines.size() + listMedics.size() + listFirebats.size() + 2 * listGoliath.size() /*+ 4 * listTanks.size()*/) / 8;
 
 	// si alguna unidad no alcanza a entrar en el transporte se necesita un transporte mas
-	if (((listMarines.size() + listMedics.size() + listFirebats.size() + 2 * listGoliath.size() + 4 * listTanks.size()) % 8) > 0)
+	if (((listMarines.size() + listMedics.size() + listFirebats.size() + 2 * listGoliath.size() /*+ 4 * listTanks.size()*/) % 8) > 0)
 		cantTransportes++;
 }
 
 
-void compania::abordarTransporte(std::list<Unit*> transportes){
+void compania::abordarTransporte(std::list<Unit*> *transportes){
 	std::list<Unit*>::iterator ItTransportes;
 	std::list<Unit*>::iterator ItUnidades;
 
-	int nroTransporte = 1;
-
-	ItTransportes = transportes.begin();
+	//Broodwar->printf("Intenta abordar");
+	ItTransportes = transportes->begin();
 	ItUnidades = listMarines.begin();
-	while ((ItUnidades != listMarines.end()) && (ItTransportes != transportes.end())){
-		// si la unidad actual no esta cargada, la carga en el dropship
-		if (!(*ItUnidades)->isLoaded()){
-			if (((*ItTransportes)->getLoadedUnits().size() < 8) && (*ItTransportes)->isIdle()){
-				(*ItTransportes)->load(*ItUnidades);
-			}
-			else
-				ItTransportes++;
-		}
-		ItUnidades++;
-	}
 
-	ItUnidades = listMedics.begin();
-	while ((ItUnidades != listMedics.end()) && (ItTransportes != transportes.end())){
-		// si la unidad actual no esta cargada, la carga en el dropship
-		if (!(*ItUnidades)->isLoaded()){
-			if (((*ItTransportes)->getLoadedUnits().size() < 8) && (*ItTransportes)->isIdle()){
-				(*ItTransportes)->load(*ItUnidades);
-			}
-			else
-				ItTransportes++;
-		}
-		ItUnidades++;
-	}
+	if (!transportes->empty()){
 
-	ItUnidades = listFirebats.begin();
-	while ((ItUnidades != listFirebats.end()) && (ItTransportes != transportes.end())){
-		// si la unidad actual no esta cargada, la carga en el dropship
-		if (!(*ItUnidades)->isLoaded()){
-			if (((*ItTransportes)->getLoadedUnits().size() < 8) && (*ItTransportes)->isIdle()){
-				(*ItTransportes)->load(*ItUnidades);
-			}
-			else
-				ItTransportes++;
-		}
-		ItUnidades++;
-	}
+		//-- carga los marines
+		while (ItUnidades != listMarines.end()){
+			if (((*ItUnidades)->exists()) && (!(*ItUnidades)->isLoaded())){
+				ItTransportes = transportes->begin();
+				while (ItTransportes != transportes->end()){
+					if (((*ItTransportes)->exists()) && ((*ItTransportes)->isIdle()))
+						(*ItTransportes)->load(*ItUnidades);
 
-	ItUnidades = listGoliath.begin();
-	while ((ItUnidades != listGoliath.end()) && (ItTransportes != transportes.end())){
-		// si la unidad actual no esta cargada, la carga en el dropship
-		if (!(*ItUnidades)->isLoaded()){
-			if (((*ItTransportes)->getLoadedUnits().size() < 4) && (*ItTransportes)->isIdle()){
-				(*ItTransportes)->load(*ItUnidades);
+					ItTransportes++;
+				}
 			}
-			else
-				ItTransportes++;
+			ItUnidades++;
 		}
-		ItUnidades++;
-	}
 
-	ItUnidades = listTanks.begin();
-	while ((ItUnidades != listTanks.end()) && (ItTransportes != transportes.end())){
-		// si la unidad actual no esta cargada, la carga en el dropship
-		if (!(*ItUnidades)->isLoaded()){
-			if (((*ItTransportes)->getLoadedUnits().size() < 2) && (*ItTransportes)->isIdle()){
-				(*ItTransportes)->load(*ItUnidades);
+		//-- carga los medicos
+		ItUnidades = listMedics.begin();
+		while (ItUnidades != listMedics.end()){
+			if (((*ItUnidades)->exists()) && (!(*ItUnidades)->isLoaded())){
+				ItTransportes = transportes->begin();
+				while (ItTransportes != transportes->end()){
+					if (((*ItTransportes)->exists()) && ((*ItTransportes)->isIdle()))
+						(*ItTransportes)->load(*ItUnidades);
+
+					ItTransportes++;
+				}
 			}
-			else
-				ItTransportes++;
-		}
-		ItUnidades++;
-	}
 
+			ItUnidades++;
+		}
+
+		//-- carga los firebats
+		ItUnidades = listFirebats.begin();
+		while (ItUnidades != listFirebats.end()){
+			if (((*ItUnidades)->exists()) && (!(*ItUnidades)->isLoaded())){
+				ItTransportes = transportes->begin();
+				while (ItTransportes != transportes->end()){
+					if (((*ItTransportes)->exists()) && ((*ItTransportes)->isIdle()))
+						(*ItTransportes)->load(*ItUnidades);
+
+					ItTransportes++;
+				}
+			}
+
+			ItUnidades++;
+		}
+
+		//-- carga los goliaths
+		ItUnidades = listGoliath.begin();
+		while (ItUnidades != listGoliath.end()){
+			if (((*ItUnidades)->exists()) && (!(*ItUnidades)->isLoaded())){
+				ItTransportes = transportes->begin();
+				while (ItTransportes != transportes->end()){
+					if (((*ItTransportes)->exists()) && ((*ItTransportes)->isIdle()))
+						(*ItTransportes)->load(*ItUnidades);
+
+					ItTransportes++;
+				}
+			}
+
+			ItUnidades++;
+		}
+
+		/*
+		//-- carga los tanques
+		ItUnidades = listTanks.begin();
+		while (ItUnidades != listTanks.end()){
+			if (((*ItUnidades)->exists()) && (!(*ItUnidades)->isLoaded())){
+				ItTransportes = transportes->begin();
+				while (ItTransportes != transportes->end()){
+					if (((*ItTransportes)->exists()) && ((*ItTransportes)->isIdle()))
+						(*ItTransportes)->load(*ItUnidades);
+
+					ItTransportes++;
+				}
+			}
+
+			ItUnidades++;
+		}*/
+	}
 }
 
 
@@ -764,19 +779,19 @@ bool compania::companiaAbordo(){
 		It++;
 	}
 
-	It = listTanks.begin();
-	while (It != listTanks.end()){
-		if (!(*It)->isLoaded())
-			return false;
-		It++;
-	}
-
 	It = listGoliath.begin();
 	while (It != listGoliath.end()){
 		if (!(*It)->isLoaded())
 			return false;
 		It++;
 	}
+
+	/*It = listTanks.begin();
+	while (It != listTanks.end()){
+		if (!(*It)->isLoaded())
+			return false;
+		It++;
+	}*/
 
 	return true;
 }

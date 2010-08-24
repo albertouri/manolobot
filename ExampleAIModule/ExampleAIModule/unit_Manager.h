@@ -57,6 +57,7 @@ private:
 	// puntero a la posicion del centro de comando enemigo
 	Position *baseEnemiga;
 	Region *regionBaseEnemiga;
+
 	// variable auxiliar para encontrar la posicion del centro de comando enemigo
 	bool primerConstruccionDescubierta;
 	// esta variable es true si el analisis del terreno finalizo

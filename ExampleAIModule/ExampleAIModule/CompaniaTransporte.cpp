@@ -119,24 +119,19 @@ void CompaniaTransporte::dibujarPath(){
 	}
 }
 
+
 void CompaniaTransporte::onFrame(){
 	dibujarPath();
+	if ((liderFormacion != NULL) && (liderFormacion->exists()))
+		Graficos::resaltarUnidad(liderFormacion, Colors::Green);
 
-	if (Broodwar->getFrameCount() % 100 == 0){
+	if ((!ready) && (Broodwar->getFrameCount() % 30 == 0)){
 		controlarEliminados();
-
-		if (!ready)
-			ready = listaTransportar();
-
-		if ((ready) && (aero->companiaAbordo())){
-			ejecutarTransporte();
-		}
-		else
-			aero->abordarTransporte(listDropships);
-		/*else if (!(ready))
-			Broodwar->printf("No ejecuta transporte porque no esta ready");
-		else if (!aero->companiaAbordo())
-			Broodwar->printf("No ejecuta transporte porque la compañia no esta a bordo");*/
+		ready = listaTransportar();
+	}
+	else if ((ready) && (Broodwar->getFrameCount() % 30 == 0)){
+		controlarEliminados();
+		ejecutarTransporte();
 	}
 }
 
@@ -144,34 +139,39 @@ void CompaniaTransporte::onFrame(){
 void CompaniaTransporte::asignarUnidad(Unit* u){
 	controlarEliminados();
 
-	if (u->getType().getID() == Utilidades::ID_DROPSHIP){
-		listDropships.push_back(u);
+	if ((u != NULL) && (u->exists())){
+		if (u->getType().getID() == Utilidades::ID_DROPSHIP){
+			listDropships.push_back(u);
 
-		if ((aero != NULL) && (aero->getComandante() != NULL) && (!comandanteCargado)){
-			(*listDropships.begin())->load(aero->getComandante());
-			comandanteCargado = true;
+			if ((aero != NULL) && (aero->getComandante() != NULL) && (!comandanteCargado)){
+				(*listDropships.begin())->load(aero->getComandante());
+				comandanteCargado = true;
+			}
 		}
+		else if(u->getType().getID() == Utilidades::ID_WRAITH){
+			listWraiths.push_back(u);
 
-		if (liderFormacion == NULL)
-			liderFormacion = u;
+			if (liderFormacion == NULL)
+				liderFormacion = u;
+		}
 	}
 }
 
 
 bool CompaniaTransporte::listaTransportar(){
-	/*Broodwar->printf("tengo %d dropships", listDropships.size());
-	Broodwar->printf("necesito %d dropships para la compañia", aero->cantidadTransportes());
-	Broodwar->printf("tengo %d marines, %d medics, %d goliaths y %d tanques", aero->countMarines(), aero->countMedics(), aero->countGoliaths(), aero->countTanks());
+	/*Broodwar->printf("tengo %d dropships, necesito %d  - tengo %d marines", listDropships.size(), aero->cantidadTransportes(), aero->countMarines());
 
 	if (aero->listaParaAtacar())
 		Broodwar->printf("compañia lista para atacar");
 	else
-		Broodwar->printf("compañia NO ESTA lista para atacar");*/
+		Broodwar->printf("compañia NO ESTA lista para atacar");
+
+	Broodwar->printf("----------------------------------------------");*/
 
 
-	if ((listDropships.size() == aero->cantidadTransportes()) && (aero->listaParaAtacar())){
-		aero->abordarTransporte(listDropships);
-		return true;
+	if ((listDropships.size() == aero->cantidadTransportes()) && (listWraiths.size() == 2) && (aero->listaParaAtacar())){
+		aero->abordarTransporte(&listDropships);
+		return aero->companiaAbordo();
 	}
 	else
 		return false;
@@ -179,15 +179,46 @@ bool CompaniaTransporte::listaTransportar(){
 
 
 void CompaniaTransporte::controlarEliminados(){
-	std::list<Unit*>::iterator Itd;
 	
-	Itd = listDropships.begin();
-	while (Itd != listDropships.end()){
-		if (!(*Itd)->exists())
-			listDropships.erase(Itd);
-		else
-			Itd++;
+	if (!listDropships.empty()){
+		std::list<Unit*>::iterator Itd;
+		
+		Itd = listDropships.begin();
+		while (Itd != listDropships.end()){
+			if (!(*Itd)->exists()){
+				listDropships.erase(Itd);
+				Itd = listDropships.begin();
+			}
+			else{
+				/*if ((liderFormacion == NULL) || (!liderFormacion->exists()))
+					liderFormacion = (*Itd);*/
+
+				Itd++;
+			}
+		}
 	}
+
+	if (!listWraiths.empty()){
+		std::list<Unit*>::iterator Itd;
+		
+		Itd = listWraiths.begin();
+		while (Itd != listWraiths.end()){
+			if (!(*Itd)->exists()){
+				listWraiths.erase(Itd);
+				Itd = listWraiths.begin();
+			}
+			else{
+				if ((liderFormacion == NULL) || (!liderFormacion->exists()))
+					liderFormacion = (*Itd);
+
+				Itd++;
+			}
+		}
+	}
+
+	// no hay ningun dropship en el grupo de transporte...
+	if ((liderFormacion != NULL) && (!liderFormacion->exists()))
+		liderFormacion = NULL;
 }
 
 
@@ -197,11 +228,54 @@ void CompaniaTransporte::ejecutarTransporte(){
 	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (ItPosiciones != pathBaseEnemiga.end())){
 		// falta armar la formacion
 
-		It = listDropships.begin();
-		while (It != listDropships.end()){
-			(*It)->move(**ItPosiciones);
-			It++;
+		if (ItPosiciones != pathBaseEnemiga.end()){
+			It = listWraiths.begin();
+			while (It != listWraiths.end()){
+				if ((*It)->exists())
+					(*It)->move(**ItPosiciones);
+
+				It++;
+			}
+
+			It = listDropships.begin();
+			while (It != listDropships.end()){
+				if ((*It)->exists())
+					(*It)->move(**ItPosiciones);
+
+				It++;
+			}
+			ItPosiciones++;
 		}
-		ItPosiciones++;
+	}
+
+	if ((liderFormacion != NULL) && (liderFormacion->exists())){
+		//Broodwar->printf("intento desembarcar, distancia %lf", liderFormacion->getPosition().getDistance((*bordeMasLejano)));
+
+		if (liderFormacion->getPosition().getDistance(*bordeMasLejano) < 120.0){
+			Position *p;
+
+			if (bordeMasLejano->x() < regionBaseEnemiga->getCenter().x())
+				p = new Position(bordeMasLejano->x() + 64, bordeMasLejano->y());
+			else
+				p = new Position(bordeMasLejano->x() - 64, bordeMasLejano->y());
+
+			It = listDropships.begin();
+			while (It != listDropships.end()){
+				if ((*It)->exists()){
+					(*It)->unloadAll(*p);
+				}
+
+				It++;
+			}
+
+			It = listWraiths.begin();
+			while (It != listWraiths.end()){
+				if ((*It)->exists()){
+					(*It)->attackMove(regionBaseEnemiga->getCenter());
+				}
+
+				It++;
+			}
+		}
 	}
 }

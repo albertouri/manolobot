@@ -131,6 +131,7 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_GOLIATH] = 4;
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 7;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_WRAITH] = 2;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
@@ -227,7 +228,10 @@ void strategy_manager::onUnitCreate(Unit* u){
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
 				break;
 			case Utilidades::ID_SCIENCE_VESSEL:
-				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]--;
+				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]++;
+				break;
+			case Utilidades::ID_WRAITH:
+				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]++;
 				break;
 		}
 		
@@ -307,6 +311,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_SCIENCE_VESSEL:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]--;
+				break;
+			case Utilidades::ID_WRAITH:
+				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]--;
 				break;
 		}
 		
