@@ -19,31 +19,38 @@ public:
 	int countGoliaths();
 	int countScienceVessels();
 
-	void atacar(Unit *u); // manda a la compañia a atacar a la unidad pasada como parametro
+	// manda a la compañia a atacar a la unidad pasada como parametro
+	void atacar(Unit *u);
+
 	void onFrame();
 
-	void moverCompania(Position pos); // mueve la compañia a la posicion pasada como parametro
+	// mueve la compañia a la posicion pasada como parametro
+	void moverCompania(Position pos);
 
-	bool pertenece(Unit *u); // retorna true si la unidad pasada como parametro pertenece a la compañia
+	// retorna true si la unidad pasada como parametro pertenece a la compañia
+	bool pertenece(Unit *u);
 
 	~compania(void);
 
+	// retorna true si en la compañia hay cierta cantidad de unidades de cada tipo
 	bool listaParaAtacar();
 
 	// retorna la cantidad de transportes necesarios para cargar todas las unidades de la compañia
 	int cantidadTransportes();
 
-	void abordarTransporte(std::list<Unit*> transportes);
+	// ordena a las unidades de la compañia subir a los transportes de la lista pasada como parametro
+	void abordarTransporte(std::list<Unit*> *transportes);
 
 	// retorna true si todas las unidades de la compañia estan cargadas
 	bool companiaAbordo();
 
+	// retorna un puntero al comandante de la compañia
 	Unit* getComandante();
 
 private:
-	Color c; // color especifico para cada compañia, seteado en el constructor
-	Unit *comandante;
-	AnalizadorTerreno* analizador;
+	Color c; // color especifico para resaltar las unidades de cada compañia, seteado en el constructor
+	Unit *comandante; // puntero al comandante de la compañia
+	AnalizadorTerreno* analizador; // puntero al analizador del terreno
 
 	// listas de unidades de la compañia
 	std::list<Unit*> listMarines;
@@ -56,11 +63,15 @@ private:
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);
 	int contarUnidades(std::list<Unit*> *lista);
-	void actualizarEstado(std::list<Unit*> *lista); // elimina de la lista las unidades que hayan dejado de existir...
 
-	Unit* buscarDañado(std::list<Unit*> lista); // retorna la primer unidad dañada y que no este siendo curada en la lista pasada como parametro
+	// elimina de la lista las unidades que hayan sido destruidas
+	void actualizarEstado(std::list<Unit*> *lista);
 
-	void controlarDistancia(); // controla que los soldados de la compañia se mantengan cerca del comandante
+	// retorna la primer unidad dañada y que no este siendo curada en la lista pasada como parametro
+	Unit* buscarDañado(std::list<Unit*> lista);
+
+	// controla que los soldados de la compañia se mantengan cerca del comandante
+	void controlarDistancia();
 
 	// variable que mantiene la cantidad de transportes necesarios para cargar la compañia completa
 	int cantTransportes;

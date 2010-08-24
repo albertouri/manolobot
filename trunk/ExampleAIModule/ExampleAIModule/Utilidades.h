@@ -36,12 +36,14 @@ public:
 	static const int INDEX_GOAL_STARPORT = 28;
 	static const int INDEX_GOAL_DEPOT = 29;
 	static const int INDEX_GOAL_VULTURE = 31;
+	static const int INDEX_GOAL_WRAITH = 33;
 	
 	// constantes que representan el ID de cada tipo de unidad terran
 	static const int ID_MARINE = 0;
 	static const int ID_VULTURE = 2;
 	static const int ID_GOLIATH = 3;
 	static const int ID_SCV = 7;
+	static const int ID_WRAITH = 8;
 	static const int ID_TANKSIEGE = 5;
 	static const int ID_SCIENCE_VESSEL = 9;
 	static const int ID_DROPSHIP = 11;

@@ -53,4 +53,5 @@ private:
 	bool comandanteCargado;
 
 	bool ejecutandoTransporte;
+	
 };

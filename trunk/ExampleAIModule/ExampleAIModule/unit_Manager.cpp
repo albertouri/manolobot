@@ -172,13 +172,13 @@ void unit_Manager::executeActions(){
 	if (Easy != NULL){
 		Easy->onFrame();
 		
-		if ((Easy->listaParaAtacar()) && (baseEnemiga != NULL)){
+		/*if ((Easy->listaParaAtacar()) && (baseEnemiga != NULL)){
 			Unit *cs = getUnit(Utilidades::ID_COMSAT_STATION);
 
 			if ((cs != NULL) && (cs->exists()) && (cs->getEnergy() > 150) && (Broodwar->getFrameCount() % 150 == 0)){
 				cs->useTech(TechTypes::Scanner_Sweep, *baseEnemiga);
 			}
-		}
+		}*/
 	}
 	else
 		Broodwar->printf("ERROR: Easy es NULL");
@@ -582,16 +582,11 @@ void unit_Manager::executeActions(){
 	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && /*(cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < goalCantUnidades[Utilidades::INDEX_GOAL_DROPSHIP])*/ (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < Easy->cantidadTransportes()) && (buildingSemaphore == 0)){
 		trainUnit(Utilidades::ID_DROPSHIP);
 	}
-	/*else{
-		if (Easy->listaParaAtacar()){
-			if (ct->listaTransportar()){
-				ct->ejecutarTransporte();
-			}
-			else{
-				ct->
-			}
-		}
-	}*/
+
+	//-- WRAITH
+	if((Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 100) && (cantUnidades[Utilidades::INDEX_GOAL_WRAITH] < goalCantUnidades[Utilidades::INDEX_GOAL_WRAITH]) && (buildingSemaphore == 0)){
+		trainUnit(Utilidades::ID_WRAITH);
+	}
 
 
 	/*Position* p100 = new Position(Broodwar->enemy()->getStartLocation().x() * TILE_SIZE, Broodwar->enemy()->getStartLocation().y() * TILE_SIZE);
@@ -1152,7 +1147,7 @@ void unit_Manager::trainTankSiege(){
 
 
 void unit_Manager::trainUnit(int id){
-	if ((id == Utilidades::ID_DROPSHIP)|| (id == Utilidades::ID_SCIENCE_VESSEL)){
+	if ((id == Utilidades::ID_DROPSHIP)|| (id == Utilidades::ID_SCIENCE_VESSEL) || (id == Utilidades::ID_WRAITH)){
 		Unit *constructor = getUnit(Utilidades::ID_STARPORT);
 		UnitType *tipo = new UnitType(id);
 
@@ -1557,7 +1552,8 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U, TilePosition* t)
 	Unit* worker = getWorker();
 	Unit* centro = getUnit(Utilidades::ID_COMMANDCENTER);
 	if ((centro!=NULL) && (centro->exists())){
-		int i = ceil(centro->getTilePosition().getDistance(*t)+0.1);
+		int i = (int) ceil(centro->getTilePosition().getDistance(*t) + 0.1);
+
 		Broodwar->printf("LA DISTANCIA ES: %d", i);
 		int x = t->x();
 		int y = t->y();
@@ -1734,6 +1730,9 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_DROPSHIP){
+		ct->asignarUnidad(unit);
+	}
+	else if (unit->getType().getID() == Utilidades::ID_WRAITH){
 		ct->asignarUnidad(unit);
 	}
 		
@@ -1992,6 +1991,10 @@ void unit_Manager::onUnitCreate(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]++;
 				asignarUnidadACompania(u);
 				break;
+			case Utilidades::ID_WRAITH:
+				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]++;
+				asignarUnidadACompania(u);
+				break;
 		}
 	}
 
@@ -2087,6 +2090,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_SCIENCE_VESSEL:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL]--;
+				break;
+			case Utilidades::ID_WRAITH:
+				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]--;
 				break;
 		}
 	}
