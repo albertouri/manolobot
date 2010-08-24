@@ -44,13 +44,19 @@ public:
 	// retorna true si todas las unidades de la compañia estan cargadas
 	bool companiaAbordo();
 
+
+	void setBasesEnemigas(TilePosition* enemigo);
+
+
 	// retorna un puntero al comandante de la compañia
+
 	Unit* getComandante();
 
 private:
 	Color c; // color especifico para resaltar las unidades de cada compañia, seteado en el constructor
 	Unit *comandante; // puntero al comandante de la compañia
 	AnalizadorTerreno* analizador; // puntero al analizador del terreno
+	TilePosition * posicionEnemigo;
 
 	// listas de unidades de la compañia
 	std::list<Unit*> listMarines;

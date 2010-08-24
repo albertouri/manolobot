@@ -2141,9 +2141,10 @@ void unit_Manager::onUnitShow(Unit *u){
 
 				regionBaseEnemiga = (*It);
 				// obtiene la posicion del centro de comando de esa region
-				if (!(*It)->getBaseLocations().empty())
+				if (!(*It)->getBaseLocations().empty()){
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
-
+					Easy->setBasesEnemigas(new TilePosition(regionBaseEnemiga->getCenter()));				
+				}
 				ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
 
 				break;

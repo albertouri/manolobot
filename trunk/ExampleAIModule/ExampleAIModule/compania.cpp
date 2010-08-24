@@ -4,10 +4,19 @@
 std::list<Unit*> lista;
 int latencia=0;
 
+int latenciaMovimientoTropas = 0;
+
 bool atacando = false;
 Position posicionanteriorDelComandante;
 
 std::list<Unit*> listaDeTanquesAUbicar;
+
+Unit* herido;
+std::list<Unit*> listaDeUnidadesAfectadas;
+std::list<Unit*> listaDeUnidadesNotMatrixed;
+
+Region* actual = NULL;
+Region* puntoDeRetirada = NULL;
 
 compania::compania(AnalizadorTerreno *at, Color ID)
 {
@@ -15,6 +24,7 @@ compania::compania(AnalizadorTerreno *at, Color ID)
 	analizador = at;
 	comandante = NULL;
 	cantTransportes = 0;
+
 }
 
 compania::~compania(void)
@@ -263,12 +273,22 @@ Unit* compania::buscarDañado(std::list<Unit*> lista){
 
 
 void compania::onFrame(){
-	Unit* herido;
-	std::list<Unit*> listaDeUnidadesAfectadas;
-	std::list<Unit*> listaDeUnidadesNotMatrixed;
+
 
 	listaDeUnidadesAfectadas.clear();
 	listaDeUnidadesNotMatrixed.clear();
+
+
+	//------------------------------controla las regiones iniciales----------------------------------------
+
+	if((analizador->analisisListo())&& (actual == NULL)){
+		actual = analizador->regionInicial();
+		puntoDeRetirada = analizador->regionInicial();
+	}
+
+
+	//----------------------------------------------------------------------------------------------------
+
 
 
 	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
@@ -302,6 +322,13 @@ void compania::onFrame(){
 			else
 				comandante = NULL;
 		}
+		
+		if ((comandante != NULL) && (comandante->exists())){
+			//comandante->rightClick(analizador->regionInicial()->getCenter());
+			
+		}
+	
+
 	}
 
 	// ------------------------  Ordenes de ataque ------------------------
@@ -336,11 +363,44 @@ void compania::onFrame(){
 	}
 
 	if (!atacando){
-		if ((comandante!= NULL)&&(comandante->exists()))
+		if ((comandante!= NULL)&&(comandante->exists())){
 			controlarDistancia(); 
+		//codigo para decidir si marcha a combate
+			if((latenciaMovimientoTropas>100) && (listaParaAtacar()) && (posicionEnemigo != NULL) ){
+				if (analizador->analisisListo()){
+					std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(comandante->getTilePosition(), *posicionEnemigo);
+					std::vector<BWAPI::TilePosition>::iterator It1;
+					It1 = vectorPosiciones.begin();
+
+					while(It1 != vectorPosiciones.end()){
+						if (BWTA::getRegion(*It1)!=actual){
+							puntoDeRetirada = actual;
+							actual = BWTA::getRegion(*It1);
+							break;
+						}
+						else{
+							It1++;
+						}
+					}
+
+					if(BWTA::getRegion(comandante->getTilePosition()) != actual){
+						comandante->rightClick(actual->getCenter());
+					}
+
+					latenciaMovimientoTropas = 0;
+
+
+				}
+			}
+			else{
+				latenciaMovimientoTropas++;
+				if (actual!= NULL)
+					Graficos::dibujarCuadro(new TilePosition(actual->getCenter()), 2,2);
+			}
+		}
 	}
 	else{
-// de aca 
+
 		if (listGoliath.size() > 0){
 			std::list<Unit*>::iterator It1;
 			It1 = listGoliath.begin();
@@ -381,8 +441,6 @@ void compania::onFrame(){
 		}
 
 
-
-// hasta aca agregué
 		std::list<Unit*>::iterator It1;	
 		It1 = listMedics.begin();
 
@@ -641,8 +699,14 @@ bool compania::pertenece(Unit *u){
 
 
 bool compania::listaParaAtacar(){
+<<<<<<< .mine
+	
+	
+	if ((listGoliath.size() > 1) && (listTanks.size() > 1))// && (listScienceVessel.size() == 1) && (listMarines.size() > 8) && (listMedics.size() > 4))
+=======
 
 	if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) &&*/ (listScienceVessel.size() == 1) && (listMedics.size() > 4) && (listMarines.size() >= 12))
+>>>>>>> .r117
 		return true;
 	else
 		return false;
@@ -796,6 +860,11 @@ bool compania::companiaAbordo(){
 	return true;
 }
 
+
+
+void compania::setBasesEnemigas(TilePosition* enemigo){
+	posicionEnemigo = enemigo;
+}
 
 Unit* compania::getComandante(){
 	return comandante;
