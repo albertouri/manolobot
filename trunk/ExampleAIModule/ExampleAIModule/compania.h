@@ -66,10 +66,17 @@ private:
 	std::list<Unit*> listGoliath;
 	std::list<Unit*> listScienceVessel;
 
+	std::list<Unit*> listRefuerzos;
+
+	//Setea el comandante principal y el comandante de cada compañia
+	void setComandantes(void);
+
 	void conteoUnidades(void);
 	void ponerACubierto(Unit *U);
 	int contarUnidades(std::list<Unit*> *lista);
 
+	void asignarAPelotones(Unit *u);
+	void asignarARefuerzos(Unit *U);
 	// elimina de la lista las unidades que hayan sido destruidas
 	void actualizarEstado(std::list<Unit*> *lista);
 

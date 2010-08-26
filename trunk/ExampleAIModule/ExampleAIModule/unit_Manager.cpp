@@ -837,12 +837,12 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 						// si hay unidades en el tile actual, pregunta a que compañia pertenecen para moverlas a otra posicion
 						if (Broodwar->unitsOnTile(t->x(), t->y()).size() > 0){
 							// posicion hacia donde mover las unidades
-							p = new Position((pos->x() + tipo->tileWidth() + 1) * 32, (pos->y() + tipo->tileHeight() + 1) * 32);
-
+							//p = new Position((pos->x() + tipo->tileWidth() + 1) * 32, (pos->y() + tipo->tileHeight() + 1) * 32);
+							
 							// verifica a que compañia pertenecen las unidades
 							std::set<Unit*>::iterator It1 = Broodwar->unitsOnTile(t->x(), t->y()).begin();
 							if (Easy->pertenece(*It1)){
-								Easy->moverCompania(*p);
+								Easy->moverCompania(analizador->regionInicial()->getCenter());
 							}
 							else if ((grupoB1 != NULL) && (grupoB1->perteneceMarine(*It1))){
 								grupoB1->moverSoldadosPosEncuentro();
@@ -851,7 +851,7 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 								// mueve cada unidad en el tile a otra posicion (solamente si la unidad en cuestion no es una construccion fija)
 								while (It1 != Broodwar->unitsOnTile(t->x(), t->y()).end()){
 									if (((*It1)->exists()) && (!(*It1)->getType().isBuilding()))
-										(*It1)->move(*p);
+										(*It1)->move(analizador->regionInicial()->getCenter());
 
 									It1++;
 								}
@@ -1730,10 +1730,10 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		Easy->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_DROPSHIP){
-		ct->asignarUnidad(unit);
+		//ct->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_WRAITH){
-		ct->asignarUnidad(unit);
+		//ct->asignarUnidad(unit);
 	}
 		
 
@@ -2145,7 +2145,7 @@ void unit_Manager::onUnitShow(Unit *u){
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
 					Easy->setBasesEnemigas(new TilePosition(regionBaseEnemiga->getCenter()));				
 				}
-				ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
+				//ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
 
 				break;
 			}
