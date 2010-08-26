@@ -5,7 +5,7 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, comp
 	regionBaseEnemiga = regEnem;
 
 	if (baseEnemiga != NULL){
-		//Position *pr = new Position(Broodwar->self()->getStartLocation().x() * TILE_SIZE, Broodwar->self()->getStartLocation().y() * TILE_SIZE);
+		//-- busca el punto mas lejano de la region enemiga con respecto al chokepoint defendido en la base enemiga
 		Position *pr = new Position((*regionBaseEnemiga->getChokepoints().begin())->getCenter().x(), (*regionBaseEnemiga->getChokepoints().begin())->getCenter().y());
 		int masLejano = 0;
 
@@ -15,14 +15,12 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, comp
 				masLejano = j;
 		}
 
-		/*Broodwar->drawLineMap(Broodwar->self()->getStartLocation().x() * TILE_SIZE, Broodwar->self()->getStartLocation().y() * TILE_SIZE, pol[masLejano].x(), pol[masLejano].y(), Colors::White);
-		masLejano = (int)pol[masLejano].getDistance(*pr);
-		Broodwar->drawCircleMap(pr->x(), pr->y(), masLejano, Colors::White, false);
-		Broodwar->drawBoxMap(pr->x(), pr->y(), pr->x() + 16, pr->y() + 16, Colors::White, true);*/
 		delete pr;
 
 		bordeMasLejano = new Position(pol[masLejano].x(), pol[masLejano].y());
-		
+
+
+		//-- crea el camino que recorreran los transportes
 		crearPath();
 	}
 
@@ -30,7 +28,8 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, comp
 	ready = false;
 	aero = c;
 	comandanteCargado = false;
-	ejecutandoTransporte = false;
+
+	estadoActual = ESPERANDO_CARGAR;
 }
 
 
@@ -102,6 +101,7 @@ void CompaniaTransporte::crearPath(){
 	
 }
 
+
 void CompaniaTransporte::dibujarPath(){
 	std::list<Position*>::iterator It;
 	Position *anterior = new Position(BWTA::getStartLocation(Broodwar->self())->getRegion()->getCenter().x(), BWTA::getStartLocation(Broodwar->self())->getRegion()->getCenter().y());
@@ -122,16 +122,34 @@ void CompaniaTransporte::dibujarPath(){
 
 void CompaniaTransporte::onFrame(){
 	dibujarPath();
+
 	if ((liderFormacion != NULL) && (liderFormacion->exists()))
 		Graficos::resaltarUnidad(liderFormacion, Colors::Green);
 
-	if ((!ready) && (Broodwar->getFrameCount() % 30 == 0)){
-		controlarEliminados();
-		ready = listaTransportar();
+	if ((Broodwar->getFrameCount() % 12 == 0)){
+		if ((liderFormacion == NULL) || (!liderFormacion->exists())){
+			controlarEliminados();
+			reasignarLiderFormacion();
+		}
 	}
-	else if ((ready) && (Broodwar->getFrameCount() % 30 == 0)){
+	else if (Broodwar->getFrameCount() % 30 == 0){
+		if (estadoActual == ESPERANDO_CARGAR){
+			if (listaTransportar())
+				estadoActual = TRANSPORTANDO;
+		}
+		else if (estadoActual == TRANSPORTANDO){
+			ejecutarTransporte();
+		}
+		else if (estadoActual == DESEMBARCANDO){
+			if (desembarcoListo())
+				estadoActual = RETORNANDO_BASE;
+		}
+		else if (estadoActual == RETORNANDO_BASE){
+			retornarBase();
+		}
+	}
+	else if (Broodwar->getFrameCount() % 50 == 0){
 		controlarEliminados();
-		ejecutarTransporte();
 	}
 }
 
@@ -190,9 +208,6 @@ void CompaniaTransporte::controlarEliminados(){
 				Itd = listDropships.begin();
 			}
 			else{
-				/*if ((liderFormacion == NULL) || (!liderFormacion->exists()))
-					liderFormacion = (*Itd);*/
-
 				Itd++;
 			}
 		}
@@ -208,17 +223,10 @@ void CompaniaTransporte::controlarEliminados(){
 				Itd = listWraiths.begin();
 			}
 			else{
-				if ((liderFormacion == NULL) || (!liderFormacion->exists()))
-					liderFormacion = (*Itd);
-
 				Itd++;
 			}
 		}
 	}
-
-	// no hay ningun dropship en el grupo de transporte...
-	if ((liderFormacion != NULL) && (!liderFormacion->exists()))
-		liderFormacion = NULL;
 }
 
 
@@ -228,24 +236,22 @@ void CompaniaTransporte::ejecutarTransporte(){
 	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (ItPosiciones != pathBaseEnemiga.end())){
 		// falta armar la formacion
 
-		if (ItPosiciones != pathBaseEnemiga.end()){
-			It = listWraiths.begin();
-			while (It != listWraiths.end()){
-				if ((*It)->exists())
-					(*It)->move(**ItPosiciones);
+		It = listWraiths.begin();
+		while (It != listWraiths.end()){
+			if ((*It)->exists())
+				(*It)->move(**ItPosiciones);
 
-				It++;
-			}
-
-			It = listDropships.begin();
-			while (It != listDropships.end()){
-				if ((*It)->exists())
-					(*It)->move(**ItPosiciones);
-
-				It++;
-			}
-			ItPosiciones++;
+			It++;
 		}
+
+		It = listDropships.begin();
+		while (It != listDropships.end()){
+			if ((*It)->exists())
+				(*It)->move(**ItPosiciones);
+
+			It++;
+		}
+		ItPosiciones++;
 	}
 
 	if ((liderFormacion != NULL) && (liderFormacion->exists())){
@@ -276,6 +282,82 @@ void CompaniaTransporte::ejecutarTransporte(){
 
 				It++;
 			}
+		}
+	}
+}
+
+
+bool CompaniaTransporte::desembarcoListo(){
+	std::list<Unit*>::iterator It = listDropships.begin();
+
+	while (It != listDropships.end()){
+		if (((*It) != NULL) && ((*It)->exists()) && (!(*It)->getLoadedUnits().empty()))
+			return false;
+
+		It++;
+	}
+
+	return true;
+}
+
+
+void CompaniaTransporte::retornarBase(){
+	std::list<Unit*>::iterator It;
+
+	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (ItPosiciones != pathBaseEnemiga.begin())){
+
+		/*It = listWraiths.begin();
+		while (It != listWraiths.end()){
+			if ((*It)->exists())
+				(*It)->move(**ItPosiciones);
+
+			It++;
+		}*/
+
+		It = listDropships.begin();
+		while (It != listDropships.end()){
+			if ((*It)->exists())
+				(*It)->move(**ItPosiciones);
+
+			It++;
+		}
+		ItPosiciones++;
+	}
+	else
+		estadoActual = ESPERANDO_CARGAR;
+}
+
+
+void CompaniaTransporte::reasignarLiderFormacion(){
+	std::list<Unit*>::iterator It;
+	liderFormacion = NULL;
+
+	//-- recorro la lista de wraiths buscando alguna unidad existente y la asigno como nuevo lider de la formacion
+	if (!listWraiths.empty()){
+		It = listWraiths.begin();
+
+		while (It != listWraiths.end()){
+			if (((*It) != NULL) && ((*It)->exists())){
+				liderFormacion = (*It);
+				break;
+			}
+
+			It++;
+		}
+	}
+
+	//-- si no encontre ningun wraith existente, recorro la lista de dropships buscando alguna unidad existente y la 
+	//-- asigno como nuevo lider de la formacion
+	if ((!listDropships.empty()) && (liderFormacion == NULL)){
+		It = listDropships.begin();
+
+		while (It != listDropships.end()){
+			if (((*It) != NULL) && ((*It)->exists()) && (!(*It)->isLockedDown())){
+				liderFormacion = (*It);
+				break;
+			}
+
+			It++;
 		}
 	}
 }

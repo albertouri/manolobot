@@ -706,7 +706,6 @@ void compania::abordarTransporte(std::list<Unit*> *transportes){
 	std::list<Unit*>::iterator ItTransportes;
 	std::list<Unit*>::iterator ItUnidades;
 
-	//Broodwar->printf("Intenta abordar");
 	ItTransportes = transportes->begin();
 	ItUnidades = listMarines.begin();
 

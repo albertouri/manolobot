@@ -14,31 +14,10 @@ int goals[34];
 
 
 ManoloBot::ManoloBot(void)
-{	
-	
-	//TilePosition *cc;
-	/*for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
-	{
-		if ((*i)->getType().getID() == Utilidades::ID_COMMANDCENTER){
-			
-			cc = new TilePosition((*i)->getTilePosition());
-
-			if ((cc->x() != 116) || (cc->y() != 40)) {
-				Broodwar->restartGame();
-				break;
-			}
-
-			Broodwar->printf("centro de comando x: %d, y: %d", cc->x(), cc->y());
-		}
-	}
-
-	if ((cc->x() == 116) || (cc->y() == 40)) {*/
-		
-		strategyManager = new strategy_manager();
-		analizador = new AnalizadorTerreno();
-		unitManager = new unit_Manager(analizador);
-	//}
-
+{
+	strategyManager = new strategy_manager();
+	analizador = new AnalizadorTerreno();
+	unitManager = new unit_Manager(analizador);
 }
 
 void ManoloBot::checkGoals(void){

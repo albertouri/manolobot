@@ -9,10 +9,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 	TilePosition *aux;
 
 	analizador = a;
-	choke = c/*a->obtenerChokepoint()*/;
-	reg = r/*a->regionInicial()*/;
-
-	Broodwar->printf("Cantidad de bordes poligono region: %d", reg->getPolygon().size());
+	choke = c;
+	reg = r;
 
 	bunkerCentral = NULL;
 	bunkerCentral = posicionPrimerBunker(reg, choke);
@@ -84,6 +82,9 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 		}
 		else if (u->getType().getID() == Utilidades::ID_MARINE){
 			listMarines.push_back(u);
+
+			if (posEncuentro != NULL)
+				u->move(*posEncuentro);
 		}
 		else if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
 
@@ -257,8 +258,6 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 	if (!analizador->analisisListo())
 		return NULL;
 
-	//angulo = analizador->calcularAngulo(choke);
-	//angulo1 = analizador->calcularAnguloGrupo(angulo);
 	angulo1 = anguloGrupo;
 
 	if (bunkerCentral != NULL){
@@ -318,7 +317,7 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 	int cuadrante;
 	TilePosition *t;
 	int angulo1;
-	int factY = 0;//, factX = 0;
+	int factY = 0;
 
 	cuadrante = analizador->getCuadrante(reg->getCenter());
 	//cuadrante = analizador->getOrientacion(choke, reg);
@@ -681,11 +680,7 @@ void GrupoBunkers::onFrame(){
 
 	resaltarUnidades();
 
-	Broodwar->drawBoxMap(reg->getCenter().x(), reg->getCenter().y(), reg->getCenter().x() + 16, reg->getCenter().y() + 16, Colors::Yellow, true);
-
-
 	if (Broodwar->getFrameCount() % frameLatency == 0){
-
 		if (getCantBunkers() > 1)
 			ponerACubierto();
 

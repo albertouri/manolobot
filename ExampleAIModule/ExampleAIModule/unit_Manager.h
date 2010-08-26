@@ -164,4 +164,10 @@ private:
 
 	// manda un SCV a finalizar la construccion de la unidad pasada como parametro, ya que no fue finalizada y actualmente no esta siendo construida por ninguna unidad
 	void finalizarConstruccion(Unit *u);
+
+	// metodo que controla las diferentes construcciones a realizar en el juego
+	void ejecutarConstrucciones();
+
+	// metodo que se debe invocar cada cierta cantidad de frames, para ubicar las unidades enemigas que estan burrowed o cloacked y no sean visibes
+	void buscarUnidadesOcultas();
 };
