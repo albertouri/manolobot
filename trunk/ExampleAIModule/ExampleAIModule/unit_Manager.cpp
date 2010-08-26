@@ -62,13 +62,6 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	grupoB1 = NULL;
 	grupoB2 = NULL;
 
-	//-- --//
-	//Position *pos = new Position(enemigo->getStartLocation().x() / 32, enemigo->getStartLocation().y() / 32);
-	//Broodwar->pingMinimap(*pos);
-	//Broodwar->pingMinimap(4,4);
-	//Broodwar->printf("Hice ping en el minimap");
-	//delete pos;
-
 	primerConstruccionDescubierta = true;
 	baseEnemiga = NULL;
 	regionBaseEnemiga = NULL;
@@ -96,11 +89,8 @@ void unit_Manager::executeActions(){
 				magallanes->explorar(); // manda al scout a explorar el mapa
 		}
 
-		if (grupoB1 == NULL){
-			//Broodwar->printf("El mapa tiene %d regiones", BWTA::getRegions().size());
+		if (grupoB1 == NULL)
 			grupoB1 = new GrupoBunkers(analizador, analizador->obtenerChokepoint() ,analizador->regionInicial());
-			//Broodwar->printf("Angulo B1: %d", grupoB1->getAngulo());
-		}
 		else
 			grupoB1->onFrame();
 
@@ -148,6 +138,8 @@ void unit_Manager::executeActions(){
 	}
 
 
+	if (Broodwar->getFrameCount() % 50 == 0)
+		buscarUnidadesOcultas();
 
 	
 	// ---------------------------------------------------------------------------
@@ -168,7 +160,6 @@ void unit_Manager::executeActions(){
 
 	// ---------------------------------------------------------------------------
 
-	// error raro numero 1: puse un if y empezo a funcionar magicamente...
 	if (Easy != NULL){
 		Easy->onFrame();
 		
@@ -189,10 +180,10 @@ void unit_Manager::executeActions(){
 	// verifica si se termino de construir alguna unidad en este frame
 	//ultimaFinalizada = controlarFinalizacion();
 
-	verificarBunkers(); // verifica daños en los bunkers 
+	//verificarBunkers(); // verifica daños en los bunkers 
 
 	//-- seccion que imprime algunos graficos en pantalla, solo a fines de debugging
-	if ((analizador->analisisListo()) && (grupoB1 != NULL)){
+	/*if ((analizador->analisisListo()) && (grupoB1 != NULL)){
 
 		TilePosition *t111 = NULL;
 		TilePosition *t222 = NULL;
@@ -217,10 +208,8 @@ void unit_Manager::executeActions(){
 			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 			delete t333;
 		}
-		/*else
-			Broodwar->printf("posicion nuevo tanque es NULL");*/
 		
-	}
+	}*/
 
 	if ((analizador->analisisListo()) && (grupoB2 != NULL)){
 
@@ -256,7 +245,7 @@ void unit_Manager::executeActions(){
 	// ---------------------------------------------------------------------------
 	//--						CODIGO DE REPARACION DE UNIDADES
 
-	if (Broodwar->getFrameCount() % 50 == 0){
+	if (Broodwar->getFrameCount() % 46 == 0){
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
 			// si es una edificacion o es una unidad mecanica, verifica si esta dañada y la repara
 			if ((Broodwar->self()->minerals() > 70) && (((*i)->getType().isBuilding()) || ((*i)->getType().isMechanical())) && ((*i)->isCompleted()) && ((*i)->getType().maxHitPoints() > (*i)->getHitPoints())){
@@ -318,6 +307,21 @@ void unit_Manager::executeActions(){
 
 	// ---------------------------------------------------------------------------
 	//--						CODIGO PARA CONSTRUCCION DE UNIDADES
+
+	if (Broodwar->getFrameCount() % 24 == 0)
+		ejecutarConstrucciones();
+	
+	//--						FIN CODIGO PARA CONSTRUCCION DE UNIDADES
+	// ---------------------------------------------------------------------------
+}
+
+
+unit_Manager::~unit_Manager(void)
+{
+}
+
+
+void unit_Manager::ejecutarConstrucciones(){
 
 	//-- COMMAND CENTER
 	if ((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] < goalCantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]) && (Broodwar->self()->minerals() > 400)){
@@ -798,16 +802,10 @@ void unit_Manager::executeActions(){
 			}
 		}
 	}
-	
 
-	//--						FIN CODIGO PARA CONSTRUCCION DE UNIDADES
-	// ---------------------------------------------------------------------------
+
 }
 
-
-unit_Manager::~unit_Manager(void)
-{
-}
 
 
 void unit_Manager::buildUnit(TilePosition *pos, int id){
@@ -815,62 +813,70 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 	Unit* trabajador;
 	UnitType *tipo = new UnitType(id);
 
-	Position *p = NULL; 
+	Position *p = NULL;
 	TilePosition *t = NULL;
-
-	//if (id == Utilidades::ID_BUNKER) Broodwar->printf("Intento construir bunker");
 
 	if ((Broodwar->self()->minerals()>tipo->mineralPrice())&&(Broodwar->self()->gas()>=tipo->gasPrice())){
 		trabajador = getWorker();
 		
 		if ((trabajador!=NULL) && (trabajador->exists()) && (!trabajador->isConstructing()) && (trabajador->isCompleted())) {
 			if (Broodwar->canBuildHere(trabajador, *pos, *tipo)){
-				
-				// mejorar esto, calcular una buena posicion para mover la compañia
-				
-				// verifica si hay unidades en cada tile que ocupara la construccion, y si las hay, las mueve a otra posicion
-				for (int x = 0; x < tipo->tileWidth(); x++){
-					for (int y = 0; y < tipo->tileHeight(); y++){
-						// referencia al tile actual
-						t = new TilePosition(pos->x() + x, pos->y() + y);
-						
-						// si hay unidades en el tile actual, pregunta a que compañia pertenecen para moverlas a otra posicion
-						if (Broodwar->unitsOnTile(t->x(), t->y()).size() > 0){
-							// posicion hacia donde mover las unidades
-							//p = new Position((pos->x() + tipo->tileWidth() + 1) * 32, (pos->y() + tipo->tileHeight() + 1) * 32);
+
+				//-- si la zona no fue explorada todavia, manda el scv a explorar la zona y para poder construir en la 
+				//-- proxima llamada al metodo
+				if (!Broodwar->isExplored(*pos)){
+					Position *aux = new Position(pos->x() * TILE_SIZE, pos->y() * TILE_SIZE);
+					trabajador->move(*aux);
+					delete aux;
+				}
+				else{
+					
+					// verifica si hay unidades en cada tile que ocupara la construccion, y si las hay, las mueve a otra posicion
+					for (int x = 0; x < tipo->tileWidth(); x++){
+						for (int y = 0; y < tipo->tileHeight(); y++){
+							// referencia al tile actual
+							t = new TilePosition(pos->x() + x, pos->y() + y);
 							
-							// verifica a que compañia pertenecen las unidades
-							std::set<Unit*>::iterator It1 = Broodwar->unitsOnTile(t->x(), t->y()).begin();
-							if (Easy->pertenece(*It1)){
-								Easy->moverCompania(analizador->regionInicial()->getCenter());
-							}
-							else if ((grupoB1 != NULL) && (grupoB1->perteneceMarine(*It1))){
-								grupoB1->moverSoldadosPosEncuentro();
-							}
-							else{
+							// si hay unidades en el tile actual, pregunta a que compañia pertenecen para moverlas a otra posicion
+							if (!Broodwar->unitsOnTile(t->x(), t->y()).empty()){
+
+								// posicion hacia donde mover las unidades
+								p = new Position((pos->x() + tipo->tileWidth() + 1) * 32, (pos->y() + tipo->tileHeight() + 1) * 32);
+
+								// verifica a que compañia pertenecen las unidades
+								std::set<Unit*>::iterator It1 = Broodwar->unitsOnTile(t->x(), t->y()).begin();
+								
 								// mueve cada unidad en el tile a otra posicion (solamente si la unidad en cuestion no es una construccion fija)
 								while (It1 != Broodwar->unitsOnTile(t->x(), t->y()).end()){
-									if (((*It1)->exists()) && (!(*It1)->getType().isBuilding()))
-										(*It1)->move(analizador->regionInicial()->getCenter());
+									if (Easy->pertenece(*It1))
+										Easy->moverCompania(*p);
+									else if ((grupoB1 != NULL) && (grupoB1->perteneceMarine(*It1)))
+										grupoB1->moverSoldadosPosEncuentro();
+									else{
+										if (((*It1)->exists()) && (!(*It1)->getType().isBuilding()))
+											(*It1)->move(*p);
 
-									It1++;
+										It1++;
+									}
 								}
+
+								delete p;
+								Broodwar->printf("muevo los soldadillos");
 							}
 
-							delete p;
-							Broodwar->printf("muevo los soldadillos");
+							delete t;
 						}
-						delete t;
 					}
-				}
 
-				buildingSemaphore++;
-				trabajador->build((*pos), *tipo);
+					buildingSemaphore++;
+					trabajador->build((*pos), *tipo);
+				}
 			}
 		}
 	}
 
 }
+
 
 void unit_Manager::buildUnitAddOn(int id){
 	
@@ -1919,10 +1925,18 @@ void unit_Manager::onUnitCreate(Unit *u){
 
 		switch (u->getType().getID()){
 			case Utilidades::ID_ACADEMY:
-				cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]++;
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY])
+					u->cancelConstruction();
+				else*/
+					cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]++;
+
 				break;
 			case Utilidades::ID_BARRACK:
-				cantUnidades[Utilidades::INDEX_GOAL_BARRACK]++;
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK])
+					u->cancelConstruction();
+				else*/
+					cantUnidades[Utilidades::INDEX_GOAL_BARRACK]++;
+
 				break;
 			case Utilidades::ID_BUNKER:
 				cantUnidades[Utilidades::INDEX_GOAL_BUNKER]++;
@@ -1949,7 +1963,11 @@ void unit_Manager::onUnitCreate(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
 				break;
 			case Utilidades::ID_FACTORY:
-				cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_FACTORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_FACTORY])
+					u->cancelConstruction();
+				else*/
+					cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
+
 				break;	
 			case Utilidades::ID_MACHINESHOP:
 				cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP]++;
@@ -1959,10 +1977,18 @@ void unit_Manager::onUnitCreate(Unit *u){
 				asignarUnidadACompania(u);
 				break;
 			case Utilidades::ID_ENGINEERING_BAY:
-				cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY])
+					u->cancelConstruction();
+				else*/
+					cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
+
 				break;
 			case Utilidades::ID_ARMORY:
-				cantUnidades[Utilidades::INDEX_GOAL_ARMORY]++;
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ARMORY])
+					u->cancelConstruction();
+				else*/
+					cantUnidades[Utilidades::INDEX_GOAL_ARMORY]++;
+
 				break;
 			case Utilidades::ID_STARPORT:
 				cantUnidades[Utilidades::INDEX_GOAL_STARPORT]++;
@@ -1982,7 +2008,10 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_DROPSHIP:
 				cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]++;
-				asignarUnidadACompania(u);
+				
+				if (ct != NULL)
+					asignarUnidadACompania(u);
+
 				break;
 			case Utilidades::ID_SCIENCE_FACILITY:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
@@ -1993,7 +2022,10 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_WRAITH:
 				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]++;
-				asignarUnidadACompania(u);
+
+				if (ct != NULL)
+					asignarUnidadACompania(u);
+
 				break;
 		}
 	}
@@ -2116,7 +2148,10 @@ bool* unit_Manager::getResearchsDone(){
 
 
 void unit_Manager::onNukeDetect(Position p){
-	if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
+
+	Broodwar->setScreenPosition(p);
+
+	/*if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
 		Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
 
 		if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() > 50)){
@@ -2124,7 +2159,7 @@ void unit_Manager::onNukeDetect(Position p){
 			Fox->atacar(p);
 			Broodwar->pingMinimap(p);
 		}
-	}
+	}*/
 }
 
 
@@ -2162,4 +2197,26 @@ void unit_Manager::onUnitShow(Unit *u){
 		}
 	}
 
+}
+
+
+void unit_Manager::buscarUnidadesOcultas(){
+	
+	if (!Broodwar->enemy()->getUnits().empty()){
+		std::set<Unit*>::const_iterator It;
+		Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
+
+		if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() >= 50)){
+		
+			It = Broodwar->enemy()->getUnits().begin();
+			while (It != Broodwar->enemy()->getUnits().end()){
+				if (((*It) != NULL) && ((*It)->exists()) && (((*It)->isBurrowed()) || ((*It)->isCloaked())) && ((*It)->isVisible()) && (!(*It)->isDetected())){
+					if (detector->getEnergy() >= 50)
+						detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
+				}
+
+				It++;
+			}
+		}
+	}
 }

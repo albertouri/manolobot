@@ -43,7 +43,7 @@ private:
 	std::list<Position*>::iterator ItPosiciones;
 	Unit *liderFormacion;
 
-	// variable que una vez que se hace true evita realizar un control mejorando la eficiencia
+	// variable que una vez que se hace true evita realizar un control mejorando la eficiencia, representa si la compañia de transporte esta lista para realizar el transporte
 	bool ready;
 
 	// puntero a la compañia a transportar
@@ -52,6 +52,24 @@ private:
 	// es true si el comandante fue cargado en una nave de transporte
 	bool comandanteCargado;
 
-	bool ejecutandoTransporte;
-	
+	//-- posibles estados de la compañia de transporte
+	static const int ESPERANDO_CARGAR = 0;
+	static const int TRANSPORTANDO = 1;
+	static const int DESEMBARCANDO = 2;
+	static const int RETORNANDO_BASE = 3;
+
+	// variable que mantiene el estado actual de la compañia de transporte
+	int estadoActual;
+
+	//--
+
+	// retorna true si todos los dropships estan vacios
+	bool desembarcoListo();
+
+	// manda los dropships de vuelta a la base
+	void retornarBase();
+
+	// asigna un nuevo lider al grupo de transporte, si es que hay alguna unidad existente
+	void reasignarLiderFormacion();
+
 };

@@ -48,16 +48,15 @@ void strategy_manager::checkGoals(void){
 			estadoActual = 0;
 			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 9;
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 10;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 12;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1)&&(cantUnidades[Utilidades::INDEX_GOAL_MARINE] < 4)){
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] >= 1)&& (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
 			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 		}
-		else if(cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2){
+		else if((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] >= 8)){
 			Broodwar->printf("Pase al estado 1 en el strategy manager");
 			estadoActual = 1;
 		}
@@ -68,13 +67,9 @@ void strategy_manager::checkGoals(void){
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ACADEMY] = 1;
-			//GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 		}
-		else if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
-			GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
-		}
-		
-		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0)){
+
+		if ((Broodwar->self()->minerals() > 50) && (Broodwar->self()->gas() > 50) && (cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] > 0)){
 			Broodwar->printf("Pase al estado 2 en el strategy manager");
 			estadoActual = 2;
 		}
@@ -85,7 +80,6 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_FACTORY] = 1;
 		}
 
-
 		if (cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_SCV] = 15;
 			Broodwar->printf("Pase al estado 3 en el strategy manager");
@@ -93,26 +87,25 @@ void strategy_manager::checkGoals(void){
 		}
 	}
 	else if (estadoActual == 3){
-		if (!ResearchDone[Utilidades::INDEX_GOAL_U238]) {
-			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 27;
-		}
-		else if ((cantUnidades[Utilidades::INDEX_GOAL_COMSAT_STATION] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_STIMPACK])){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_FACTORY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 0)){
 			GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
-			
-			//GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
-			//GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
-			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
-
-			// Setea la investigacion como completada, si el edificio que realiza la investigacion es destruido antes
-			// de completarse la misma, se debera setear esta flag en false desde el evento onUnitDestroy, a menos
-			// que exista mas de un edificio de este tipo
-			//ResearchDone[Utilidades::INDEX_GOAL_STIMPACK] = true;
 		}
-		else if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] == 1) && (!ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])) {
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_U238])){
+			//Broodwar->printf("Entre aca y quiero crear 3 tanques");
+			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
-			//GoalUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] = 4;
+			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
+			//GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
+		}
+
+		if ((cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3) && (ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE]))
+			estadoActual = 4;
+	}
+	else if (estadoActual == 4){		
+		if (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0){
+			GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 27;
+			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 		}
 		else if (cantUnidades[Utilidades::INDEX_GOAL_ARMORY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ARMORY] = 1;
