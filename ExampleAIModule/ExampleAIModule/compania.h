@@ -80,6 +80,9 @@ private:
 	// elimina de la lista las unidades que hayan sido destruidas
 	void actualizarEstado(std::list<Unit*> *lista);
 
+	// mueve todas las tropas a la posicion anterior.
+	void retirada(void);
+
 	// retorna la primer unidad dañada y que no este siendo curada en la lista pasada como parametro
 	Unit* buscarDañado(std::list<Unit*> lista);
 

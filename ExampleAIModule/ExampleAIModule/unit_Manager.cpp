@@ -1248,7 +1248,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 							
 							ubicacion = new TilePosition(0+x,centroRegion.y()+y);
 							if(isInsideRegion(analizador,supply,ubicacion)){
-								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 									return ubicacion;
 								}
 								else{	
@@ -1272,7 +1272,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 							
 							ubicacion = new TilePosition(0+x,centroRegion.y()+y);
 							if(isInsideRegion(analizador,supply,ubicacion)){
-								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 									return ubicacion;
 								}
 								else{	
@@ -1304,7 +1304,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 								
 								ubicacion = new TilePosition(Broodwar->mapWidth()+x,centroRegion.y()+y);
 								if(isInsideRegion(analizador,supply,ubicacion)){
-									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 										return ubicacion;
 									}
 									else{	
@@ -1328,7 +1328,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 								
 								ubicacion = new TilePosition(Broodwar->mapWidth()+x,centroRegion.y()+y);
 								if(isInsideRegion(analizador,supply,ubicacion)){
-									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 										return ubicacion;
 									}
 									else{	
@@ -1357,7 +1357,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 							
 							ubicacion = new TilePosition(centroRegion.x()+x,0+y);
 							if(isInsideRegion(analizador,supply,ubicacion)){
-								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 									return ubicacion;
 								}
 								else{	
@@ -1381,7 +1381,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 							
 							ubicacion = new TilePosition(centroRegion.x()+x,0+y);
 							if(isInsideRegion(analizador,supply,ubicacion)){
-								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+								if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 									return ubicacion;
 								}
 								else{	
@@ -1413,7 +1413,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 								ubicacion = new TilePosition(centroRegion.x()+x,Broodwar->mapHeight()+y);
 								
 								if(isInsideRegion(analizador,supply,ubicacion)){
-									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 										return ubicacion;
 									}
 									else{	
@@ -1436,7 +1436,7 @@ TilePosition* unit_Manager::getTilePositionForSupply(AnalizadorTerreno *analizad
 							while((centroRegion.x()+x<=Broodwar->mapWidth())&&(ubicacion == NULL) && (dentroDeRegion==true)){
 								ubicacion = new TilePosition(centroRegion.x()+x,Broodwar->mapHeight()+y);
 								if(isInsideRegion(analizador,supply,ubicacion)){
-									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)>7)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
+									if ((worker!=NULL)&&(worker->exists())&&(centrocomando!=NULL)&&(centrocomando->getDistance(*ubicacion)/32>5)&&(Broodwar->canBuildHere(worker, *ubicacion, *supply))){
 										return ubicacion;
 									}
 									else{	
@@ -1484,6 +1484,8 @@ bool unit_Manager::isInsideRegion(AnalizadorTerreno *analizador, UnitType* U, Ti
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 	TilePosition* pos = NULL;
 	int i = 6;
+	if ((U->getID() == Utilidades::ID_FACTORY) || (U->getID() == Utilidades::ID_STARPORT))
+		i +=2;
 	Unit* worker = getWorker();
 	int x = centroComando->x();
 	int y = centroComando->y();
