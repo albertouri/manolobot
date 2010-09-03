@@ -1,5 +1,6 @@
 #include "compania.h"
 #include "Utilidades.h"
+#include <math.h>
 
 std::list<Unit*> lista;
 int latencia=0;
@@ -63,15 +64,18 @@ void compania::asignarAPelotones(Unit *u){
 			listScienceVessel.push_back(u);
 		}
 
-		if ((comandante != NULL)&&(comandante->exists()))
-			u->rightClick(comandante);
+		//if ((comandante != NULL)&&(comandante->exists()))
+
 	}
+
+	if (regionActual != NULL)
+		u->rightClick(regionActual->getCenter());
 
 }
 
 void compania::asignarARefuerzos(Unit *U){
 	listRefuerzos.push_back(U);
-	if ((listRefuerzos.size()>=5)||(BWTA::getRegion(U->getTilePosition()) == analizador->regionInicial())){
+	if (listRefuerzos.size()>=5){
 		for(std::list<Unit*>::const_iterator i=listRefuerzos.begin();i!=listRefuerzos.end();i++){
 			if ((*i)->exists())
 				asignarAPelotones(*i);
@@ -209,7 +213,7 @@ void compania::atacar(Unit *u){
 			}
 		}
 	}
-
+/*
 	if (listMedics.size() > 0){
 		std::list<Unit*>::iterator It1;
 		It1 = listMedics.begin();
@@ -223,7 +227,7 @@ void compania::atacar(Unit *u){
 			}
 		}
 	}
-
+*/
 	if (listGoliath.size() > 0){
 
 		std::list<Unit*>::iterator It1;
@@ -288,7 +292,7 @@ void compania::onFrame(){
 
 	//------------------------------controla las regiones iniciales----------------------------------------
 
-	if((analizador->analisisListo())&& (regionActual == NULL)){
+	if((regionActual == NULL)&&(analizador->analisisListo())){
 		regionActual = analizador->regionInicial();
 		puntoDeRetirada = analizador->regionInicial();
 	}
@@ -304,39 +308,41 @@ void compania::onFrame(){
 
 	if ((comandante != NULL) && (comandante->exists())){
 		Graficos::resaltarUnidad(comandante, c);
-		//Broodwar->drawCircleMap(comandante->getPosition().x(),comandante->getPosition().y(), comandante->getType().sightRange(), Colors::White, false);
+	//	Broodwar->printf("distancia %f  ----- rango %d", comandante->getDistance(analizador->regionInicial()->getCenter())/32 , comandante->getType().sightRange()/32);
+	//	Broodwar->drawCircleMap(comandante->getPosition().x(),comandante->getPosition().y(), comandante->getType().sightRange(), Colors::White, false);
 	}
 
 	// ------------------------ verifica si el comandante esta seteado ------------------------
 	setComandantes();
-
+	
 
 	// ------------------------  Ordenes de ataque ------------------------
 
-	if ((comandante != NULL)&& (comandante->exists())){
+	if ((comandante != NULL)&& (comandante->exists())&&(Broodwar->getFrameCount()%3 == 2)){
 		// si el comandante no esta atacando ningun objetivo, se busca algun nuevo objetivo para atacar
 		if ((comandante->getTarget() == NULL) || (!comandante->getTarget()->exists())){
 			
 //			if(listMarines.size() > 9){
-				double minDist = 90;
-				Unit *masCercana = NULL;
+			double minDist = comandante->getType().seekRange();
+			Unit *masCercana = NULL;
 				
-				for(std::set<Unit*>::const_iterator i=Broodwar->enemy()->getUnits().begin();i!=Broodwar->enemy()->getUnits().end();i++){
-					if ((*i)->exists()){
-						if (comandante->getPosition().getApproxDistance((*i)->getPosition()) < minDist){
-							minDist = comandante->getPosition().getApproxDistance((*i)->getPosition());
-							masCercana = *i;
-						}
+			for(std::set<Unit*>::const_iterator i=Broodwar->enemy()->getUnits().begin();i!=Broodwar->enemy()->getUnits().end();i++){
+				if ((*i)->exists()){
+					if (comandante->getDistance((*i)->getPosition())/32 < minDist){
+						minDist = comandante->getDistance((*i)->getPosition())/32 ;
+						masCercana = *i;
 					}
 				}
+			}
 
-				if ((masCercana != NULL)&& (masCercana->exists())){
-					atacar(masCercana);
-					atacando = true;
-				}
-				else{
-					atacando = false;
-				}
+			if ((masCercana != NULL)&& (masCercana->exists())){
+				atacar(masCercana);
+				atacando = true;
+			}
+			else{
+				atacando = false;
+				if(comandante->isSieged()) comandante->unsiege();
+			}
 //			}
 		}
 
@@ -346,7 +352,7 @@ void compania::onFrame(){
 		if ((comandante!= NULL)&&(comandante->exists())){
 			controlarDistancia(); 
 		//codigo para decidir si marcha a combate
-			if((latenciaMovimientoTropas>100) && (listaParaAtacar()) && (posicionEnemigo != NULL) ){
+			if((latenciaMovimientoTropas>50)&&(listaParaAtacar()) && (posicionEnemigo != NULL) ){
 				if (analizador->analisisListo()){
 					std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(comandante->getTilePosition(), *posicionEnemigo);
 					std::vector<BWAPI::TilePosition>::iterator It1;
@@ -512,7 +518,7 @@ void compania::controlarDistancia(){
 	Unit* herido;
 	listaDeUnidadesAfectadas.clear();
 
-	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists())){
+	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists()) && (Broodwar->getFrameCount()%12==0)){
 		std::list<Unit*>::iterator It1;
 		It1 = listMarines.begin();
 
@@ -523,7 +529,8 @@ void compania::controlarDistancia(){
 			}
 			else{
 				if ((*It1)->getID() != comandante->getID())
-					(*It1)->stop();
+					//(*It1)->stop();
+					(*It1)->holdPosition();
 				
 				if (((*It1)->getType().maxHitPoints() > (*It1)->getHitPoints()) && (!(*It1)->isBeingHealed())){
 					listaDeMarinesHeridos.push_front(*It1);
@@ -537,7 +544,7 @@ void compania::controlarDistancia(){
 		It1 = listTanks.begin();
 
 		while(It1 != listTanks.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 160) && ((*It1)->getID() != comandante->getID())){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 160) && ((*It1)->getID() != comandante->getID())&&(Broodwar->getFrameCount()%12==3)){
 				if ((*It1)->isSieged()){
 					(*It1)->unsiege();
 				}
@@ -545,9 +552,13 @@ void compania::controlarDistancia(){
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
-				if (((*It1)->getID() != comandante->getID()) /*codigo agregado por mi ->*/ && (!comandante->isLoaded()))
-					(*It1)->stop();
-					(*It1)->siege();
+				if (((*It1)->getID() != comandante->getID()) /*codigo agregado por mi ->*/ && (!comandante->isLoaded())){
+					(*It1)->holdPosition();
+					if (atacando)
+						(*It1)->siege();
+					else if((*It1)->isSieged())
+						(*It1)->unsiege();
+				}
 			}
 
 			if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
@@ -560,7 +571,7 @@ void compania::controlarDistancia(){
 		It1 = listGoliath.begin();
 
 		while(It1 != listGoliath.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 140) && ((*It1)->getID() != comandante->getID())){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 140) && ((*It1)->getID() != comandante->getID()) && (Broodwar->getFrameCount()%12==6)){
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
@@ -577,7 +588,7 @@ void compania::controlarDistancia(){
 		It1 = listScienceVessel.begin();
 
 		while(It1 != listScienceVessel.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 200) && ((*It1)->getID() != comandante->getID())){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 200) && ((*It1)->getID() != comandante->getID())&& (Broodwar->getFrameCount()%12==9)){
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
@@ -591,7 +602,7 @@ void compania::controlarDistancia(){
 		It1 = listMedics.begin();
 
 		while(It1 != listMedics.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 110) && ((*It1)->getID() != comandante->getID())){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 110) && ((*It1)->getID() != comandante->getID())&& (Broodwar->getFrameCount()%6==0)){
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
@@ -622,7 +633,7 @@ void compania::controlarDistancia(){
 		It1 = listFirebats.begin();
 
 		while(It1 != listFirebats.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 70) && ((*It1)->getID() != comandante->getID())){
+			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 70) && ((*It1)->getID() != comandante->getID()) && (Broodwar->getFrameCount()%12==11)){
 				(*It1)->rightClick(comandante->getPosition());
 			}
 			else{
@@ -635,10 +646,6 @@ void compania::controlarDistancia(){
 
 	}
 
-
-	/*else{
-		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
-	}*/
 }
 
 bool compania::pertenece(Unit *u){
@@ -680,11 +687,30 @@ bool compania::pertenece(Unit *u){
 
 bool compania::listaParaAtacar(){
 
-	if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) &&*/ (listScienceVessel.size() == 1) && (listMedics.size() > 4) && (listMarines.size() >= 12))
+	if((comandante!=NULL)&&(comandante->exists())){
+		if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) && (listScienceVessel.size() == 1) &&*/ (listMedics.size() > 4) && (listMarines.size() >= 12)){
+			std::list<Unit*>::iterator It1;
+			It1 = listMarines.begin();
 
-		return true;
-	else
+			while(It1 != listMarines.end()){
+				if((*It1)->exists()){
+					if(floor((*It1)->getDistance(comandante))> comandante->getType().sightRange())
+						return false;
+				}
+					
+				It1++;
+			}
+			return true;
+		}
+		else
+			return false;
+
+	}
+	else{
 		return false;
+	}
+
+	
 }
 
 
@@ -845,11 +871,11 @@ Unit* compania::getComandante(){
 }
 
 void compania::setComandantes(void){
-
+	Unit * comandanteanterior = comandante;
 	
 	// si no hay comandante, o murio, se asigna uno nuevo
-	if ((comandante == NULL) || (!comandante->exists())){
-
+	if ((comandante == NULL) || (!comandante->exists()) || (comandante->getType().getID()!=Utilidades::ID_TANKSIEGE)){
+		
 		actualizarEstado(&listTanks);
 		if (listTanks.size() > 0){
 			if(BWTA::getRegion((*listTanks.begin())->getTilePosition()) == regionActual){
@@ -857,19 +883,37 @@ void compania::setComandantes(void){
 				posicionanteriorDelComandante = comandante->getPosition();
 			}
 		}
+		//verifico que se haya seteado el comandante
+		if ((comandante == NULL) || (!comandante->exists())){
 
-	}
-
-	if ((comandante == NULL) || (!comandante->exists())){
-
-		actualizarEstado(&listMarines);
-		if (listMarines.size() > 0){
-			if(BWTA::getRegion((*listMarines.begin())->getTilePosition()) == regionActual){
-				comandante = *(listMarines.begin());
-				posicionanteriorDelComandante = comandante->getPosition();
+			actualizarEstado(&listMarines);
+			if (listMarines.size() > 0){
+				if(BWTA::getRegion((*listMarines.begin())->getTilePosition()) == regionActual){
+					comandante = *(listMarines.begin());
+					posicionanteriorDelComandante = comandante->getPosition();
+				}
+			}
+			//verifico que se haya seteado el comandante
+			if ((comandante == NULL) || (!comandante->exists())){
+				retirada();
+			}
+			else{ //Hubo cambio de comandante
+				if (comandanteanterior != comandante)
+					comandante->stop();
 			}
 		}
+		else{ //Hubo cambio de comandante
+			if (comandanteanterior != comandante)
+				comandante->stop();
+		}
+
+
+
+
 	}
+
+
+	
 		/*
 		else{
 			actualizarEstado(&listFirebats);
@@ -891,4 +935,72 @@ void compania::setComandantes(void){
 
 
 	
+}
+
+void compania::retirada(){
+	if (analizador->analisisListo() && (puntoDeRetirada!=analizador->regionInicial())){
+		TilePosition* posicionInicial = new TilePosition(analizador->regionInicial()->getCenter());
+		TilePosition* posicionRetirada = new TilePosition(puntoDeRetirada->getCenter());
+		std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(*posicionRetirada, *posicionInicial);
+		std::vector<BWAPI::TilePosition>::iterator It1;
+		It1 = vectorPosiciones.begin();
+		while(It1 != vectorPosiciones.end()){
+			if (BWTA::getRegion(*It1)!=puntoDeRetirada){
+				regionActual = puntoDeRetirada;
+				puntoDeRetirada = BWTA::getRegion(*It1);
+				break;
+			}
+			else{
+				It1++;
+			}
+		}
+		
+		if(listMarines.size()>0){
+			for(std::list<Unit*>::const_iterator i=listMarines.begin();i!=listMarines.end();i++){
+				if ((*i)->exists())
+					(*i)->rightClick(regionActual->getCenter());
+			}
+		}
+
+		if(listMedics.size()>0){
+			for(std::list<Unit*>::const_iterator i=listMedics.begin();i!=listMedics.end();i++){
+				if ((*i)->exists())
+					(*i)->rightClick(regionActual->getCenter());
+			}
+		}
+		
+		if(listTanks.size()>0){
+			for(std::list<Unit*>::const_iterator i=listTanks.begin();i!=listTanks.end();i++){
+				if ((*i)->exists())
+					if ((*i)->isSieged())
+						(*i)->unsiege();
+					(*i)->rightClick(regionActual->getCenter());
+			}
+		}
+
+		if(listGoliath.size()>0){
+			for(std::list<Unit*>::const_iterator i=listGoliath.begin();i!=listGoliath.end();i++){
+				if ((*i)->exists())
+					(*i)->rightClick(regionActual->getCenter());
+			}
+		}
+
+		if(listScienceVessel.size()>0){
+			for(std::list<Unit*>::const_iterator i=listScienceVessel.begin();i!=listScienceVessel.end();i++){
+				if ((*i)->exists())
+					(*i)->rightClick(regionActual->getCenter());
+			}
+		}
+
+
+		if(listRefuerzos.size()>0){
+			for(std::list<Unit*>::const_iterator i=listRefuerzos.begin();i!=listRefuerzos.end();i++){
+				if ((*i)->exists())
+					asignarAPelotones(*i);
+			}
+			listRefuerzos.clear();
+		}
+
+
+	}
 }
