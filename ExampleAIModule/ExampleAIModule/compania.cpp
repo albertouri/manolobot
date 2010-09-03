@@ -39,7 +39,7 @@ void compania::asignarUnidad(Unit *u){
 
 void compania::asignarAPelotones(Unit *u){
 
-	if (u->getType().getID() == Utilidades::ID_TANKSIEGE){
+	if ((u->getType().getID() == Utilidades::ID_TANKSIEGE) || (u->getType().getID() == Utilidades::ID_TANKSIEGE_SIEGEMODE)){
 		listTanks.push_front(u);
 		calcularTransportes();
 	}
@@ -78,6 +78,7 @@ void compania::asignarARefuerzos(Unit *U){
 	if (listRefuerzos.size()>=5){
 		for(std::list<Unit*>::const_iterator i=listRefuerzos.begin();i!=listRefuerzos.end();i++){
 			if ((*i)->exists())
+				Broodwar->printf("asigne un %d", (*i)->getType().getID());
 				asignarAPelotones(*i);
 		}
 		listRefuerzos.clear();
@@ -518,132 +519,158 @@ void compania::controlarDistancia(){
 	Unit* herido;
 	listaDeUnidadesAfectadas.clear();
 
-	if ((listMarines.size() > 0) && (comandante!=NULL) && (comandante->exists()) && (Broodwar->getFrameCount()%12==0)){
+
+	if ((comandante!= NULL) && (comandante->exists())){
+		int	distanciaMarines = 80; 
+		int	distanciaTanques = 160;
+		int distanciaMedicos = 110;
+		int distanciaGoliaths = 140;
+		int distanciaNave = 200;
 		std::list<Unit*>::iterator It1;
-		It1 = listMarines.begin();
+		int modulo12 = Broodwar->getFrameCount()%12;
 
-		while(It1 != listMarines.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 80) && ((*It1)->getID() != comandante->getID())) {
-				(*It1)->rightClick(comandante->getPosition());
+		if (comandante->getType().getID() == Utilidades::ID_TANKSIEGE){
+			distanciaMarines = 140;
+			distanciaTanques = 80;
+			distanciaMedicos = 160;
+			distanciaGoliaths = 110; 
+			distanciaNave = 200;
+		}
 
-			}
-			else{
-				if ((*It1)->getID() != comandante->getID())
-					//(*It1)->stop();
-					(*It1)->holdPosition();
-				
-				if (((*It1)->getType().maxHitPoints() > (*It1)->getHitPoints()) && (!(*It1)->isBeingHealed())){
-					listaDeMarinesHeridos.push_front(*It1);
+		if ((listMarines.size() > 0) && (modulo12==0)){
+			//std::list<Unit*>::iterator It1;
+			It1 = listMarines.begin();
+
+			while(It1 != listMarines.end()){
+				if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > distanciaMarines) && ((*It1)->getID() != comandante->getID())) {
+					(*It1)->rightClick(comandante->getPosition());
+
 				}
-			}
-			It1++;
-		}
-
-
-		//muevo los tanques
-		It1 = listTanks.begin();
-
-		while(It1 != listTanks.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 160) && ((*It1)->getID() != comandante->getID())&&(Broodwar->getFrameCount()%12==3)){
-				if ((*It1)->isSieged()){
-					(*It1)->unsiege();
-				}
-
-				(*It1)->rightClick(comandante->getPosition());
-			}
-			else{
-				if (((*It1)->getID() != comandante->getID()) /*codigo agregado por mi ->*/ && (!comandante->isLoaded())){
-					(*It1)->holdPosition();
-					if (atacando)
-						(*It1)->siege();
-					else if((*It1)->isSieged())
-						(*It1)->unsiege();
-				}
-			}
-
-			if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
-				listaDeUnidadesAfectadas.push_back(*It1);
-
-			It1++;
-		}
-
-		//muevo los Goliaths
-		It1 = listGoliath.begin();
-
-		while(It1 != listGoliath.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 140) && ((*It1)->getID() != comandante->getID()) && (Broodwar->getFrameCount()%12==6)){
-				(*It1)->rightClick(comandante->getPosition());
-			}
-			else{
-				if ((*It1)->isMoving())
-					(*It1)->stop();				
-			}
-			if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
-				listaDeUnidadesAfectadas.push_back(*It1);
-			It1++;
-		}
-
-
-		//muevo las naves de ciencia
-		It1 = listScienceVessel.begin();
-
-		while(It1 != listScienceVessel.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 200) && ((*It1)->getID() != comandante->getID())&& (Broodwar->getFrameCount()%12==9)){
-				(*It1)->rightClick(comandante->getPosition());
-			}
-			else{
-				if ((*It1)->isMoving())
-					(*It1)->stop();				
-			}
-			It1++;
-		}
-
-
-		It1 = listMedics.begin();
-
-		while(It1 != listMedics.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 110) && ((*It1)->getID() != comandante->getID())&& (Broodwar->getFrameCount()%6==0)){
-				(*It1)->rightClick(comandante->getPosition());
-			}
-			else{
-				if ((*It1)->getID() != comandante->getID()){
-					if ((*It1)->isMoving())
-						(*It1)->stop();
-
-					if ((!listaDeUnidadesAfectadas.empty()) && ((*It1)->getEnergy()>50)){
-						herido = listaDeUnidadesAfectadas.front();
-						listaDeUnidadesAfectadas.pop_front();
-						if((herido!=NULL)&&(herido->exists())){
-							(*It1)->useTech(TechTypes::Restoration, herido);
-						}
-					}
+				else{
+					if ((*It1)->getID() != comandante->getID())
+						//(*It1)->stop();
+						(*It1)->holdPosition();
 					
-					if(!listaDeMarinesHeridos.empty()) {
-						herido = listaDeMarinesHeridos.front();
-						listaDeMarinesHeridos.pop_front();
-						if((herido!=NULL)&&(herido->exists())){
-							(*It1)->rightClick(herido);
-						}
+					if (((*It1)->getType().maxHitPoints() > (*It1)->getHitPoints()) && (!(*It1)->isBeingHealed())){
+						listaDeMarinesHeridos.push_front(*It1);
 					}
 				}
+				It1++;
 			}
-			It1++;
 		}
 
-		It1 = listFirebats.begin();
+			//muevo los tanques
+			if ((listTanks.size() > 0) && (modulo12==3)){
+				//std::list<Unit*>::iterator It1;
+				It1 = listTanks.begin();
 
-		while(It1 != listFirebats.end()){
-			if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > 70) && ((*It1)->getID() != comandante->getID()) && (Broodwar->getFrameCount()%12==11)){
-				(*It1)->rightClick(comandante->getPosition());
+				while(It1 != listTanks.end()){
+					if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > distanciaTanques) && ((*It1)->getID() != comandante->getID())){
+						if ((*It1)->isSieged()){
+							(*It1)->unsiege();
+						}
+
+						(*It1)->rightClick(comandante->getPosition());
+					}
+					else{
+						if (((*It1)->getID() != comandante->getID()) /*codigo agregado por mi ->*/ && (!comandante->isLoaded())){
+							(*It1)->holdPosition();
+							if (atacando)
+								(*It1)->siege();
+							else if((*It1)->isSieged())
+								(*It1)->unsiege();
+						}
+					}
+
+					if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+						listaDeUnidadesAfectadas.push_back(*It1);
+
+					It1++;
+				}
 			}
-			else{
-				if ((*It1)->getID() != comandante->getID())
-					(*It1)->stop();
+
+			//muevo los Goliaths
+			if ((listGoliath.size() > 0) && (modulo12==6)){
+				It1 = listGoliath.begin();
+				while(It1 != listGoliath.end()){
+					if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > distanciaGoliaths) && ((*It1)->getID() != comandante->getID())){
+						(*It1)->rightClick(comandante->getPosition());
+					}
+					else{
+						if ((*It1)->isMoving())
+							(*It1)->holdPosition();				
+					}
+					if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
+						listaDeUnidadesAfectadas.push_back(*It1);
+					It1++;
+				}
+
 			}
-			It1++;
-		}
+			
+			//muevo las naves de ciencia
+			if ((listScienceVessel.size() > 0) && (modulo12==9)){
+				It1 = listScienceVessel.begin();
 
+				while(It1 != listScienceVessel.end()){
+					if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > distanciaNave) && ((*It1)->getID() != comandante->getID())&& (Broodwar->getFrameCount()%12==9)){
+						(*It1)->rightClick(comandante->getPosition());
+					}
+					else{
+						if ((*It1)->isMoving())
+							(*It1)->stop();				
+					}
+					It1++;
+				}
+			}
 
+			if ((listMedics.size() > 0) && ((modulo12==0)||((modulo12==6)))){
+				It1 = listMedics.begin();
+
+				while(It1 != listMedics.end()){
+					if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > distanciaMedicos) && ((*It1)->getID() != comandante->getID())){
+						(*It1)->rightClick(comandante->getPosition());
+					}
+					else{
+						if ((*It1)->getID() != comandante->getID()){
+							if ((*It1)->isMoving())
+								(*It1)->stop();
+
+							if ((!listaDeUnidadesAfectadas.empty()) && ((*It1)->getEnergy()>50)){
+								herido = listaDeUnidadesAfectadas.front();
+								listaDeUnidadesAfectadas.pop_front();
+								if((herido!=NULL)&&(herido->exists())){
+									(*It1)->useTech(TechTypes::Restoration, herido);
+								}
+							}
+							
+							if(!listaDeMarinesHeridos.empty()) {
+								herido = listaDeMarinesHeridos.front();
+								listaDeMarinesHeridos.pop_front();
+								if((herido!=NULL)&&(herido->exists())){
+									(*It1)->rightClick(herido);
+								}
+							}
+						}
+					}
+					It1++;
+				}
+			}
+
+			if ((listFirebats.size() > 0) && (modulo12==11)){
+				It1 = listFirebats.begin();
+
+				while(It1 != listFirebats.end()){
+					if((*It1)->exists() && ((*It1)->getDistance(comandante->getPosition()) > distanciaMarines) && ((*It1)->getID() != comandante->getID())){
+						(*It1)->rightClick(comandante->getPosition());
+					}
+					else{
+						if ((*It1)->getID() != comandante->getID())
+							(*It1)->stop();
+					}
+					It1++;
+				}
+			}
+	
 	}
 
 }
