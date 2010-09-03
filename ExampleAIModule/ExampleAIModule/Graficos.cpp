@@ -102,6 +102,8 @@ void Graficos::dibujarTerreno(bool show_visibility_data, bool analyzed){
 		//we will iterate through all the regions and draw the polygon outline of it in green.
 		for(std::set<BWTA::Region*>::const_iterator r=BWTA::getRegions().begin();r!=BWTA::getRegions().end();r++)
 		{
+			Broodwar->drawBoxMap((*r)->getCenter().x(), (*r)->getCenter().y(), (*r)->getCenter().x() + 8, (*r)->getCenter().y() + 8, Colors::Yellow, true);
+
 			BWTA::Polygon p=(*r)->getPolygon();
 			for(int j=0;j<(int)p.size();j++)
 			{

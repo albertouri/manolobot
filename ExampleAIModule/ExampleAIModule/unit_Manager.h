@@ -38,6 +38,9 @@ public:
 
 	bool* getResearchsDone();
 
+	// setea el estado actual
+	void setEstadoActual(int estado);
+
 	~unit_Manager(void);
 
 private:
@@ -92,6 +95,8 @@ private:
 
 	AnalizadorTerreno* analizador;
 
+	int estadoActual;
+
 
 	//-- METODOS
 
@@ -116,19 +121,22 @@ private:
 	// manda a la unidad pasada como parametro a recolectar gas
 	void sendGatherGas(Unit* worker);
 
-	// manda a entrenar un SCV
+	// construye un SCV
 	void trainWorker();
 
-	// manda a entrenar un marine
+	// entrena un marine
 	void trainMarine();
 
-	// manda a entrenar un medico
+	// entrena un medico
 	void trainMedic();
 
-	// manda a entrenar un Goliath
+	// entrena un ghost
+	void trainGhost();
+
+	// construye un Goliath
 	void trainGoliath();
 
-	// manda a entrenar un tanque de asedio
+	// construye un tanque de asedio
 	void trainTankSiege();
 
 	void trainUnit(int ID);

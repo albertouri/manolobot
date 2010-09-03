@@ -31,7 +31,7 @@ AnalizadorTerreno::~AnalizadorTerreno(void)
 
 void AnalizadorTerreno::dibujarResultados(void){
 
-	//Graficos::dibujarTerreno(show_visibility_data, analyzed);
+	Graficos::dibujarTerreno(show_visibility_data, analyzed);
 
 	if (analysis_just_finished)
 	{
@@ -291,9 +291,11 @@ int AnalizadorTerreno::getCuadrante(Position p){
 int AnalizadorTerreno::calcularAnguloGrupo(int angulo){
 	int angulo1;
 
-	if ((angulo > 112) && (angulo <= 179))
+	//Broodwar->printf("El angulo es: %d", angulo);
+
+	if ((angulo >= /*112*/135) && (angulo <= 179))
 		angulo1 = 0;
-	else if ((angulo < 67) && (angulo >= 0))
+	else if ((angulo <= /*67*/45) && (angulo >= 0))
 		angulo1 = 0;
 	else
 		angulo1 = 90;
