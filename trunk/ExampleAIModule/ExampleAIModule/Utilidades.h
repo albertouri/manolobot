@@ -18,10 +18,12 @@ public:
 	static const int INDEX_GOAL_COMMANDCENTER = 5;
 	static const int INDEX_GOAL_COMSAT_STATION = 6;
 	static const int INDEX_GOAL_CONTROL_TOWER = 7;
+	static const int INDEX_GOAL_COVERT_OPS = 8;
 	static const int INDEX_GOAL_DROPSHIP = 9;
 	static const int INDEX_GOAL_ENGINEERING_BAY = 10;
 	static const int INDEX_GOAL_FACTORY = 11;
 	static const int INDEX_GOAL_FIREBAT = 12;
+	static const int INDEX_GOAL_GHOST = 13;
 	static const int INDEX_GOAL_GOLIATH = 14;
 	static const int INDEX_GOAL_MACHINESHOP = 15;
 	static const int INDEX_GOAL_MARINE = 16;
@@ -40,6 +42,7 @@ public:
 	
 	// constantes que representan el ID de cada tipo de unidad terran
 	static const int ID_MARINE = 0;
+	static const int ID_GHOST = 1;
 	static const int ID_VULTURE = 2;
 	static const int ID_GOLIATH = 3;
 	static const int ID_SCV = 7;
@@ -52,14 +55,15 @@ public:
 	static const int ID_MEDIC = 34;
 	static const int ID_COMMANDCENTER = 106;
 	static const int ID_COMSAT_STATION = 107;
-	static const int ID_CONTROL_TOWER = 115;
 	static const int ID_DEPOT = 109;
 	static const int ID_REFINERY = 110;
 	static const int ID_BARRACK = 111;
 	static const int ID_ACADEMY = 112;
 	static const int ID_FACTORY = 113;
 	static const int ID_STARPORT = 114;
+	static const int ID_CONTROL_TOWER = 115;
 	static const int ID_SCIENCE_FACILITY = 116;
+	static const int ID_COVERT_OPS = 117;
 	static const int ID_MACHINESHOP = 120;
 	static const int ID_ENGINEERING_BAY = 122;
 	static const int ID_ARMORY = 123;
@@ -82,10 +86,21 @@ public:
 	static const int INDEX_GOAL_VEHICLE_WEAPONS_LVL1 = 12;
 	static const int INDEX_GOAL_VEHICLE_WEAPONS_LVL2 = 13;
 	static const int INDEX_GOAL_VEHICLE_WEAPONS_LVL3 = 14;
-	static const int INDEX_GOAL_RESTORATION = 15;
-	static const int INDEX_GOAL_OPTICAL_FLARE = 16;
+	static const int INDEX_GOAL_SHIP_PLATING_LVL1 = 15;
+	static const int INDEX_GOAL_SHIP_PLATING_LVL2 = 16;
+	static const int INDEX_GOAL_SHIP_PLATING_LVL3 = 17;
+	static const int INDEX_GOAL_SHIP_WEAPONS_LVL1 = 18;
+	static const int INDEX_GOAL_SHIP_WEAPONS_LVL2 = 19;
+	static const int INDEX_GOAL_SHIP_WEAPONS_LVL3 = 20;
+	static const int INDEX_GOAL_RESTORATION = 21;
+	static const int INDEX_GOAL_OPTICAL_FLARE = 22;
+	static const int INDEX_GOAL_CHARON_BOOSTERS = 23;
+	static const int INDEX_GOAL_LOCKDOWN = 24;
+	static const int INDEX_GOAL_EMP = 25;
+	static const int INDEX_GOAL_IRRADIATE = 26;
+
 
 	// cantidad de investigaciones que provee el juego
-	static const int maxResearch = 17;
+	static const int maxResearch = 27;
 
 };

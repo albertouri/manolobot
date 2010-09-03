@@ -88,8 +88,6 @@ GrupoAntiaereo::GrupoAntiaereo(Region *r)
 
 			// si el chokepoint no esta a la izquierda, y esta desplazado mas sobre el eje Y que sobre el eje X con respecto al centro de la region, defiende a la izquierda
 			if ((defendido != NULL) && ((defendido->getCenter().x() > r->getCenter().x()) || (abs(defendido->getCenter().x() - r->getCenter().x()) < abs(defendido->getCenter().y() - r->getCenter().y())))){
-				Broodwar->printf("Debo defender a la izquierda");
-
 				//-- Encuentra la posicion exacta a defender
 				tIzq = encontrarPosicion(IZQUIERDA, acotadaIzq);
 				cantidadNecesariaTurrets += 3;
@@ -98,7 +96,6 @@ GrupoAntiaereo::GrupoAntiaereo(Region *r)
 
 		if (masDer.x() < (Broodwar->mapWidth() * TILE_SIZE - 128)){
 			if ((defendido != NULL) && ((defendido->getCenter().x() < r->getCenter().x()) || (abs(defendido->getCenter().x() - r->getCenter().x()) < abs(defendido->getCenter().y() - r->getCenter().y())))){
-				Broodwar->printf("Debo defender a la derecha");
 				tDer = encontrarPosicion(DERECHA, acotadaDer);
 				cantidadNecesariaTurrets += 3;
 			}
@@ -106,7 +103,6 @@ GrupoAntiaereo::GrupoAntiaereo(Region *r)
 
 		if (masArr.y() > 128){
 			if ((defendido != NULL) && ((defendido->getCenter().y() > r->getCenter().y()) || (abs(defendido->getCenter().x() - r->getCenter().x()) > abs(defendido->getCenter().y() - r->getCenter().y())))){
-				Broodwar->printf("Debo defender arriba");
 				tArr = encontrarPosicion(ARRIBA, acotadaArr);
 				cantidadNecesariaTurrets += 3;
 			}
@@ -114,15 +110,11 @@ GrupoAntiaereo::GrupoAntiaereo(Region *r)
 
 		if (masAba.y() < (Broodwar->mapHeight() * TILE_SIZE - 128)){
 			if ((defendido != NULL) && ((defendido->getCenter().y() < r->getCenter().y()) || (abs(defendido->getCenter().x() - r->getCenter().x()) > abs(defendido->getCenter().y() - r->getCenter().y())))){
-				Broodwar->printf("Debo defender abajo");
 				tAba = encontrarPosicion(ABAJO, acotadaAba);
 				cantidadNecesariaTurrets += 3;
 			}
 		}
 	}
-	else
-		Broodwar->printf("No entra al fucking while el muy trolo!!!");
-
 
 	regionDefender = r;
 }
