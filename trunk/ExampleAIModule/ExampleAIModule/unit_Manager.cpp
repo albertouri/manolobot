@@ -205,11 +205,6 @@ void unit_Manager::executeActions(){
 		
 	}
 
-	/*int xxx = 34;
-	int xxy = 73;
-	Broodwar->drawBoxMap(xxx * TILE_SIZE, xxy * TILE_SIZE, xxx * TILE_SIZE + 8, xxy * TILE_SIZE + 8, Colors::Green, true);
-	*/
-
 	if ((analizador->analisisListo()) && (grupoB2 != NULL)){
 
 		TilePosition *t111 = NULL;
@@ -329,11 +324,8 @@ void unit_Manager::ejecutarConstrucciones(){
 	//-- COMMAND CENTER
 	if ((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] < goalCantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]) && (Broodwar->self()->minerals() > 400) && (buildingSemaphore == 0)){
 
-		Broodwar->printf("Intento construir command center");
-		
 		if (cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] == 0){
 			UnitType* building = new UnitType(Utilidades::ID_COMMANDCENTER);
-			//TilePosition* posB = getTilePositionAviable(building);
 			TilePosition* posB = NULL;
 
 			if (analizador->analisisListo())
@@ -346,23 +338,6 @@ void unit_Manager::ejecutarConstrucciones(){
 			delete building;
 		}
 		else{
-			//-- calcula la region a ocupar con una nueva base
-			/*std::set<Region*>::const_iterator It = analizador->regionInicial()->getReachableRegions().begin();
-			Region *temp = NULL;
-
-			while (It != analizador->regionInicial()->getReachableRegions().end()){
-				if (((*It) != analizador->regionInicial()) && ((*It)->getChokepoints().size() == 1) && ((*It)->getBaseLocations().size() > 0) && (!((*(*It)->getBaseLocations().begin())->isMineralOnly()))){
-					if (temp == NULL)
-						temp = (*It);
-					else {
-						if (((*It)->getCenter().getDistance(analizador->regionInicial()->getCenter()) < temp->getCenter().getDistance(analizador->regionInicial()->getCenter())) && ((*It) != analizador->regionInicial()))
-							temp = (*It);
-					}
-				}
-				It++;
-			}*/
-			Broodwar->printf("en buena posicion");
-
 			if (analizador->analisisListo()){
 				std::set<Region*>::const_iterator It = analizador->regionInicial()->getReachableRegions().begin();
 				Region *temp = NULL;
@@ -379,13 +354,6 @@ void unit_Manager::ejecutarConstrucciones(){
 					It++;
 				}
 
-				/*if (temp == NULL)
-					Broodwar->printf("No hay lugar para una nueva base...");
-				else{
-					TilePosition* posB = new TilePosition((*temp->getBaseLocations().begin())->getTilePosition().x(), (*temp->getBaseLocations().begin())->getTilePosition().y());
-					//grupoB2 = new GrupoBunkers(analizador, temp);
-					delete posB;
-				}*/
 				if (temp == NULL)
 					Broodwar->printf("No hay lugar para una nueva base...");
 				else{
@@ -493,7 +461,7 @@ void unit_Manager::ejecutarConstrucciones(){
 	}
 
 	//-- BUNKER
-	if((grupoB1 != NULL) && grupoB1->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
+	if ((grupoB1 != NULL) && grupoB1->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
@@ -508,7 +476,7 @@ void unit_Manager::ejecutarConstrucciones(){
 			Broodwar->printf("ERROR: No encuentro posicion para construir el bunker");
 		delete building;
 	}//-- NUEVO
-	else if((grupoB2 != NULL) && grupoB2->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
+	else if ((grupoB2 != NULL) && grupoB2->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
 		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
@@ -2404,7 +2372,7 @@ void unit_Manager::onUnitShow(Unit *u){
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
 					Easy->setBasesEnemigas(new TilePosition(regionBaseEnemiga->getCenter()));				
 				}
-				//ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
+				ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
 
 				encontre = true;
 			}
