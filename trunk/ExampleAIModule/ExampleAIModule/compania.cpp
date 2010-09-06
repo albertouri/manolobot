@@ -21,6 +21,7 @@ Region* puntoDeRetirada = NULL;
 
 compania::compania(AnalizadorTerreno *at, Color ID)
 {
+	posicionEnemigo = NULL;
 	c = ID;
 	analizador = at;
 	comandante = NULL;
@@ -75,10 +76,10 @@ void compania::asignarAPelotones(Unit *u){
 
 void compania::asignarARefuerzos(Unit *U){
 	listRefuerzos.push_back(U);
-	if (listRefuerzos.size()>=5){
+	if ((listRefuerzos.size()>=5)||((puntoDeRetirada!=NULL)&&(analizador->analisisListo())&&(puntoDeRetirada == analizador->regionInicial()))){
 		for(std::list<Unit*>::const_iterator i=listRefuerzos.begin();i!=listRefuerzos.end();i++){
 			if ((*i)->exists())
-				Broodwar->printf("asigne un %d", (*i)->getType().getID());
+				//Broodwar->printf("asigne un %d", (*i)->getType().getID());
 				asignarAPelotones(*i);
 		}
 		listRefuerzos.clear();
@@ -293,10 +294,32 @@ void compania::onFrame(){
 
 	//------------------------------controla las regiones iniciales----------------------------------------
 
-	if((regionActual == NULL)&&(analizador->analisisListo())){
-		regionActual = analizador->regionInicial();
-		puntoDeRetirada = analizador->regionInicial();
+	if(regionActual == NULL){
+		if(analizador->analisisListo()){	
+			regionActual = analizador->regionInicial();
+			puntoDeRetirada = analizador->regionInicial();
+		}
 	}
+	else{
+		if((posicionEnemigo != NULL) && (regionActual== analizador->regionInicial())&&(Broodwar->getFrameCount()%12 == 10)){
+			Broodwar->printf("cambie a la region de al lado");
+			TilePosition* centroRegionActual = new TilePosition(analizador->regionInicial()->getCenter());
+			std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(*centroRegionActual, *posicionEnemigo);
+			std::vector<BWAPI::TilePosition>::iterator It1;
+			It1 = vectorPosiciones.begin();
+
+			while((It1 != vectorPosiciones.end())&& (regionActual == analizador->regionInicial())){
+				if (BWTA::getRegion(*It1)!=analizador->regionInicial()){
+					regionActual = BWTA::getRegion(*It1);
+				}
+				else{
+					It1++;
+				}
+			}
+		}
+	}
+
+
 
 
 	//----------------------------------------------------------------------------------------------------
@@ -717,9 +740,19 @@ bool compania::listaParaAtacar(){
 	if((comandante!=NULL)&&(comandante->exists())){
 		if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) && (listScienceVessel.size() == 1) &&*/ (listMedics.size() > 4) && (listMarines.size() >= 12)){
 			std::list<Unit*>::iterator It1;
-			It1 = listMarines.begin();
 
+			It1 = listMarines.begin();
 			while(It1 != listMarines.end()){
+				if((*It1)->exists()){
+					if(floor((*It1)->getDistance(comandante))> comandante->getType().sightRange())
+						return false;
+				}
+					
+				It1++;
+			}
+
+			It1 = listTanks.begin();
+			while(It1 != listTanks.end()){
 				if((*It1)->exists()){
 					if(floor((*It1)->getDistance(comandante))> comandante->getType().sightRange())
 						return false;
