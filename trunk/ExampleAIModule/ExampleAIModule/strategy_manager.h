@@ -17,6 +17,7 @@ public:
 	void onUnitDestroy(Unit *u);
 
 	void setResearchsDone(bool *rd);
+	int getEstadoActual();
 	
 private:
 	int GoalUnidades[34];

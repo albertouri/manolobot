@@ -1,18 +1,14 @@
 #include "GrupoBunkers.h"
 #include <list>
 
-//bool a = true;
-
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
-	int cuadrante, angulo;
-	TilePosition *aux;
+	int cuadrante;
 
 	analizador = a;
 	choke = c;
 	reg = r;
 
-	bunkerCentral = NULL;
 	bunkerCentral = posicionPrimerBunker(reg, choke);
 
 	contadorMovimientos = 0;
@@ -23,36 +19,32 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 
 	posEncuentro = NULL;
 	cuadrante = a->getCuadrante(reg->getCenter());
-	//angulo = a->calcularAngulo(choke);
-	angulo = anguloGrupo;
 
-	aux = bunkerCentral;
-
-	if (aux != NULL){
+	if (bunkerCentral != NULL){
 		switch (cuadrante){
 			case 1:
-				if (a->calcularAnguloGrupo(angulo) == 0)
-					posEncuentro = new Position(aux->x() * 32 - 192, aux->y() * 32);
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 - 192, bunkerCentral->y() * 32);
 				else
-					posEncuentro = new Position(aux->x() * 32, aux->y() * 32 - 192);
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 - 192);
 				break;
 			case 2:
-				if (a->calcularAnguloGrupo(angulo) == 0)
-					posEncuentro = new Position(aux->x() * 32 + 192, aux->y() * 32);
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 + 192, bunkerCentral->y() * 32);
 				else
-					posEncuentro = new Position(aux->x() * 32, aux->y() * 32 - 192);
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 - 192);
 				break;
 			case 3:
-				if (a->calcularAnguloGrupo(angulo) == 0)
-					posEncuentro = new Position(aux->x() * 32 - 192, aux->y() * 32);
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 - 192, bunkerCentral->y() * 32);
 				else
-					posEncuentro = new Position(aux->x() * 32, aux->y() * 32 + 192);
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 + 192);
 				break;
 			case 4:
-				if (a->calcularAnguloGrupo(angulo) == 0)
-					posEncuentro = new Position(aux->x() * 32 + 192, aux->y() * 32);
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 + 192, bunkerCentral->y() * 32);
 				else
-					posEncuentro = new Position(aux->x() * 32, aux->y() * 32 + 192);
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 + 192);
 				break;
 		}
 	}
@@ -61,6 +53,120 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 	// ------------------------------------------------------------------------------------------
 
 }
+
+
+GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r)
+{
+	Chokepoint *chokeEnemigo = NULL;
+	Chokepoint *c2 = NULL;
+
+	// direccion mantiene la orientacion que tendra el grupo de bunkers, la calcula desde la posicion del command center con respecto al/los chokepoint/s a defender
+	// valores: 1: abajo - 2: izquierda - 3: arriba - 4: derecha
+	int direccion = 0;
+
+	TilePosition *inicio, *fin1, *fin2;
+	inicio = new TilePosition(analizador->regionInicial()->getCenter().x() / TILE_SIZE, analizador->regionInicial()->getCenter().y() / TILE_SIZE);
+	
+	std::set<Chokepoint*>::const_iterator It = r->getChokepoints().begin();
+	// busco el choke mas cercano a la region inicial, ese no debera defenderse y sera el choke de referencia
+	while (It != r->getChokepoints().end()){
+		if (c2 == NULL)
+			c2 = (*It);
+		else{
+			fin1 = new TilePosition((*It)->getCenter().x() / TILE_SIZE, (*It)->getCenter().y() / TILE_SIZE);
+			fin2 = new TilePosition(c2->getCenter().x() / TILE_SIZE, c2->getCenter().y() / TILE_SIZE);
+
+			if ((BWTA::getGroundDistance(*inicio, *fin1)) < (BWTA::getGroundDistance(*inicio, *fin2)))
+				c2 = (*It);
+
+			delete fin1;
+			delete fin2;
+		}
+		
+		It++;
+	}
+
+	//-- si hay solo 2 chokepoints en la region, selecciona el mas lejano a la base y ahi ubica los bunkers (recordar que el mas cercano ya lo tenemos en la referencia c2)
+	if (r->getChokepoints().size() == 2){
+		reg = r;
+		It = r->getChokepoints().begin();
+		while (It != r->getChokepoints().end()){
+			if ((*It) != c2)
+				choke = (*It);
+			It++;
+		}
+
+		bunkerCentral = posicionPrimerBunker2(reg, choke, false);
+	}
+	else{
+		//-- si hay mas de 2 chokepoints en la region, busca el mas lejano a la base y ahi ubica los bunkers
+		It = r->getChokepoints().begin();
+		while (It != r->getChokepoints().end()){
+			if ((*It) != c2){
+				if (chokeEnemigo == NULL)
+					chokeEnemigo = (*It);
+				else{
+					/*fin1 = new TilePosition((*It)->getCenter().x() / TILE_SIZE, (*It)->getCenter().y() / TILE_SIZE);
+					fin2 = new TilePosition(chokeEnemigo->getCenter().x() / TILE_SIZE, chokeEnemigo->getCenter().y() / TILE_SIZE);
+					
+					if ((BWTA::getGroundDistance(*inicio, *fin1)) > (BWTA::getGroundDistance(*inicio, *fin2)))
+						chokeEnemigo = (*It);
+
+					delete fin1;
+					delete fin2;*/
+					//if (((*It)->getCenter().y() - ((Broodwar->mapHeight() * TILE_SIZE) / 2)) < (chokeEnemigo->getCenter().y() - ((Broodwar->mapHeight() * TILE_SIZE) / 2)))
+					if ((*It)->getCenter().x() > chokeEnemigo->getCenter().x())
+						chokeEnemigo = (*It);
+				}
+			}
+
+			It++;
+		}
+
+		reg = r;
+		choke = chokeEnemigo;
+		bunkerCentral = posicionPrimerBunker2(reg, choke, false);
+	}
+
+	delete inicio;
+
+	analizador = a;
+	contadorMovimientos = 0;
+
+	int cuadrante = a->getCuadrante(reg->getCenter());
+
+	if (bunkerCentral != NULL){
+		switch (cuadrante){
+			case 1:
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 - 192, bunkerCentral->y() * 32);
+				else
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 - 192);
+				break;
+			case 2:
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 + 192, bunkerCentral->y() * 32);
+				else
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 - 192);
+				break;
+			case 3:
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 - 192, bunkerCentral->y() * 32);
+				else
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 + 192);
+				break;
+			case 4:
+				if (a->calcularAnguloGrupo(anguloGrupo) == 0)
+					posEncuentro = new Position(bunkerCentral->x() * 32 + 192, bunkerCentral->y() * 32);
+				else
+					posEncuentro = new Position(bunkerCentral->x() * 32, bunkerCentral->y() * 32 + 192);
+				break;
+		}
+	}
+	else
+		Broodwar->printf("ERROR 002: No encuentro ubicacion posible para la posicion de encuentro");
+}
+
 
 GrupoBunkers::~GrupoBunkers(void)
 {
@@ -307,222 +413,226 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 		}
 	}
 	else{
-		Broodwar->printf("El bunker central es NULL");
+		//Broodwar->printf("El bunker central es NULL");
 		return NULL;
 	}
 }
 
 
 TilePosition* GrupoBunkers::posicionNuevaTorreta(){
-	int cuadrante;
-	TilePosition *t;
-	int angulo1;
-	int factY = 0;
+	
+	if (reg != NULL){
+		int cuadrante;
+		TilePosition *t;
+		int angulo1;
+		int factY = 0;
 
-	cuadrante = analizador->getCuadrante(reg->getCenter());
-	//cuadrante = analizador->getOrientacion(choke, reg);
-	angulo1 = anguloGrupo;
 
-	//-- NUEVO CODIGO
-	if (bunkerCentral != NULL){
-		switch (cuadrante){
-			//-- PRIMER CUADRANTE (ARRIBA A LA IZQUIERDA)
-			case 1:
-				if (angulo1 == 90){
+		cuadrante = analizador->getCuadrante(reg->getCenter());
+		//cuadrante = analizador->getOrientacion(choke, reg);
+		angulo1 = anguloGrupo;
 
-					//-- NUEVO CODIGO
-					if (choke->getCenter().y() < reg->getCenter().y())
-						factY = 2;
-					else
-						factY = -2;
+		//-- NUEVO CODIGO
+		if (bunkerCentral != NULL){
+			switch (cuadrante){
+				//-- PRIMER CUADRANTE (ARRIBA A LA IZQUIERDA)
+				case 1:
+					if (angulo1 == 90){
 
-					// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
-					t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() + factY);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
-					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() + factY);
+						//-- NUEVO CODIGO
+						if (choke->getCenter().y() < reg->getCenter().y())
+							factY = 2;
+						else
+							factY = -2;
 
-						//-- intenta en posicion 2
+						// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
+						t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() + factY);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() + factY);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				else{
-					//-- el angulo es 0
-
-					/*//-- NUEVO CODIGO
-					if (choke->getCenter().x() < reg->getCenter().x())
-						factX = 3;
-					else
-						factX = -2;*/
-					
-					t = new TilePosition(bunkerCentral->x() -2, bunkerCentral->y() - 3);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
 					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() -2, bunkerCentral->y() + 3);
+						//-- el angulo es 0
 
-						//-- intenta en posicion 2
+						/*//-- NUEVO CODIGO
+						if (choke->getCenter().x() < reg->getCenter().x())
+							factX = 3;
+						else
+							factX = -2;*/
+						
+						t = new TilePosition(bunkerCentral->x() -2, bunkerCentral->y() - 3);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() -2, bunkerCentral->y() + 3);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				break;
+					break;
 
-			//-- SEGUNDO CUADRANTE (ARRIBA A LA DERECHA)
-			case 2:
-				if (angulo1 == 90){
+				//-- SEGUNDO CUADRANTE (ARRIBA A LA DERECHA)
+				case 2:
+					if (angulo1 == 90){
 
-					// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
-					t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() -2);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
-					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() -2);
-
-						//-- intenta en posicion 2
+						// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
+						t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() -2);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() -2);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				else{
-					// el angulo es 0
-
-					t = new TilePosition(bunkerCentral->x() +3, bunkerCentral->y() - 3);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
 					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() +3, bunkerCentral->y() + 3);
+						// el angulo es 0
 
-						//-- intenta en posicion 2
+						t = new TilePosition(bunkerCentral->x() +3, bunkerCentral->y() - 3);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() +3, bunkerCentral->y() + 3);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				break;
+					break;
 
-			//-- TERCER CUADRANTE (ABAJO A LA IZQUIERDA)
-			case 3:
-				if (angulo1 == 90){
-					// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
-					t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() + 2);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
-					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() + 2);
-
-						//-- intenta en posicion 2
+				//-- TERCER CUADRANTE (ABAJO A LA IZQUIERDA)
+				case 3:
+					if (angulo1 == 90){
+						// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
+						t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() + 2);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() + 2);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				else{
-					// angulo == 0
-					t = new TilePosition(bunkerCentral->x() - 2, bunkerCentral->y() - 3);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
 					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() - 2, bunkerCentral->y() + 3);
-
-						//-- intenta en posicion 2
+						// angulo == 0
+						t = new TilePosition(bunkerCentral->x() - 2, bunkerCentral->y() - 3);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() - 2, bunkerCentral->y() + 3);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				break;
+					break;
 
-			//-- CUARTO CUADRANTE (ABAJO A LA DERECHA)
-			case 4:
-				if (angulo1 == 90){
-					// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
-					t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() + 2);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
-					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() + 2);
-
-						//-- intenta en posicion 2
+				//-- CUARTO CUADRANTE (ABAJO A LA DERECHA)
+				case 4:
+					if (angulo1 == 90){
+						// si el angulo del grupo de bunkers es 90 grados, intenta las 2 posiciones posibles para ubicar las misile turrets
+						t = new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y() + 2);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() - 3, bunkerCentral->y() + 2);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				else{
-					// angulo == 0
-					t = new TilePosition(bunkerCentral->x() + 3, bunkerCentral->y() - 3);
-					
-					//-- intenta en posicion 1
-					if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
-						return t;
 					else{
-						delete t;
-						t = new TilePosition(bunkerCentral->x() + 3, bunkerCentral->y() + 3);
-
-						//-- intenta en posicion 2
+						// angulo == 0
+						t = new TilePosition(bunkerCentral->x() + 3, bunkerCentral->y() - 3);
+						
+						//-- intenta en posicion 1
 						if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
 							return t;
 						else{
 							delete t;
-							return NULL;
+							t = new TilePosition(bunkerCentral->x() + 3, bunkerCentral->y() + 3);
+
+							//-- intenta en posicion 2
+							if (!ocupado(*t, Utilidades::ID_MISSILE_TURRET))
+								return t;
+							else{
+								delete t;
+								return NULL;
+							}
 						}
 					}
-				}
-				break;
-		
-		} //-- FIN DEL SWITCH
+					break;
+			
+			} //-- FIN DEL SWITCH
+
+		}
+		//-- FIN NUEVO CODIGO
 
 	}
-	//-- FIN NUEVO CODIGO
-
 	return NULL;
 }
 
@@ -547,39 +657,43 @@ bool GrupoBunkers::rellenarPosicionTanque(Unit *u){
 }
 
 TilePosition* GrupoBunkers::posicionNuevoTanque(){
-	int cuadrante, angulo1;
-	
-	angulo1 = anguloGrupo;
-	cuadrante = analizador->getCuadrante(reg->getCenter());
+	if (reg != NULL){
+		int cuadrante, angulo1;
+		
+		angulo1 = anguloGrupo;
+		cuadrante = analizador->getCuadrante(reg->getCenter());
 
-	if (bunkerCentral != NULL){
-		// el grupo de bunkers esta ubicado en forma horizontal
-		if (angulo1 == 90){
-			//if ((cuadrante == 1) || (cuadrante == 2))
-				if (choke->getCenter().y() < reg->getCenter().y())
-					return new TilePosition(bunkerCentral->x(), bunkerCentral->y() + 3);
+		if (bunkerCentral != NULL){
+			// el grupo de bunkers esta ubicado en forma horizontal
+			if (angulo1 == 90){
+				//if ((cuadrante == 1) || (cuadrante == 2))
+					if (choke->getCenter().y() < reg->getCenter().y())
+						return new TilePosition(bunkerCentral->x(), bunkerCentral->y() + 3);
+					else
+						return new TilePosition(bunkerCentral->x(), bunkerCentral->y() - 2);
+				//else{
+					//if (choke->getCenter().y() < reg->getCenter().y())
+						//return new TilePosition(bunkerCentral->x(), bunkerCentral->y() + 3);
+					/*else
+						return new 
+				}*/
+			}
+			else if (angulo1 == 0){
+				if ((cuadrante == 1) || (cuadrante == 3))
+					return new TilePosition(bunkerCentral->x() - 2, bunkerCentral->y());
 				else
-					return new TilePosition(bunkerCentral->x(), bunkerCentral->y() - 2);
-			//else{
-				//if (choke->getCenter().y() < reg->getCenter().y())
-					//return new TilePosition(bunkerCentral->x(), bunkerCentral->y() + 3);
-				/*else
-					return new 
-			}*/
-		}
-		else if (angulo1 == 0){
-			if ((cuadrante == 1) || (cuadrante == 3))
-				return new TilePosition(bunkerCentral->x() - 2, bunkerCentral->y());
+					return new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y());
+			}
 			else
-				return new TilePosition(bunkerCentral->x() + 4, bunkerCentral->y());
+				return NULL;
 		}
-		else
+		else{
+			Broodwar->printf("ERROR: No se encontro posicion - Metodo: posicionNuevoTanque - Clase: GrupoBunkers");
 			return NULL;
+		}
 	}
-	else{
-		Broodwar->printf("ERROR: No se encontro posicion - Metodo: posicionNuevoTanque - Clase: GrupoBunkers");
-		return NULL;
-	}
+
+	return NULL;
 }
 
 
@@ -678,6 +792,7 @@ void GrupoBunkers::ponerACubierto(){
 
 void GrupoBunkers::onFrame(){
 
+	//posicionPrimerBunker2(reg, choke, false);
 	resaltarUnidades();
 
 	if (Broodwar->getFrameCount() % frameLatency == 0){
@@ -786,6 +901,308 @@ TilePosition* GrupoBunkers::posicionPrimerBunker(Region* r, Chokepoint* c){
 	return res;
 }
 
+TilePosition* GrupoBunkers::posicionPrimerBunker2(Region* r, Chokepoint* c, bool buscarHaciaAdentro){
+	int cuadrante = 0;
+	int angulo = analizador->calcularAngulo(c);
+	cuadrante = analizador->getCuadrante(r->getCenter());
+	int angulo1;// = analizador->calcularAnguloGrupo(angulo);
+	
+	if ((angulo >= /*112*/135) && (angulo <= 179))
+		angulo1 = 0;
+	else if ((angulo <= /*67*/45) && (angulo >= 0))
+		angulo1 = 0;
+	else
+		angulo1 = 90;
+
+	return encontrarPosicion2(cuadrante, c->getCenter(), angulo1, buscarHaciaAdentro);
+}
+
+
+TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int angulo, bool buscarHaciaAdentro){
+	int factorX, factorY;
+	int contX = 0, contY = 0;
+	TilePosition *t, *res = NULL;
+	bool hayPosicion;
+
+	UnitType *bunker = new UnitType(Utilidades::ID_BUNKER);
+	UnitType *missileTurret = new UnitType(Utilidades::ID_MISSILE_TURRET);
+
+	// calcula el cuadrante donde se ubicara el grupo de bunkers
+	if (cuadrante == 1){
+		if ((choke->getCenter().y() < reg->getCenter().y()) && (angulo == 90)){
+			factorX = -1;
+			factorY = -1;
+		}
+		else{
+			factorX = 1;
+			factorY = 1;
+		}
+	}
+	else if (cuadrante == 2){
+		factorX = -1;
+		factorY = 1;
+	}
+	else if (cuadrante == 3){
+		factorX = 1;
+		factorY = -1;
+	}
+	else if (cuadrante == 4){
+		factorX = -1;
+		factorY = -1;
+	}
+
+	//Broodwar->printf("El cuadrante es: %d, angulo1: %d", cuadrante, angulo);
+
+	if (buscarHaciaAdentro){
+		factorX *= -1;
+		factorY *= -1;
+	}
+
+	if (angulo == 90){
+		// si el angulo del chokepoint es totalmente horizontal, intenta construir 3 bunkers alineados sobre el chokepoint,
+		// si no puede se mueve un tile en el eje Y, e intenta nuevamente
+		// contY lleva la cuenta de los tiles que se movio sobre el ejeY
+		// para cada posicion sobre el eje Y, prueba en 5 posiciones sobre el eje X:
+		// desde el centro del choquepoint - 2 buildtiles hasta el centro del choquepoint + 2 buildtiles
+
+		if ((cuadrante == 1) || (cuadrante == 3))
+			contX = -2;
+		else
+			contX = 2;
+
+
+		while (contY < /*10*/25){
+			//-- Posicion del bunker central
+			t = new TilePosition((p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
+			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
+			//Broodwar->printf("horizontal");
+
+			//Broodwar->printf("Intento en x: %d - y: %d", (p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
+			if (t->isValid())
+				hayPosicion = puedoConstruir2(*t, *bunker);
+			else
+				hayPosicion = false;
+
+			//-- Posicion del bunker derecho
+			if (hayPosicion){
+				// verifico si puedo construir un bunker a la derecha
+				//res = new TilePosition(t->x(), t->y() + factorY);
+				res = new TilePosition(t->x(), t->y());
+				delete t;
+				t = new TilePosition((p.x() / TILE_SIZE) + 3 + contX, (p.y() / TILE_SIZE) + contY * factorY);
+
+				if (t->isValid())
+					hayPosicion = puedoConstruir2(*t, *bunker);
+				else
+					hayPosicion = false;
+			}
+
+			//-- Posicion del misile turret derecho
+			if (hayPosicion){
+				// verifico si puedo construir un misile turret detras del bunker derecho
+				delete t;
+				if ((cuadrante == 1) || (cuadrante == 2))
+					t = new TilePosition((p.x() / TILE_SIZE) + 3 + contX + 1, (p.y() / TILE_SIZE) + contY * factorY - 2);
+				else
+					t = new TilePosition((p.x() / TILE_SIZE) + 3 + contX + 1, (p.y() / TILE_SIZE) + contY * factorY + 2);
+
+				if (t->isValid())
+					hayPosicion = puedoConstruir2(*t, *missileTurret);
+				else
+					hayPosicion = false;
+			}
+
+			//-- Posicion del bunker izquierdo
+			if (hayPosicion){
+				// verifico si puedo construir un bunker a la izquierda
+				delete t;
+				t = new TilePosition((p.x() / TILE_SIZE) - 3 + contX, (p.y() / TILE_SIZE) + contY * factorY);
+
+				if (t->isValid())
+					hayPosicion = puedoConstruir2(*t, *bunker);
+				else
+					hayPosicion = false;
+			}
+
+			//-- Posicion del misile turret izquierdo
+			if (hayPosicion){
+				delete t;
+				if ((cuadrante == 1) || (cuadrante == 2))
+					t = new TilePosition((p.x() / TILE_SIZE) - 3 + contX, (p.y() / TILE_SIZE) + contY * factorY - 2);
+				else
+					t = new TilePosition((p.x() / TILE_SIZE) - 3 + contX, (p.y() / TILE_SIZE) + contY * factorY + 2);
+				
+				if (t->isValid())
+					hayPosicion = puedoConstruir2(*t, *missileTurret);
+				else
+					hayPosicion = false;
+			}
+
+			//-- Resultado final
+			if (hayPosicion){
+				//-- SETEA EL ANGULO UTILIZADO POR EL GRUPO DE BUNKERS (VARIABLE GLOBAL)
+				anguloGrupo = 90;
+				delete t;
+
+				//-- RETORNA LA POSICION DEL PRIMER BUNKER A CONSTRUIR
+				delete bunker;
+				delete missileTurret;
+				return res;
+			}
+			else delete t;
+
+			//-- ACTUALIZA LOS CONTADORES
+			// si el cuadrante esta en la mitad izquierda de la pantalla, busca posicion de izquierda a derecha, de lo contrario busca al reves
+			if ((cuadrante == 1) || (cuadrante == 3)){
+				if (contX == 2){
+					contY++;
+					contX = -2;
+				}
+				else
+					contX++;
+			}
+			else{
+				if (contX == -2){
+					contY++;
+					contX = 2;
+				}
+				else
+					contX--;
+			}
+
+			if (res != NULL){
+				delete res;
+				res = NULL;
+			}
+		}
+	}
+	else if (angulo == 0){
+		contY = /*-3*/-10;
+
+		//Broodwar->printf("pipiripi 1");
+		//-- CODIGO GIRATORIO
+		// busco el punto mas a la izquierda y mas a la derecha de la region
+		int i = 0, d = 0;
+
+		BWTA::Polygon pol=reg->getPolygon();
+		for(int j = 0; j < (int)pol.size(); j++){
+			if ((pol[j].y() > (p.y() - 3 * TILE_SIZE)) && (pol[j].y() < (p.y() + 3 * TILE_SIZE))){
+				if (pol[j].x() < pol[i].x())
+					i = j;
+				
+				if (pol[j].x() > pol[d].x())
+					d = j;
+			}
+		}
+		//Broodwar->printf("pipiripi 2");
+
+		//-- Verifica si hay espacio suficiente entre el borde del mapa y el grupo de bunkers
+		//bool condicion1 = ((cuadrante == 1) || (cuadrante == 3)) && ((p.x() / 32) > 12);
+		//bool condicion2 = ((cuadrante == 2) || (cuadrante == 4)) && ((p.x() / 32) < (Broodwar->mapWidth() - 11));
+		bool condicion1 = ((cuadrante == 1) || (cuadrante == 3)) && (((p.x() - pol[i].x()) / 32) > 12);
+		bool condicion2 = ((cuadrante == 2) || (cuadrante == 4)) && ((p.x() / 32) < ((pol[d].x() / 32) - 11));
+
+		//Broodwar->printf("pipiripi 3");
+
+		// si el bunker central esta separado mas de 11 build tiles del borde esta OK, sino lo intenta ubicar en forma horizontal
+		if (!(condicion1 || condicion2)){
+			Broodwar->printf("Intenta girar el grupo");
+			return encontrarPosicion2(cuadrante, p, 90, buscarHaciaAdentro);
+		}
+
+		//-- FIN CODIGO GIRATORIO
+
+		//Broodwar->printf("pipiripi 4");
+
+		while (contX < 10){
+			//-- Posicion del bunker central
+			t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + contY);
+			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
+			//Broodwar->printf("Intento en x: %d - y: %d", (p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
+			//Broodwar->printf("VERTICAL");
+			hayPosicion = puedoConstruir2(*t, *bunker);
+
+			//-- Posicion del bunker inferior
+			if (hayPosicion){
+				// verifico si puedo construir un bunker arriba
+				res = new TilePosition(t->x(), t->y());
+				delete t;
+				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + 2 + contY);
+				hayPosicion = puedoConstruir2(*t, *bunker);
+			}
+			//else delete t;
+
+			//-- Posicion del misile turret inferior
+			if (hayPosicion){
+				delete t;
+				if ((cuadrante == 1) || (cuadrante == 3))
+					t = new TilePosition(p.x() / 32 + contX * factorX - 2, p.y() / 32 + 2 + contY);
+				else
+					t = new TilePosition(p.x() / 32 + contX * factorX + 3, p.y() / 32 + 2 + contY);
+				
+				hayPosicion = puedoConstruir2(*t, *missileTurret);
+			}
+			//else delete t;
+
+			//-- Posicion del bunker superior
+			if (hayPosicion){
+				// verifico si puedo construir un bunker arriba
+				delete t;
+				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 - 2 + contY);
+				hayPosicion = puedoConstruir2(*t, *bunker);
+			}
+			//else delete t;
+
+			//-- Posicion del misile turret inferior
+			if (hayPosicion){
+				delete t;
+				if ((cuadrante == 1) || (cuadrante == 3))
+					t = new TilePosition(p.x() / 32 + contX * factorX - 2, p.y() / 32 - 2 + contY);
+				else
+					t = new TilePosition(p.x() / 32 + contX * factorX + 3, p.y() / 32 - 2 + contY);
+				
+				hayPosicion = puedoConstruir2(*t, *missileTurret);
+			}
+
+			if (hayPosicion){
+				//-- SETEA EL ANGULO UTILIZADO POR EL GRUPO DE BUNKERS (VARIABLE GLOBAL)
+				anguloGrupo = 0;
+				delete t;
+
+				TilePosition *aux = res;
+				if ((cuadrante == 1) || (cuadrante == 3))
+					res = new TilePosition(aux->x() - 1, aux->y());
+				else
+					res = new TilePosition(aux->x() + 1, aux->y());
+
+				delete aux;
+				//-- RETORNA LA POSICION DEL PRIMER BUNKER A CONSTRUIR
+				delete bunker;
+				delete missileTurret;
+				return res;
+			}
+			else delete t;
+
+			if (contY == /*3*/10){
+				contX++;
+				contY = /*-3*/-10;
+			}
+			else
+				contY++;
+
+			if (res != NULL){
+				delete res;
+				res = NULL;
+			}
+		}
+	}
+
+	delete bunker;
+	delete missileTurret;
+	return res;
+
+}
+
 bool GrupoBunkers::puedoConstruir(TilePosition t, UnitType tipo){
 	bool res = true;
 
@@ -798,6 +1215,43 @@ bool GrupoBunkers::puedoConstruir(TilePosition t, UnitType tipo){
 			res = res && Broodwar->isBuildable(t.x() + x, t.y() + y);
 	}
 
+	return res;
+}
+
+bool GrupoBunkers::puedoConstruir2(TilePosition t, UnitType tipo){
+	bool res = true;
+	//TilePosition *aux;
+
+	// verifica si la posicion esta dentro del mapa
+	if ((t.x() > Broodwar->mapWidth()) || (t.y() > Broodwar->mapHeight()))
+		return false;
+
+	//-- Posiciones que representan los bordes de la unidad a construir
+	Position *si, *sd, *ii, *id;
+	si = new Position(t.x() * TILE_SIZE, t.y() * TILE_SIZE);
+	sd = new Position((t.x() + tipo.tileWidth()) * TILE_SIZE, t.y() * TILE_SIZE);
+	ii = new Position(t.x() * TILE_SIZE, (t.y() + tipo.tileHeight()) * TILE_SIZE);
+	id = new Position((t.x() + tipo.tileWidth()) * TILE_SIZE, (t.y() + tipo.tileHeight()) * TILE_SIZE);
+
+	// verifica si los bordes estan en alguna de las regiones conectadas por el chokepoint a defender
+	res = ((choke->getRegions().first->getPolygon().isInside(*si) || choke->getRegions().second->getPolygon().isInside(*si))); 
+	res = res && ((choke->getRegions().first->getPolygon().isInside(*sd) || choke->getRegions().second->getPolygon().isInside(*sd)));
+	res = res && ((choke->getRegions().first->getPolygon().isInside(*ii) || choke->getRegions().second->getPolygon().isInside(*ii)));
+	res = res && ((choke->getRegions().first->getPolygon().isInside(*id) || choke->getRegions().second->getPolygon().isInside(*id)));
+
+	for (int x = 0; x < tipo.tileWidth(); x++){
+		for (int y = 0; y < tipo.tileHeight(); y++){
+			//aux = new TilePosition(t.x() + x, t.y() + y);
+			res = res && Broodwar->isBuildable(t.x() + x, t.y() + y);
+			//res = res && Broodwar->isBuildable(*aux);
+			//delete aux;
+		}
+	}
+
+	delete si;
+	delete sd;
+	delete ii;
+	delete id;
 	return res;
 }
 
@@ -828,7 +1282,17 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 	TilePosition *t, *res = NULL;
 
 	int angulo1 = 0;
-	angulo1 = analizador->calcularAnguloGrupo(angulo);
+	//angulo1 = analizador->calcularAnguloGrupo(angulo);
+
+	// NUEVO
+	if ((angulo >= 112/*135*/) && (angulo <= 179))
+		angulo1 = 0;
+	else if ((angulo <= 67/*45*/) && (angulo >= 0))
+		angulo1 = 0;
+	else
+		angulo1 = 90;
+
+	// FIN NUEVO
 
 	// calcula el cuadrante donde se ubicara el grupo de bunkers
 	if (cuadrante == 1){
@@ -960,7 +1424,10 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 
 			if (puedoConstruir(*t, *(new UnitType(Utilidades::ID_BARRACK)))){
 				// puedo construir el primer bunker en esa posicion, ahora verifico si puedo construir otro bunker al lado
-				res = new TilePosition(t->x() /*- factorX*/, t->y());
+				if ((cuadrante == 1) || (cuadrante == 3))
+					res = new TilePosition(t->x() - 1, t->y());
+				else
+					res = new TilePosition(t->x() + 1, t->y());
 
 				delete t;
 				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + 2 + contY/* + 1*/);
@@ -1011,7 +1478,6 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 	return res;
 }
 
-
 int GrupoBunkers::getAngulo(){
 	//return anguloGrupo;
 	return analizador->calcularAngulo(choke);
@@ -1045,4 +1511,8 @@ bool GrupoBunkers::faltanBunkers(){
 
 int GrupoBunkers::cantMaximaTurrets(){
 	return 2;
+}
+
+Region* GrupoBunkers::getRegion(){
+	return reg;
 }

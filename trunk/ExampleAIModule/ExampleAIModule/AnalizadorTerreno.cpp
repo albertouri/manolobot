@@ -293,9 +293,9 @@ int AnalizadorTerreno::calcularAnguloGrupo(int angulo){
 
 	//Broodwar->printf("El angulo es: %d", angulo);
 
-	if ((angulo >= /*112*/135) && (angulo <= 179))
+	if ((angulo >= 112/*135*/) && (angulo <= 179))
 		angulo1 = 0;
-	else if ((angulo <= /*67*/45) && (angulo >= 0))
+	else if ((angulo <= 67/*45*/) && (angulo >= 0))
 		angulo1 = 0;
 	else
 		angulo1 = 90;

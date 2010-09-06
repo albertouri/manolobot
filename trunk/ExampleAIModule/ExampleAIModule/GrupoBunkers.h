@@ -13,6 +13,8 @@ class GrupoBunkers
 {
 public:
 	GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r);
+
+	GrupoBunkers(AnalizadorTerreno *a, Region *r);
 	~GrupoBunkers(void);
 
 
@@ -65,6 +67,7 @@ public:
 	TilePosition* getTileBunkerCentral();
 
 	Chokepoint* getChoke();
+	Region* getRegion();
 
 	// mueve los soldados que estan fuera de los bunkers a un punto de encuentro, asi, en caso de que los soldados estaban en un bunker que fue destruido, liberan la zona para reconstruir el bunker
 	void moverSoldadosPosEncuentro(); 
@@ -114,8 +117,6 @@ private:
 
 	// ordena a los soldados que esten fuera de bunkers que ingresen en ellos
 	void ponerACubierto(); 
-
-
 	
 	// posicion de encuentro de los soldados del grupo de bunkers
 	Position *posEncuentro; 
@@ -124,16 +125,19 @@ private:
 	void ubicarModoSiege();
 	
 	// verifica si los build tiles necesarios para construir tienen terreno apropiado para construir, y tambien verifica si ese terreno no esta ocupado por un bunker, en ese caso retorna false
-	bool puedoConstruir(TilePosition t, UnitType tipo); 
+	bool puedoConstruir(TilePosition t, UnitType tipo);
+	bool puedoConstruir2(TilePosition t, UnitType tipo);
 	
 	// busca una posicion donde ubicar el grupo de bunkers, este metodo solo se usa una vez en el constructor de la clase GrupoBunkers
 	TilePosition* encontrarPosicion(int cuadrante, Position p, int angulo); 
+	TilePosition* encontrarPosicion2(int cuadrante, Position p, int angulo, bool buscarHaciaAdentro);
 	
 	// retorna true si el tile position esta ocupado con una unidad de tipo IDTipo
 	bool ocupado(TilePosition t, int IDTipo); 
 
 	// retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
 	TilePosition* posicionPrimerBunker(Region* r, Chokepoint* c); 
+	TilePosition* posicionPrimerBunker2(Region* r, Chokepoint* c, bool buscarHaciaAdentro); 
 
 	// recorre la lista de tanques y si encuentra un tanque que ya no existe lo reemplaza por el nuevo tanque. Retorna true si encontro una posicion vacia, false en caso contrario
 	bool rellenarPosicionTanque(Unit *u); 
