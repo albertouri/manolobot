@@ -31,6 +31,7 @@ void ManoloBot::checkGoals(void){
 			
 			unitManager->setGoals(strategyManager->getGoals());
 			unitManager->setResearchs(strategyManager->getResearchs());
+			unitManager->setEstadoActual(strategyManager->getEstadoActual());
 
 			latency=0;
 		}
@@ -38,12 +39,15 @@ void ManoloBot::checkGoals(void){
 			latency++;
 		}
 	}
-
+	
 	if (unitManager != NULL)
 		unitManager->executeActions();
 	
-	if ((analizador != NULL) && (analizador->analisisListo()))
+	if ((analizador != NULL) && (analizador->analisisListo())){
+		/*if ((analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 3) || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 4) || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 1))
+			Broodwar->restartGame();*/
 		analizador->dibujarResultados();
+	}
 
 }
 
