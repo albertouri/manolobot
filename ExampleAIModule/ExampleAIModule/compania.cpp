@@ -959,12 +959,14 @@ void compania::setComandantes(void){
 			}
 			else{ //Hubo cambio de comandante
 				if (comandanteanterior != comandante)
-					comandante->stop();
+					if (comandante->getTarget()!=NULL)
+						comandante->stop();
 			}
 		}
 		else{ //Hubo cambio de comandante
 			if (comandanteanterior != comandante)
-				comandante->stop();
+				if (comandante->getTarget()!=NULL)
+					comandante->stop();
 		}
 
 
