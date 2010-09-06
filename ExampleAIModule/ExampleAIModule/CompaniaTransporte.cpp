@@ -5,7 +5,7 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, comp
 	regionBaseEnemiga = regEnem;
 
 	if (baseEnemiga != NULL){
-		//-- busca el punto mas lejano de la region enemiga con respecto al chokepoint defendido en la base enemiga
+		/*//-- busca el punto mas lejano de la region enemiga con respecto al chokepoint defendido en la base enemiga
 		Position *pr = new Position((*regionBaseEnemiga->getChokepoints().begin())->getCenter().x(), (*regionBaseEnemiga->getChokepoints().begin())->getCenter().y());
 		int masLejano = 0;
 
@@ -17,7 +17,7 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, comp
 
 		delete pr;
 
-		bordeMasLejano = new Position(pol[masLejano].x(), pol[masLejano].y());
+		bordeMasLejano = new Position(pol[masLejano].x(), pol[masLejano].y());*/
 
 
 		//-- crea el camino que recorreran los transportes
@@ -41,7 +41,7 @@ CompaniaTransporte::~CompaniaTransporte(void)
 
 void CompaniaTransporte::crearPath(){
 	//-- region donde manolobot inicia el juego
-	Region *inicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
+	/*Region *inicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
 	Position *p1, *p2, *centroBase;
 	Chokepoint *choke = NULL;
 
@@ -97,7 +97,209 @@ void CompaniaTransporte::crearPath(){
 	}
 
 
-	ItPosiciones = pathBaseEnemiga.begin();
+	ItPosiciones = pathBaseEnemiga.begin();*/
+
+	Region *regInicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
+	int ubicacionDefensa = 0;
+
+	// variables que mantienen si la base enemiga esta sobre alguno de los bordes de la pantalla, sobreDer sera true si la base enemiga esta sobre el borde derecho de la pantalla
+	bool sobreDer = false, sobreIzq = false, sobreArr = false, sobreAba = false;
+
+	int CONST_DER = 2, CONST_ABA = 1, CONST_IZQ = 4, CONST_ARR = 3;
+	
+	// ubico el choke con respecto al centro de la base enemiga
+	if ((abs(regionBaseEnemiga->getCenter().x() - (*regionBaseEnemiga->getChokepoints().begin())->getCenter().x())) < (abs(regionBaseEnemiga->getCenter().y() - (*regionBaseEnemiga->getChokepoints().begin())->getCenter().y()))){
+		// el choke esta desplazado sobre el eje y, esta arriba o abajo del centro de la base
+		if (regionBaseEnemiga->getCenter().y() < (*regionBaseEnemiga->getChokepoints().begin())->getCenter().y()){
+			// el choke esta abajo
+			ubicacionDefensa = CONST_ABA;
+		}
+		else{
+			// el choke esta arriba
+			ubicacionDefensa = CONST_ARR;
+		}
+	}
+	else{
+		// el choke esta desplazado sobre el eje x, esta a la derecha o izquierda del centro de la base
+		if (regionBaseEnemiga->getCenter().x() < (*regionBaseEnemiga->getChokepoints().begin())->getCenter().x()){
+			// el choke esta a la derecha
+			ubicacionDefensa = CONST_DER;
+		}
+		else{
+			// el choke esta a la izquierda
+			ubicacionDefensa = CONST_IZQ;
+		}
+	}
+
+
+	int masArr = 0, masAba = 0, masDer = 0, masIzq = 0;
+
+	// calcula las bordes del mapa acotados desde el centro de la region
+	int acoArr = 0, acoAba = 0, acoDer = 0, acoIzq = 0;
+
+	BWTA::Polygon p = regionBaseEnemiga->getPolygon();
+	for(int j=0; j<(int)p.size(); j++)
+	{
+		if (p[j].x() < p[masIzq].x())
+			masIzq = j;
+
+		if (p[j].x() > p[masDer].x())
+			masDer = j;
+
+		if (p[j].y() < p[masArr].y())
+			masArr = j;
+
+		if (p[j].y() > p[masAba].y())
+			masAba = j;
+
+		//--
+		if (((p[j].y() > (regionBaseEnemiga->getCenter().y() - 3 * TILE_SIZE)) && (p[j].y() < (regionBaseEnemiga->getCenter().y() + 3 * TILE_SIZE))) && (p[j].x() < p[acoIzq].x()))
+			acoIzq = j;
+
+		if (((p[j].y() > (regionBaseEnemiga->getCenter().y() - 3 * TILE_SIZE)) && (p[j].y() < (regionBaseEnemiga->getCenter().y() + 3 * TILE_SIZE))) && (p[j].x() > p[acoDer].x()))
+			acoDer = j;
+
+		if (((p[j].x() > (regionBaseEnemiga->getCenter().x() - 3 * TILE_SIZE)) && (p[j].x() < (regionBaseEnemiga->getCenter().x() + 3 * TILE_SIZE))) && (p[j].y() < p[acoArr].y()))
+			acoArr = j;
+
+		if (((p[j].x() > (regionBaseEnemiga->getCenter().x() - 3 * TILE_SIZE)) && (p[j].x() < (regionBaseEnemiga->getCenter().x() + 3 * TILE_SIZE))) && (p[j].y() > p[acoAba].y()))
+			acoAba = j;
+	}
+
+	sobreDer = (p[masDer].x() > ((Broodwar->mapWidth() - 3) * TILE_SIZE));
+	sobreIzq = (p[masIzq].x() < (3 * TILE_SIZE));
+	sobreAba = (p[masAba].y() > ((Broodwar->mapHeight() - 3) * TILE_SIZE));
+	sobreArr = (p[masArr].y() < (3 * TILE_SIZE));
+
+	// posibles puntos de desembarco
+	Position *pArr = NULL, *pAba = NULL, *pDer = NULL, *pIzq = NULL;
+	
+	if (regInicial->getCenter().x() < regionBaseEnemiga->getCenter().x()){
+		// empiezo a la izquierda con respecto al enemigo
+		if (regInicial->getCenter().y() < regionBaseEnemiga->getCenter().y()){
+			// empiezo arriba a la izquierda con respecto al enemigo
+			Broodwar->printf("empiezo arriba a la izquierda con respecto al enemigo");
+			if (ubicacionDefensa == CONST_ARR){
+				Broodwar->printf("Esta denfendido arriba");
+				//if (sobreAba){
+					// no se puede entrar por abajo, entro por la izquierda
+					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+					Position *p2 = new Position(regInicial->getCenter().x(), p[acoIzq].y());
+					Position *puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y());
+					//Position *puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y() - TILE_SIZE);
+
+					pathBaseEnemiga.push_back(p1);
+					pathBaseEnemiga.push_back(p2);
+					pathBaseEnemiga.push_back(puntoDesembarco);
+				//}
+			}
+			else if (ubicacionDefensa == CONST_IZQ){
+				Broodwar->printf("Esta denfendido izquierda");
+
+				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
+				Position *puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() + TILE_SIZE);
+
+				pathBaseEnemiga.push_back(p1);
+				pathBaseEnemiga.push_back(p2);
+				pathBaseEnemiga.push_back(puntoDesembarco);
+			}
+		}
+		else{
+			// empiezo abajo a la izquierda con respecto al enemigo
+			Broodwar->printf("empiezo abajo a la izquierda con respecto al enemigo");
+
+			if (ubicacionDefensa == CONST_ABA){
+				Broodwar->printf("Esta denfendido abajo");
+
+				//if (sobreAba){
+					// no se puede entrar por abajo, entro por la derecha
+					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+					Position *p2 = new Position(regInicial->getCenter().x(), p[acoIzq].y());
+					Position *puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y());
+
+					pathBaseEnemiga.push_back(p1);
+					pathBaseEnemiga.push_back(p2);
+					pathBaseEnemiga.push_back(puntoDesembarco);
+				//}
+			}
+			else if (ubicacionDefensa == CONST_IZQ){
+				Broodwar->printf("Esta denfendido izquierda");
+
+				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
+				Position *puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() - TILE_SIZE);
+
+				pathBaseEnemiga.push_back(p1);
+				pathBaseEnemiga.push_back(p2);
+				pathBaseEnemiga.push_back(puntoDesembarco);
+			}
+		}
+	}
+	else{
+		// empiezo a la derecha con respecto al enemigo
+		
+		if (regInicial->getCenter().y() < regionBaseEnemiga->getCenter().y()){
+			// empiezo arriba a la derecha con respecto al enemigo
+			Broodwar->printf("empiezo arriba a la derecha con respecto al enemigo");
+
+			if (ubicacionDefensa == CONST_ARR){
+				Broodwar->printf("Esta denfendido arriba");
+				//if (sobreAba){
+					// no se puede entrar por arriba, entro por la derecha
+					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+					Position *p2 = new Position(regInicial->getCenter().x(), p[acoDer].y());
+					Position *puntoDesembarco = new Position(p[acoDer].x() - TILE_SIZE, p[acoDer].y());
+
+					pathBaseEnemiga.push_back(p1);
+					pathBaseEnemiga.push_back(p2);
+					pathBaseEnemiga.push_back(puntoDesembarco);
+				//}
+			}
+			else if (ubicacionDefensa == CONST_DER){
+				Broodwar->printf("Esta denfendido derecha");
+
+				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
+				Position *puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() + TILE_SIZE);
+
+				pathBaseEnemiga.push_back(p1);
+				pathBaseEnemiga.push_back(p2);
+				pathBaseEnemiga.push_back(puntoDesembarco);
+			}
+		}
+		else{
+			// empiezo abajo a la derecha con respecto al enemigo
+			Broodwar->printf("empiezo abajo a la derecha con respecto al enemigo");
+
+			if (ubicacionDefensa == CONST_ABA){
+				//if (sobreAba){
+					Broodwar->printf("Esta denfendido abajo");
+					// no se puede entrar por abajo, entro por la derecha
+					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+					Position *p2 = new Position(regInicial->getCenter().x(), p[acoDer].y());
+					Position *puntoDesembarco = new Position(p[acoDer].x() - TILE_SIZE, p[acoDer].y());
+
+					pathBaseEnemiga.push_back(p1);
+					pathBaseEnemiga.push_back(p2);
+					pathBaseEnemiga.push_back(puntoDesembarco);
+				//}
+			}
+			else if (ubicacionDefensa == CONST_DER){
+				Broodwar->printf("Esta denfendido derecha");
+
+				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
+				Position *p2 = new Position(p[acoAba].x(), regInicial->getCenter().y());
+				Position *puntoDesembarco = new Position(p[acoAba].x(), p[acoAba].y() - TILE_SIZE);
+
+				pathBaseEnemiga.push_back(p1);
+				pathBaseEnemiga.push_back(p2);
+				pathBaseEnemiga.push_back(puntoDesembarco);
+			}
+		}
+	}
+
+
 	
 }
 

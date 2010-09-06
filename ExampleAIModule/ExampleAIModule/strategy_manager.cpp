@@ -53,7 +53,7 @@ void strategy_manager::checkGoals(void){
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1)&&(cantUnidades[Utilidades::INDEX_GOAL_MARINE] < 4)){
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 3;
 		}
-		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] >= 1)&& (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 10)){
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] >= 1)&& (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 4)){
 			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 		}
 		else if((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] >= 8)){
@@ -95,11 +95,13 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
-			//GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 22;
 		}
 
-		if ((cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3) && (ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE]))
+		if ((cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3) && (ResearchDone[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE])){
+			Broodwar->printf("Pase al estado 4 en el strategy manager");
 			estadoActual = 4;
+		}
 	}
 	else if (estadoActual == 4){		
 		if (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0){
@@ -115,7 +117,9 @@ void strategy_manager::checkGoals(void){
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1])){
 			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = 1;
-			GoalResearch[Utilidades::INDEX_GOAL_OPTICAL_FLARE] = 1;
+			//GoalResearch[Utilidades::INDEX_GOAL_OPTICAL_FLARE] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_COVERT_OPS] = 1;
+			GoalResearch[Utilidades::INDEX_GOAL_LOCKDOWN] = 1;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
@@ -132,6 +136,21 @@ void strategy_manager::checkGoals(void){
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_STARPORT] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] == 0)){
 			GoalUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
+		}
+
+		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)){
+			Broodwar->printf("Pase al estado 5 en el strategy manager");
+			estadoActual = 5;
+		}
+
+	}
+	else if (estadoActual == 5){	
+		if ((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 6)){
+			GoalUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 2;
+			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 6;
+		}
+		else if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 6) && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3)){
+			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 6;
 		}
 	}
 }
@@ -226,6 +245,15 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_WRAITH:
 				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]++;
 				break;
+			case Utilidades::ID_COVERT_OPS:
+				cantUnidades[Utilidades::INDEX_GOAL_COVERT_OPS]++;
+				break;
+			case Utilidades::ID_GHOST:
+				cantUnidades[Utilidades::INDEX_GOAL_GHOST]++;
+				break;
+			case Utilidades::ID_COMMANDCENTER:
+				cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]++;
+				break;
 		}
 		
 	}
@@ -308,7 +336,21 @@ void strategy_manager::onUnitDestroy(Unit *u){
 			case Utilidades::ID_WRAITH:
 				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]--;
 				break;
+			case Utilidades::ID_COVERT_OPS:
+				cantUnidades[Utilidades::INDEX_GOAL_COVERT_OPS]--;
+				break;
+			case Utilidades::ID_GHOST:
+				cantUnidades[Utilidades::INDEX_GOAL_GHOST]--;
+				break;
+			case Utilidades::ID_COMMANDCENTER:
+				cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]--;
+				break;
 		}
 		
 	}
+}
+
+
+int strategy_manager::getEstadoActual(){
+	return estadoActual;
 }
