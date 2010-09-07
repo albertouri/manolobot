@@ -477,7 +477,7 @@ void unit_Manager::ejecutarConstrucciones(){
 		delete building;
 	}//-- NUEVO
 	else if ((grupoB2 != NULL) && grupoB2->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
-		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
+		//UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
 		posB = grupoB2->posicionNuevoBunker();
@@ -489,7 +489,7 @@ void unit_Manager::ejecutarConstrucciones(){
 		}
 		else
 			Broodwar->printf("ERROR: No encuentro posicion para construir el bunker");
-		delete building;
+	//	delete building;
 	}
 
 
@@ -546,7 +546,7 @@ void unit_Manager::ejecutarConstrucciones(){
 			}
 		}
 
-		delete building;
+		//delete building;
 	}
 	
 	
