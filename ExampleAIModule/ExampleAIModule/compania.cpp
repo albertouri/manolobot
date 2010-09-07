@@ -8,7 +8,7 @@ int latencia=0;
 int latenciaMovimientoTropas = 0;
 
 bool atacando = false;
-Position posicionanteriorDelComandante;
+
 
 std::list<Unit*> listaDeTanquesAUbicar;
 
@@ -405,6 +405,10 @@ void compania::onFrame(){
 			else{
 				latenciaMovimientoTropas++;
 				if (regionActual!= NULL)
+					if ((BWTA::getRegion(comandante->getTilePosition()) != regionActual)&&(Broodwar->getFrameCount()%50 == 27)){
+						Broodwar->printf("me ejecuto vieja");
+						comandante->rightClick(regionActual->getCenter());
+					}
 					Graficos::dibujarCuadro(new TilePosition(regionActual->getCenter()), 2,2);
 			}
 		}
@@ -479,9 +483,7 @@ void compania::onFrame(){
 		}
 	}
 	
-	if ((comandante != NULL)&& (comandante->exists())&&(posicionanteriorDelComandante != comandante->getPosition()) ){
-		posicionanteriorDelComandante = comandante->getPosition();
-	}
+
 	
 	// ----------------------------------------------------------------------------------------
 	//-- controla las unidades eliminando las unidades muertas de la lista correspondiente
@@ -738,7 +740,7 @@ bool compania::pertenece(Unit *u){
 bool compania::listaParaAtacar(){
 
 	if((comandante!=NULL)&&(comandante->exists())){
-		if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) && (listScienceVessel.size() == 1) &&*/ (listMedics.size() > 4) && (listMarines.size() >= 12)){
+		if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) && (listScienceVessel.size() == 1) &&*/ (listMedics.size() > 4) && (listMarines.size() >= 10)){
 			std::list<Unit*>::iterator It1;
 
 			It1 = listMarines.begin();
@@ -938,9 +940,8 @@ void compania::setComandantes(void){
 		
 		actualizarEstado(&listTanks);
 		if (listTanks.size() > 0){
-			if(BWTA::getRegion((*listTanks.begin())->getTilePosition()) == regionActual){
+			if((BWTA::getRegion((*listTanks.begin())->getTilePosition()) == regionActual)||(atacando== false)){
 				comandante = *(listTanks.begin());
-				posicionanteriorDelComandante = comandante->getPosition();
 			}
 		}
 		//verifico que se haya seteado el comandante
@@ -948,9 +949,8 @@ void compania::setComandantes(void){
 
 			actualizarEstado(&listMarines);
 			if (listMarines.size() > 0){
-				if(BWTA::getRegion((*listMarines.begin())->getTilePosition()) == regionActual){
+				if((BWTA::getRegion((*listMarines.begin())->getTilePosition()) == regionActual)||(atacando== false)){
 					comandante = *(listMarines.begin());
-					posicionanteriorDelComandante = comandante->getPosition();
 				}
 			}
 			//verifico que se haya seteado el comandante
@@ -974,25 +974,6 @@ void compania::setComandantes(void){
 
 	}
 
-
-	
-		/*
-		else{
-			actualizarEstado(&listFirebats);
-
-			if (listFirebats.size() > 0){
-				comandante = *(listFirebats.begin());
-				posicionanteriorDelComandante = comandante->getPosition();
-			}
-			else
-				comandante = NULL;
-		}*/
-		/*
-		if ((comandante != NULL) && (comandante->exists())){
-			//comandante->rightClick(analizador->regionInicial()->getCenter());
-			
-		}
-	*/
 
 
 
