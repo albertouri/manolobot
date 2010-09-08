@@ -1259,11 +1259,16 @@ void unit_Manager::sendGatherCristal(Unit* worker){
 	
 	if (worker != NULL){
 		Unit* closestMineral=NULL;
+		int menordistancia = 10000;
 		//busca el mineral más cercano.
-		if (closestMineral == NULL){
-			for(std::set<Unit*>::iterator m=Broodwar->getMinerals().begin();m!=Broodwar->getMinerals().end();m++){
-				if (closestMineral == NULL || centroDeComando->getDistance(*m)<centroDeComando->getDistance(closestMineral))
-					closestMineral = *m;
+		for(std::set<Unit*>::iterator centroCmd=Broodwar->self()->getUnits().begin();centroCmd!=Broodwar->self()->getUnits().end();centroCmd++){
+			if((*centroCmd)->getType().getID()== Utilidades::ID_COMMANDCENTER){
+				for(std::set<Unit*>::iterator m=Broodwar->getMinerals().begin();m!=Broodwar->getMinerals().end();m++){
+					if (closestMineral == NULL || ((*centroCmd)->getDistance(*m)<menordistancia)){
+						closestMineral = *m;
+						menordistancia = (*centroCmd)->getDistance(*m);
+					}
+				}
 			}
 		}
 
