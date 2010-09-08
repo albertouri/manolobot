@@ -22,7 +22,8 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	buildingSemaphore = 0;
 
 	Easy = new compania(analizador, Colors::Red);
-	//Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
+	Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
+	//Fox = NULL;
 
 	//magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
 	magallanes = NULL;
@@ -72,7 +73,8 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 
 void unit_Manager::executeActions(){
 
-	// Crea un nuevo grupo de bunkers
+	/*if (Broodwar->getFrameCount() % 150 == 0)
+		Broodwar->printf("estadoActual = %d", estadoActual);*/
 
 	if (analizador->analisisListo()){
 
@@ -99,7 +101,6 @@ void unit_Manager::executeActions(){
 
 		if (grupoB2 != NULL)
 			grupoB2->onFrame();
-
 		
 		//-- BUSCA LA REGION PARA EL SEGUNDO GRUPO DE BUNKERS
 		if (analizador->analisisListo() && (grupoB2 == NULL) && /*(cantUnidades[Utilidades::ID_COMMANDCENTER] > 1)*/ (estadoActual == 5)){
@@ -462,34 +463,29 @@ void unit_Manager::ejecutarConstrucciones(){
 
 	//-- BUNKER
 	if ((grupoB1 != NULL) && grupoB1->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
-		UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
 		posB = grupoB1->posicionNuevoBunker();
 
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_BUNKER);
-
 			delete posB;
 		}
 		else
 			Broodwar->printf("ERROR: No encuentro posicion para construir el bunker");
-		delete building;
-	}//-- NUEVO
+
+	}
 	else if ((grupoB2 != NULL) && grupoB2->faltanBunkers() && (Broodwar->self()->minerals() > 150) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]) && (buildingSemaphore == 0)){
-		//UnitType* building = new UnitType(Utilidades::ID_BUNKER);
 		TilePosition *posB = NULL;
 
 		posB = grupoB2->posicionNuevoBunker();
 
 		if (posB != NULL){
 			buildUnit(posB, Utilidades::ID_BUNKER);
-
 			delete posB;
 		}
 		else
 			Broodwar->printf("ERROR: No encuentro posicion para construir el bunker");
-	//	delete building;
 	}
 
 
@@ -506,15 +502,13 @@ void unit_Manager::ejecutarConstrucciones(){
 		cantTurrets += grupoB2->cantMaximaTurrets();
 
 	if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_MISSILE_TURRET] < cantTurrets)){
-		UnitType* building = new UnitType(Utilidades::ID_MISSILE_TURRET);
 		TilePosition *posB = NULL;
 
-		if((grupoB1 != NULL) && (grupoB1->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+		if ((grupoB1 != NULL) && (grupoB1->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 			posB = grupoB1->posicionNuevaTorreta();
 
 			if (posB != NULL){
 				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
-
 				delete posB;
 			}
 		}
@@ -536,7 +530,7 @@ void unit_Manager::ejecutarConstrucciones(){
 				delete posB;
 			}
 		}
-		else if((grupoB2 != NULL) && (!grupoB1->faltanTanques()) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+		else if ((grupoB2 != NULL) && (!grupoB1->faltanTanques()) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 			posB = grupoB2->posicionNuevaTorreta();
 
 			if (posB != NULL){
@@ -545,8 +539,6 @@ void unit_Manager::ejecutarConstrucciones(){
 				delete posB;
 			}
 		}
-
-		//delete building;
 	}
 	
 	
@@ -2317,7 +2309,8 @@ void unit_Manager::onNukeDetect(Position p){
 			if ((int)p.getDistance(masCercana->getPosition()) <= (masCercana->getType().sightRange() + 64)){
 				// sumo 64 al sightRange para tener en cuenta la mejora de vision del fantasma
 				if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() >= 50) && (!masCercana->isDetected()))
-					detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
+					//detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
+					detector->useTech(TechTypes::Scanner_Sweep, masCercana->getPosition());
 
 				Broodwar->printf("Fantasma detectado, atacando...");
 
@@ -2328,7 +2321,8 @@ void unit_Manager::onNukeDetect(Position p){
 				Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
 
 				if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() >= 50))
-					detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
+					//detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
+					detector->useTech(TechTypes::Scanner_Sweep, p);
 
 				Broodwar->printf("Fantasma detectado, movimiento de ataque...");
 
@@ -2342,14 +2336,14 @@ void unit_Manager::onNukeDetect(Position p){
 			Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
 
 			if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() >= 50))
-				detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
+				//detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
+				detector->useTech(TechTypes::Scanner_Sweep, p);
 
 			Broodwar->printf("Fantasma detectado, movimiento de ataque...");
 
 			if (Fox != NULL) 
 				Fox->atacar(p);
 		}
-
 	}
 }
 
