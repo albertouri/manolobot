@@ -1,5 +1,4 @@
 #include "GrupoBunkers.h"
-#include <list>
 
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
@@ -106,6 +105,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r)
 				if (chokeEnemigo == NULL)
 					chokeEnemigo = (*It);
 				else{
+					// TODO: mejorar la seleccion del chokepoint a defender, hay un mapa en el cual no funca
+
 					/*fin1 = new TilePosition((*It)->getCenter().x() / TILE_SIZE, (*It)->getCenter().y() / TILE_SIZE);
 					fin2 = new TilePosition(chokeEnemigo->getCenter().x() / TILE_SIZE, chokeEnemigo->getCenter().y() / TILE_SIZE);
 					
@@ -133,6 +134,11 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r)
 	analizador = a;
 	contadorMovimientos = 0;
 
+	// ------------------------------------------------------------------------------------------
+	// calcula la posicion de reunion de los soldados, a la cual se dirigiran si el bunker en el que estaban es destruido, para
+	// liberar la posicion del bunker asi se puede reconstruir rapidamente
+
+	posEncuentro = NULL;
 	int cuadrante = a->getCuadrante(reg->getCenter());
 
 	if (bunkerCentral != NULL){
@@ -413,7 +419,7 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 		}
 	}
 	else{
-		//Broodwar->printf("El bunker central es NULL");
+		Broodwar->printf("El bunker central es NULL");
 		return NULL;
 	}
 }
@@ -429,7 +435,6 @@ TilePosition* GrupoBunkers::posicionNuevaTorreta(){
 
 
 		cuadrante = analizador->getCuadrante(reg->getCenter());
-		//cuadrante = analizador->getOrientacion(choke, reg);
 		angulo1 = anguloGrupo;
 
 		//-- NUEVO CODIGO
