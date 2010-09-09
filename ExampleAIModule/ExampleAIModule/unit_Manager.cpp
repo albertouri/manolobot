@@ -10,7 +10,6 @@ int goalLimiteBarracas = 1;*/
 Grafo *grf = NULL;
 CompaniaTransporte *ct = NULL;
 
-
 //int tiempoProxFinalizacion = 0; // mantiene el tiempo hasta la proxima finalizacion de la construccion o entrenamiento de una unidad para evitar ejecutar en todos los frames el metodo controlarFinalizacion
 //int contProxFinalizacion = 0; // contador que se incrementa en cada frame, para controlar la finalizacion de una construccion o entrenamiento
 
@@ -103,7 +102,7 @@ void unit_Manager::executeActions(){
 			grupoB2->onFrame();
 		
 		//-- BUSCA LA REGION PARA EL SEGUNDO GRUPO DE BUNKERS
-		if (analizador->analisisListo() && (grupoB2 == NULL) && /*(cantUnidades[Utilidades::ID_COMMANDCENTER] > 1)*/ (estadoActual == 5)){
+		if (analizador->analisisListo() && (grupoB2 == NULL) && (estadoActual == 5)&&(regionBaseEnemiga != NULL)){
 			std::set<Region*>::const_iterator It = analizador->regionInicial()->getReachableRegions().begin();
 			Region *temp = NULL;
 
@@ -123,7 +122,7 @@ void unit_Manager::executeActions(){
 				Broodwar->printf("No hay lugar para una nueva base...");
 			else{
 				TilePosition* posB = new TilePosition((*temp->getBaseLocations().begin())->getTilePosition().x(), (*temp->getBaseLocations().begin())->getTilePosition().y());
-				grupoB2 = new GrupoBunkers(analizador, temp);
+				grupoB2 = new GrupoBunkers(analizador, temp, regionBaseEnemiga);
 				Broodwar->printf("Grupo bunkers n2 creado, debo construir %d bunkers", goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]);
 				delete posB;
 			}
@@ -221,7 +220,7 @@ void unit_Manager::executeActions(){
 			Broodwar->drawLine(CoordinateType::Map, grupoB2->getChoke()->getCenter().x(), grupoB2->getChoke()->getCenter().y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 		}
 
-		/*t222 = grupoB2->posicionNuevaTorreta();
+		t222 = grupoB2->posicionNuevaTorreta();
 		if (t222 != NULL){
 			Graficos::dibujarCuadro(t222, 2, 2);
 			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
@@ -232,7 +231,7 @@ void unit_Manager::executeActions(){
 			Graficos::dibujarCuadro(t333, 1, 1);
 			//Broodwar->drawLine(CoordinateType::Map, analizador->obtenerCentroChokepoint()->x(), analizador->obtenerCentroChokepoint()->y(), t111->x() * 32 + 16, t111->y() * 32 + 16, Colors::Yellow);
 			delete t333;
-		}*/
+		}
 		/*else
 			Broodwar->printf("posicion nuevo tanque es NULL");*/
 		
@@ -512,7 +511,7 @@ void unit_Manager::ejecutarConstrucciones(){
 				delete posB;
 			}
 		}
-		else if ((anti != NULL) && (!grupoB1->faltanTanques()) && (anti->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+		else if ((anti != NULL) && (grupoB1 != NULL) && (!grupoB1->faltanTanques()) && (anti->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 			posB = anti->getPosicionMisileTurret();
 
 			if (posB != NULL){
@@ -530,7 +529,17 @@ void unit_Manager::ejecutarConstrucciones(){
 				delete posB;
 			}
 		}
-		else if ((grupoB2 != NULL) && (!grupoB1->faltanTanques()) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+		else if ((grupoB2 != NULL) && (grupoB1 != NULL) && (!grupoB1->faltanTanques()) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+			posB = grupoB2->posicionNuevaTorreta();
+
+			if (posB != NULL){
+				buildUnit(posB, Utilidades::ID_MISSILE_TURRET);
+
+				delete posB;
+			}
+		}
+		// Borrar esto despues de probar...
+		else if ((grupoB2 != NULL) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 			posB = grupoB2->posicionNuevaTorreta();
 
 			if (posB != NULL){
@@ -920,7 +929,7 @@ void unit_Manager::buildUnit(TilePosition *pos, int id){
 								
 								// mueve cada unidad en el tile a otra posicion (solamente si la unidad en cuestion no es una construccion fija)
 								while (It1 != Broodwar->unitsOnTile(t->x(), t->y()).end()){
-									if (Easy->pertenece(*It1))
+									if ((Easy != NULL) && (Easy->pertenece(*It1)))
 										Easy->moverCompania(*p);
 									else if ((grupoB1 != NULL) && (grupoB1->perteneceMarine(*It1)))
 										grupoB1->moverSoldadosPosEncuentro();
@@ -1261,12 +1270,12 @@ void unit_Manager::sendGatherCristal(Unit* worker){
 		Unit* closestMineral=NULL;
 		int menordistancia = 10000;
 		//busca el mineral más cercano.
-		for(std::set<Unit*>::iterator centroCmd=Broodwar->self()->getUnits().begin();centroCmd!=Broodwar->self()->getUnits().end();centroCmd++){
+		for(std::set<Unit*>::const_iterator centroCmd=Broodwar->self()->getUnits().begin();centroCmd!=Broodwar->self()->getUnits().end();centroCmd++){
 			if((*centroCmd)->getType().getID()== Utilidades::ID_COMMANDCENTER){
 				for(std::set<Unit*>::iterator m=Broodwar->getMinerals().begin();m!=Broodwar->getMinerals().end();m++){
 					if (closestMineral == NULL || ((*centroCmd)->getDistance(*m)<menordistancia)){
 						closestMineral = *m;
-						menordistancia = (*centroCmd)->getDistance(*m);
+						menordistancia = (int)(*centroCmd)->getDistance(*m);
 					}
 				}
 			}
@@ -1295,7 +1304,6 @@ void unit_Manager::sendGatherGas(Unit* worker){
 	} 
 	else 
 		Broodwar->printf("el worker es null");
-
 }
 
 
@@ -1928,7 +1936,9 @@ void unit_Manager::verificarBunkers(){
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
-				Easy->atacar(u);
+				if (Easy != NULL) 
+					Easy->atacar(u);
+
 				break;
 			}
 
@@ -1936,7 +1946,10 @@ void unit_Manager::verificarBunkers(){
 			if ((atacado != NULL) && (atacado->getType().getID() == Utilidades::ID_BUNKER)){
 				// un bunker esta siendo atacado, mando al SCV a repararlo
 				repararUnidad(atacado);
-				Easy->atacar(u);
+
+				if (Easy != NULL)
+					Easy->atacar(u);
+
 				break;
 			}
 		}
@@ -2369,9 +2382,11 @@ void unit_Manager::onUnitShow(Unit *u){
 				// obtiene la posicion del centro de comando de esa region
 				if (!(*It)->getBaseLocations().empty()){
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
-					Easy->setBasesEnemigas(new TilePosition(regionBaseEnemiga->getCenter()));				
+
+					if (Easy != NULL)
+						Easy->setBasesEnemigas(new TilePosition(regionBaseEnemiga->getCenter()));
 				}
-				ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
+				//ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
 
 				encontre = true;
 			}

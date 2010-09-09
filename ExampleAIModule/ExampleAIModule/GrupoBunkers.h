@@ -14,7 +14,7 @@ class GrupoBunkers
 public:
 	GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r);
 
-	GrupoBunkers(AnalizadorTerreno *a, Region *r);
+	GrupoBunkers(AnalizadorTerreno *a, Region *r, Region* regionEnemiga);
 	~GrupoBunkers(void);
 
 
@@ -137,7 +137,7 @@ private:
 
 	// retorna la posicion donde deberia ubicarse un bunker para defender el chokepoint pasado como parametro, retorna NULL si no pudo encontrar una posicion posible
 	TilePosition* posicionPrimerBunker(Region* r, Chokepoint* c); 
-	TilePosition* posicionPrimerBunker2(Region* r, Chokepoint* c, bool buscarHaciaAdentro); 
+	TilePosition* posicionPrimerBunker2(Region* r, Chokepoint* c, bool buscarHaciaAdentro, Region* regionEnemiga); 
 
 	// recorre la lista de tanques y si encuentra un tanque que ya no existe lo reemplaza por el nuevo tanque. Retorna true si encontro una posicion vacia, false en caso contrario
 	bool rellenarPosicionTanque(Unit *u); 
