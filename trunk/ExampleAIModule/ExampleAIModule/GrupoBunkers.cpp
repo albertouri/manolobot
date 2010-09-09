@@ -1,5 +1,7 @@
 #include "GrupoBunkers.h"
 
+Region *e = NULL;
+
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
 	int cuadrante;
@@ -54,8 +56,9 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 }
 
 
-GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r)
+GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemiga)
 {
+	e = regionEnemiga;
 	Chokepoint *chokeEnemigo = NULL;
 	Chokepoint *c2 = NULL;
 
@@ -95,7 +98,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r)
 			It++;
 		}
 
-		bunkerCentral = posicionPrimerBunker2(reg, choke, false);
+		bunkerCentral = posicionPrimerBunker2(reg, choke, false, regionEnemiga);
 	}
 	else{
 		//-- si hay mas de 2 chokepoints en la region, busca el mas lejano a la base y ahi ubica los bunkers
@@ -126,7 +129,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r)
 
 		reg = r;
 		choke = chokeEnemigo;
-		bunkerCentral = posicionPrimerBunker2(reg, choke, false);
+		bunkerCentral = posicionPrimerBunker2(reg, choke, false, regionEnemiga);
 	}
 
 	delete inicio;
@@ -797,7 +800,9 @@ void GrupoBunkers::ponerACubierto(){
 
 void GrupoBunkers::onFrame(){
 
-	//posicionPrimerBunker2(reg, choke, false);
+	/*if (e != NULL)
+		posicionPrimerBunker2(reg, choke, false, e);*/
+
 	resaltarUnidades();
 
 	if (Broodwar->getFrameCount() % frameLatency == 0){
@@ -906,19 +911,24 @@ TilePosition* GrupoBunkers::posicionPrimerBunker(Region* r, Chokepoint* c){
 	return res;
 }
 
-TilePosition* GrupoBunkers::posicionPrimerBunker2(Region* r, Chokepoint* c, bool buscarHaciaAdentro){
+TilePosition* GrupoBunkers::posicionPrimerBunker2(Region* r, Chokepoint* c, bool buscarHaciaAdentro, Region* regionEnemiga){
 	int cuadrante = 0;
 	int angulo = analizador->calcularAngulo(c);
 	cuadrante = analizador->getCuadrante(r->getCenter());
 	int angulo1;// = analizador->calcularAnguloGrupo(angulo);
 	
-	if ((angulo >= /*112*/135) && (angulo <= 179))
+	/*if ((angulo >= 135) && (angulo <= 179))
 		angulo1 = 0;
-	else if ((angulo <= /*67*/45) && (angulo >= 0))
+	else if ((angulo <= 45) && (angulo >= 0))
 		angulo1 = 0;
 	else
-		angulo1 = 90;
+		angulo1 = 90;*/
 
+	if (abs(r->getCenter().x() - regionEnemiga->getCenter().x()) < abs(r->getCenter().y() - regionEnemiga->getCenter().y()))
+		angulo1 = 90;
+	else
+		angulo1 = 0;
+	
 	return encontrarPosicion2(cuadrante, c->getCenter(), angulo1, buscarHaciaAdentro);
 }
 
@@ -976,7 +986,7 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 			contX = 2;
 
 
-		while (contY < /*10*/25){
+		while (contY < /*10*/15){
 			//-- Posicion del bunker central
 			t = new TilePosition((p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
 			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
@@ -1059,17 +1069,17 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 			//-- ACTUALIZA LOS CONTADORES
 			// si el cuadrante esta en la mitad izquierda de la pantalla, busca posicion de izquierda a derecha, de lo contrario busca al reves
 			if ((cuadrante == 1) || (cuadrante == 3)){
-				if (contX == 2){
+				if (contX == /*2*/4){
 					contY++;
-					contX = -2;
+					contX = /*-2*/-4;
 				}
 				else
 					contX++;
 			}
 			else{
-				if (contX == -2){
+				if (contX == /*-2*/-4){
 					contY++;
-					contX = 2;
+					contX = /*2*/4;
 				}
 				else
 					contX--;
@@ -1176,9 +1186,9 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 
 				TilePosition *aux = res;
 				if ((cuadrante == 1) || (cuadrante == 3))
-					res = new TilePosition(aux->x() - 1, aux->y());
+					res = new TilePosition(aux->x()/* - 1*/, aux->y());
 				else
-					res = new TilePosition(aux->x() + 1, aux->y());
+					res = new TilePosition(aux->x()/* + 1*/, aux->y());
 
 				delete aux;
 				//-- RETORNA LA POSICION DEL PRIMER BUNKER A CONSTRUIR
