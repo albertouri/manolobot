@@ -1139,7 +1139,7 @@ void unit_Manager::makeRefinery(TilePosition *pos){
 Unit* unit_Manager::getWorker(){
 	Unit* trabajador = NULL;
 	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
-		if ((*i)->getType().isWorker()){
+		if (((*i)->exists()) && ((*i)->getType().isWorker())){
 			if (!(*i)->isConstructing()){
 				trabajador = *i;
 				break;
@@ -1269,6 +1269,7 @@ void unit_Manager::sendGatherCristal(Unit* worker){
 	if (worker != NULL){
 		Unit* closestMineral=NULL;
 		int menordistancia = 10000;
+
 		//busca el mineral más cercano.
 		for(std::set<Unit*>::const_iterator centroCmd=Broodwar->self()->getUnits().begin();centroCmd!=Broodwar->self()->getUnits().end();centroCmd++){
 			if((*centroCmd)->getType().getID()== Utilidades::ID_COMMANDCENTER){
