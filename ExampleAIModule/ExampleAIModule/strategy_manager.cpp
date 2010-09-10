@@ -126,7 +126,7 @@ void strategy_manager::checkGoals(void){
 			GoalResearch[Utilidades::INDEX_GOAL_RESTORATION] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
 			GoalUnidades[Utilidades::INDEX_GOAL_GOLIATH] = 4;
-			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 7;
+			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 12;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] = 1;
 			//GoalUnidades[Utilidades::INDEX_GOAL_WRAITH] = 2;
 		}
