@@ -76,6 +76,7 @@ private:
 
 	// Compañias de unidades
 	compania* Easy;
+	//compania* Charlie;
 	// compañia fox (no es por megan), defiende la base
 	CompaniaDefensiva* Fox;
 

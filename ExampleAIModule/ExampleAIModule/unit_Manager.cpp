@@ -4,6 +4,11 @@
 GrupoAntiaereo *anti = NULL;
 int goalLimiteGeiser = 1;
 
+int turnoAsignacionMarines = 0;
+int turnoAsignacionMedics = 0;
+int turnoAsignacionTanks = 0;
+int turnoAsignacionGoliaths = 0;
+
 /*int goalLimiteSCV = 8;
 int goalLimiteBarracas = 1;*/
 
@@ -23,6 +28,8 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	buildingSemaphore = 0;
 
 	Easy = new compania(analizador, Colors::Red);
+//	Charlie = new compania(analizador, Colors::Yellow);
+//	Charlie->setComportanmientoEsperando();
 	Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
 	//Fox = NULL;
 
@@ -1950,8 +1957,15 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 			if ((cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 16) && (Fox != NULL) && (Fox->faltanMarines()))
 				Fox->asignarUnidad(unit);
 			else {
-				if (Easy != NULL)
-					Easy->asignarUnidad(unit);
+			//	if ((Easy != NULL)&& (Charlie!=NULL))
+			//		if((turnoAsignacionMarines == 1)&&(Charlie->faltanMarines())){
+			//			Charlie->asignarUnidad(unit);
+			//			turnoAsignacionMarines= 0;
+			//		}
+			//		else{
+						Easy->asignarUnidad(unit);
+			//			turnoAsignacionMarines= 1;
+			//		}
 			}
 		}
 	}
@@ -1959,8 +1973,15 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		if ((Fox != NULL) && (Fox->faltanMedics()))
 			Fox->asignarUnidad(unit);
 		else {
-			if (Easy != NULL)
-				Easy->asignarUnidad(unit);
+		//	if ((Easy != NULL)&& (Charlie!=NULL))
+		//		if((turnoAsignacionMedics == 1)&&(Charlie->faltanMedicos())){
+		//				Charlie->asignarUnidad(unit);
+		//				turnoAsignacionMarines= 0;
+		//			}
+		//		else{
+					Easy->asignarUnidad(unit);
+		//			turnoAsignacionMarines= 1;
+		//		}
 		}
 	}
 	else if (unit->getType().getID() == Utilidades::ID_FIREBAT){
@@ -1973,13 +1994,27 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		else if ((grupoB2 != NULL) && (grupoB2->faltanTanques()))
 			grupoB2->agregarUnidad(unit);
 		else {
-			if (Easy != NULL)
-				Easy->asignarUnidad(unit);
+		//	if ((Easy != NULL)&& (Charlie != NULL))
+		//		if((turnoAsignacionTanks == 1)&&(Charlie->faltanTanks())){
+		//			Charlie->asignarUnidad(unit);
+		//			turnoAsignacionTanks= 0;
+		//		}
+		//		else{
+					Easy->asignarUnidad(unit);
+		//			turnoAsignacionTanks= 1;
+		//		}
 		}
 	}
 	else if (unit->getType().getID() == Utilidades::ID_GOLIATH){
-		if (Easy != NULL) 
-			Easy->asignarUnidad(unit);
+	//	if ((Easy != NULL) &&(Charlie != NULL))
+	//		if((turnoAsignacionGoliaths == 1)&&(Charlie->faltanGoliaths())){
+	//			Charlie->asignarUnidad(unit);
+	//			turnoAsignacionGoliaths= 0;
+	//		}
+	//		else{
+				Easy->asignarUnidad(unit);
+	//			turnoAsignacionGoliaths= 1;
+	//		}
 	}
 	else if (unit->getType().getID() == Utilidades::ID_SCIENCE_VESSEL){
 		if (Easy != NULL) 

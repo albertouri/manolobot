@@ -52,6 +52,15 @@ public:
 
 	Unit* getComandante();
 
+	//setea la compañia para que espere por el transporte o que deje de esperarlo
+	void setComportanmientoEsperando(void);
+	void setComportanmientoNormal(void);
+
+	bool faltanMarines();
+	bool faltanMedicos();
+	bool faltanTanks();
+	bool faltanGoliaths();
+
 private:
 	Color c; // color especifico para resaltar las unidades de cada compañia, seteado en el constructor
 	Unit *comandante; // puntero al comandante de la compañia
@@ -96,9 +105,7 @@ private:
 	// recalcula la cantidad de transportes necesarios para cargar la compañia completa
 	void calcularTransportes();
 
-	//setea la compañia para que espere por el transporte o que deje de esperarlo
-	void setComportanmientoEsperando(void);
-	void setComportanmientoNormal(void);
+
 };
 
 

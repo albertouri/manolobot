@@ -379,6 +379,7 @@ void compania::onFrame(){
 	if (!atacando){
 		if ((comandante!= NULL)&&(comandante->exists())){
 			controlarDistancia(); 
+			
 		//codigo para decidir si marcha a combate
 			if((esperar==false)&&(latenciaMovimientoTropas>50)&&(listaParaAtacar()) && (posicionEnemigo != NULL) ){
 				if (analizador->analisisListo()){
@@ -1058,4 +1059,21 @@ void compania::setComportanmientoEsperando(){
 	
 void compania::setComportanmientoNormal(){
 	esperar = false;
+}
+
+bool compania::faltanMarines(){
+	return (listMarines.size()< 6);
+}
+
+
+bool compania::faltanMedicos(){
+	return (listMedics.size()<4);
+}
+
+bool compania::faltanGoliaths(){
+	return (listGoliath.size()<2);
+}
+
+bool compania::faltanTanks(){
+	return (listTanks.size()<3);
 }
