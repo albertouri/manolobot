@@ -10,6 +10,8 @@ int goalLimiteBarracas = 1;*/
 Grafo *grf = NULL;
 CompaniaTransporte *ct = NULL;
 
+int latenciaScout = 0;
+
 //int tiempoProxFinalizacion = 0; // mantiene el tiempo hasta la proxima finalizacion de la construccion o entrenamiento de una unidad para evitar ejecutar en todos los frames el metodo controlarFinalizacion
 //int contProxFinalizacion = 0; // contador que se incrementa en cada frame, para controlar la finalizacion de una construccion o entrenamiento
 
@@ -88,8 +90,10 @@ void unit_Manager::executeActions(){
 		else{
 			if (magallanes == NULL)
 				magallanes = new Scout(getWorker(), grf);
-			else
+			else{
 				magallanes->explorar(); // manda al scout a explorar el mapa
+				
+			}
 		}
 
 		if (grupoB1 == NULL)
@@ -405,6 +409,10 @@ void unit_Manager::ejecutarConstrucciones(){
 		trainTankSiege();
 	}
 
+	//-- VULTURES
+	if(cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] && (cantUnidades[Utilidades::INDEX_GOAL_VULTURE] < goalCantUnidades[Utilidades::INDEX_GOAL_VULTURE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {
+		trainVulture();
+	}
 
 	//-- REFINERY
 	if((Broodwar->self()->minerals()>200) && (cantUnidades[Utilidades::INDEX_GOAL_REFINERY] < goalCantUnidades[Utilidades::INDEX_GOAL_REFINERY]) && (buildingSemaphore == 0)){
@@ -896,7 +904,6 @@ void unit_Manager::ejecutarConstrucciones(){
 		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_PLATING_LVL1] == 1)){
 			Unit *u;
 			u = getUnit(Utilidades::ID_ARMORY);
-
 			if (u != NULL){
 				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
 					Broodwar->printf("Investigando mejora de armadura de vehiculos (Nivel 1)");
@@ -1339,6 +1346,22 @@ void unit_Manager::trainGoliath(){
 	}
 }
 
+
+
+void unit_Manager::trainVulture(){
+Unit* firstFactory = NULL;
+	for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType().getID() == Utilidades::ID_FACTORY){
+			firstFactory = (*i);
+
+			if ((firstFactory != NULL) && (Broodwar->canMake(firstFactory, Utilidades::ID_VULTURE)) && (firstFactory->getTrainingQueue().size() < 1)){
+				firstFactory->train(*(new UnitType(Utilidades::ID_VULTURE)));
+				break;
+			}
+		}
+	}
+}
 
 
 void unit_Manager::trainTankSiege(){
@@ -2274,6 +2297,16 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_COMMANDCENTER:
 				cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]++;
 				break;
+			case Utilidades::ID_VULTURE:
+				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]++;
+				if(magallanes->exists()){
+					asignarUnidadACompania(u);
+				}
+				else{
+					magallanes->asignarNuevoScout(u);
+					Broodwar->printf("asigné a magallanes");
+				}
+				break;
 		}
 	}
 
@@ -2385,6 +2418,9 @@ void unit_Manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_COMMANDCENTER:
 				cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]--;
+				break;
+			case Utilidades::ID_VULTURE:
+				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]--;
 				break;
 		}
 	}

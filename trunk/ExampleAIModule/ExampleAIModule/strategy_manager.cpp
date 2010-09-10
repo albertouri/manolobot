@@ -105,6 +105,7 @@ void strategy_manager::checkGoals(void){
 	else if (estadoActual == 4){		
 		if (cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] == 0){
 			GoalUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_VULTURE] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 27;
 			GoalResearch[Utilidades::INDEX_GOAL_STIMPACK] = 1;
 		}
@@ -273,6 +274,9 @@ void strategy_manager::onUnitCreate(Unit* u){
 			case Utilidades::ID_COMMANDCENTER:
 				cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]++;
 				break;
+			case Utilidades::ID_VULTURE:
+				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]++;
+				break;
 		}
 		
 	}
@@ -363,6 +367,9 @@ void strategy_manager::onUnitDestroy(Unit *u){
 				break;
 			case Utilidades::ID_COMMANDCENTER:
 				cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER]--;
+				break;
+			case Utilidades::ID_VULTURE:
+				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]--;
 				break;
 		}
 		

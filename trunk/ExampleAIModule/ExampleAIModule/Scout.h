@@ -15,6 +15,8 @@ public:
 	Scout(Unit *unidad, Grafo *g);
 
 	~Scout(void);
+	void asignarNuevoScout(Unit* nuevoScout);
+	bool exists(void);
 	void explorar(void);
 	void cambiarModo(int m);
 	void setExplorador(Unit *u);

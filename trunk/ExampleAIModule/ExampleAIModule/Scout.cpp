@@ -319,6 +319,15 @@ Scout::Scout(Unit *unidad, Grafo *g){
 	primeraExploracion = true;
 }
 
+void Scout::asignarNuevoScout(Unit* nuevoScout){
+	explorer = nuevoScout;
+}
+
+
+bool Scout::exists(){
+	return explorer->exists();
+}
+
 void Scout::explorar(void){
 
 	/*for(std::set<Unit*>::iterator i=Broodwar->getSelectedUnits().begin();i!=Broodwar->getSelectedUnits().end();i++){
