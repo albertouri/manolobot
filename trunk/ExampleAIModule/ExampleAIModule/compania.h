@@ -57,6 +57,7 @@ private:
 	Unit *comandante; // puntero al comandante de la compañia
 	AnalizadorTerreno* analizador; // puntero al analizador del terreno
 	TilePosition * posicionEnemigo;
+	bool esperar;
 
 	// listas de unidades de la compañia
 	std::list<Unit*> listMarines;
@@ -94,6 +95,10 @@ private:
 
 	// recalcula la cantidad de transportes necesarios para cargar la compañia completa
 	void calcularTransportes();
+
+	//setea la compañia para que espere por el transporte o que deje de esperarlo
+	void setComportanmientoEsperando(void);
+	void setComportanmientoNormal(void);
 };
 
 
