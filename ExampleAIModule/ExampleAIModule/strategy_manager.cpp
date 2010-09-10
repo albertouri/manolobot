@@ -147,10 +147,29 @@ void strategy_manager::checkGoals(void){
 		if ((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 6)){
 			GoalUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 2;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 6;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 30;
 			//GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 2;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 6) && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3)){
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 6;
+		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2]){
+			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2] = 1;
+		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL2]){
+			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL2] = 1;
+		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL2]){
+			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL2] = 1;
+		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_VEHICLE_PLATING_LVL1]){
+			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_PLATING_LVL1] = 1;
+		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL3]){
+			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL3] = 1;
+		}
+		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL3]){
+			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL3] = 1;
 		}
 	}
 }

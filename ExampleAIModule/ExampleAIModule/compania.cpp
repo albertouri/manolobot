@@ -16,6 +16,8 @@ Unit* herido;
 std::list<Unit*> listaDeUnidadesAfectadas;
 std::list<Unit*> listaDeUnidadesNotMatrixed;
 
+std::list<Unit*> soyUnSet;
+
 Region* regionActual = NULL;
 Region* puntoDeRetirada = NULL;
 
@@ -27,6 +29,7 @@ compania::compania(AnalizadorTerreno *at, Color ID)
 	comandante = NULL;
 	cantTransportes = 0;
 	listRefuerzos.clear();
+	esperar = false;
 }
 
 compania::~compania(void)
@@ -294,6 +297,7 @@ void compania::onFrame(){
 
 	//------------------------------controla las regiones iniciales----------------------------------------
 
+
 	if(regionActual == NULL){
 		if(analizador->analisisListo()){	
 			regionActual = analizador->regionInicial();
@@ -376,7 +380,7 @@ void compania::onFrame(){
 		if ((comandante!= NULL)&&(comandante->exists())){
 			controlarDistancia(); 
 		//codigo para decidir si marcha a combate
-			if((latenciaMovimientoTropas>50)&&(listaParaAtacar()) && (posicionEnemigo != NULL) ){
+			if((esperar==false)&&(latenciaMovimientoTropas>50)&&(listaParaAtacar()) && (posicionEnemigo != NULL) ){
 				if (analizador->analisisListo()){
 					std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(comandante->getTilePosition(), *posicionEnemigo);
 					std::vector<BWAPI::TilePosition>::iterator It1;
@@ -1046,4 +1050,12 @@ void compania::retirada(){
 
 
 	}
+}
+
+void compania::setComportanmientoEsperando(){
+	esperar = true;
+}
+	
+void compania::setComportanmientoNormal(){
+	esperar = false;
 }

@@ -805,10 +805,115 @@ void unit_Manager::ejecutarConstrucciones(){
 		}
 	}
 
+	//-- INFANTRY WEAPONS LEVEL 2
+	if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]>0)&&(researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1])&&(!researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2])){
+		// mejora de armamento de marines nivel 3 (se investiga en bahia de ingenieria)
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (Broodwar->self()->minerals() > 175) && (Broodwar->self()->gas() > 175) && (goalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2] == 1)){
+			Unit *u;
+			u = getUnit(Utilidades::ID_ENGINEERING_BAY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando mejora de armamento de marines (Nivel 2)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Infantry_Weapons);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2] = true;
+				}
+			}
+		}
+	}
+
+	//-- INFANTRY WEAPONS LEVEL 3
+	if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]>0)&&(researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2])&&(!researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL3])){
+		// mejora de armamento de marines nivel 3 (se investiga en bahia de ingenieria)
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (Broodwar->self()->minerals() > 250) && (Broodwar->self()->gas() > 250) && (goalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL3] == 1)){
+			Unit *u;
+			u = getUnit(Utilidades::ID_ENGINEERING_BAY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando mejora de armamento de marines (Nivel 3)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Infantry_Weapons);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL3] = true;
+				}
+			}
+		}
+	}
+
+	//-- INFANTRY ARMOR LEVEL 2
+	if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]>0)&&(researchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1])&&(!researchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL2])){
+		// mejora de armamento de marines nivel 1 (se investiga en bahia de ingenieria)
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (Broodwar->self()->minerals() > 175) && (Broodwar->self()->gas() > 175) && (goalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL2] == 1)){
+			Unit *u;
+			u = getUnit(Utilidades::ID_ENGINEERING_BAY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando mejora de armadura de marines (Nivel 2)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Infantry_Armor);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL2] = true;
+				}
+			}
+		}
+	}
+
+	//-- INFANTRY ARMOR LEVEL 3
+	if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]>0)&&(researchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL2])&&(!researchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL3])){
+		// mejora de armamento de marines nivel 1 (se investiga en bahia de ingenieria)
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] > 0) && (Broodwar->self()->minerals() > 250) && (Broodwar->self()->gas() > 250) && (goalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL3] == 1)){
+			Unit *u;
+			u = getUnit(Utilidades::ID_ENGINEERING_BAY);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando mejora de armadura de marines (Nivel 3)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Infantry_Armor);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL3] = true;
+				}
+			}
+		}
+	}
+
+
+	//-- VEHICLE ARMOR LEVEL 1
+	if (!researchDone[Utilidades::INDEX_GOAL_VEHICLE_PLATING_LVL1]){
+		// mejora de armamento de vehiculos nivel 1 (se investiga en armory
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_PLATING_LVL1] == 1)){
+			Unit *u;
+			u = getUnit(Utilidades::ID_ARMORY);
+
+			if (u != NULL){
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando mejora de armadura de vehiculos (Nivel 1)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Vehicle_Plating);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_VEHICLE_PLATING_LVL1] = true;
+				}
+			}
+		}
+	}
+
 	//-- VEHICLE WEAPONS LEVEL 1
 	if (!researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1]){
 		// mejora de armamento de vehiculos nivel 1 (se investiga en armory
-		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] == 1)){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] == 1)){
 			Unit *u;
 			u = getUnit(Utilidades::ID_ARMORY);
 
@@ -825,25 +930,28 @@ void unit_Manager::ejecutarConstrucciones(){
 		}
 	}
 
-	//-- VEHICLE ARMOR LEVEL 1
-	if (!researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1]){
+
+	//-- VEHICLE WEAPONS LEVEL 2
+	if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]>0)&& (researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1])&& (!researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL2]) ){
 		// mejora de armamento de vehiculos nivel 1 (se investiga en armory
-		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] == 1)){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 175) && (Broodwar->self()->gas() > 175) && (goalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL2] == 1)){
 			Unit *u;
 			u = getUnit(Utilidades::ID_ARMORY);
 
 			if (u != NULL){
 				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
-					Broodwar->printf("Investigando mejora de armadura de vehiculos (Nivel 1)");
-					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Vehicle_Plating);
+					Broodwar->printf("Investigando mejora de armamento de vehiculos (Nivel 2)");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Terran_Vehicle_Weapons);
 					u->upgrade(*t);
 					delete t;
 					
-					researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = true;
+					researchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL2] = true;
 				}
 			}
 		}
 	}
+
+
 
 	//-- OPTICAL FLARE
 	if (!researchDone[Utilidades::INDEX_GOAL_OPTICAL_FLARE]){
@@ -1297,7 +1405,8 @@ void unit_Manager::sendGatherGas(Unit* worker){
 		//busca el mineral más cercano.
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
 			if ((*i)->getType().isRefinery())
-				closestGeyser = (*i);
+				if ((closestGeyser == NULL) || ((*i)->getResources()>0))
+					closestGeyser = (*i);
 		}
 		
 		if (closestGeyser!=NULL) 
