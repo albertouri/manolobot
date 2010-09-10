@@ -133,6 +133,9 @@ private:
 	// entrena un ghost
 	void trainGhost();
 
+	// construye un Vulture
+	void trainVulture();
+
 	// construye un Goliath
 	void trainGoliath();
 
