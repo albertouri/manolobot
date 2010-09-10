@@ -745,7 +745,7 @@ bool compania::pertenece(Unit *u){
 bool compania::listaParaAtacar(){
 
 	if((comandante!=NULL)&&(comandante->exists())){
-		if ((listGoliath.size() > 2) && /*(listTanks.size() > 1) && (listScienceVessel.size() == 1) &&*/ (listMedics.size() > 4) && (listMarines.size() >= 10)){
+		if ((listGoliath.size() > 2) && (listTanks.size() > 3) && (listScienceVessel.size() == 1) && (listMedics.size() > 4) && (listMarines.size() >= 10)){
 			std::list<Unit*>::iterator It1;
 
 			It1 = listMarines.begin();
