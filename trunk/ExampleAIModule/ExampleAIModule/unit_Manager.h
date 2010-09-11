@@ -20,7 +20,6 @@ class unit_Manager
 {
 public:
 	unit_Manager(AnalizadorTerreno *analizador);
-	//void executeActions(AnalizadorTerreno *analizador);
 	void executeActions();
 	void resetBuildingSemaphore();
 	
@@ -77,8 +76,14 @@ private:
 	// Compañias de unidades
 	compania* Easy;
 	//compania* Charlie;
-	// compañia fox (no es por megan), defiende la base
+	
+	// compañia que defiende la base
 	CompaniaDefensiva* Fox;
+
+	Grafo *grf;
+	CompaniaTransporte *ct;
+
+	int latenciaScout;
 
 	Scout* magallanes;
 	Player* enemigo;
@@ -89,15 +94,15 @@ private:
 	std::list<Unit*> unidadesEnConstruccion;
 
 	// puntero a la ultima unidad finalizada, se calcula en cada frame con una llamada a controlarFinalizacion()
-	Unit *ultimaFinalizada; 
+	//Unit *ultimaFinalizada; 
 
 	int frameLatency;
 	int buildingSemaphore;
 
 	AnalizadorTerreno* analizador;
 
+	// estado actual tomado del strategy manager
 	int estadoActual;
-
 
 	//-- METODOS
 
