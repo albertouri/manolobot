@@ -379,7 +379,7 @@ void compania::onFrame(){
 	if (!atacando){
 		if ((comandante!= NULL)&&(comandante->exists())){
 			controlarDistancia(); 
-			
+
 		//codigo para decidir si marcha a combate
 			if((esperar==false)&&(latenciaMovimientoTropas>50)&&(listaParaAtacar()) && (posicionEnemigo != NULL) ){
 				if (analizador->analisisListo()){
@@ -403,15 +403,13 @@ void compania::onFrame(){
 					}
 
 					latenciaMovimientoTropas = 0;
-
-
 				}
 			}
 			else{
 				latenciaMovimientoTropas++;
 				if (regionActual!= NULL)
 					if ((BWTA::getRegion(comandante->getTilePosition()) != regionActual)&&(Broodwar->getFrameCount()%50 == 27)){
-						Broodwar->printf("me ejecuto vieja");
+						//Broodwar->printf("me ejecuto vieja");
 						comandante->rightClick(regionActual->getCenter());
 					}
 					Graficos::dibujarCuadro(new TilePosition(regionActual->getCenter()), 2,2);
@@ -746,7 +744,7 @@ bool compania::listaParaAtacar(){
 
 	if((comandante!=NULL)&&(comandante->exists())){
 		if ((listGoliath.size() > 2) && (listTanks.size() > 3) && (listScienceVessel.size() == 1) && (listMedics.size() > 4) && (listMarines.size() >= 10)){
-			std::list<Unit*>::iterator It1;
+			/*std::list<Unit*>::iterator It1;
 
 			It1 = listMarines.begin();
 			while(It1 != listMarines.end()){
@@ -766,7 +764,7 @@ bool compania::listaParaAtacar(){
 				}
 					
 				It1++;
-			}
+			}*/
 			return true;
 		}
 		else

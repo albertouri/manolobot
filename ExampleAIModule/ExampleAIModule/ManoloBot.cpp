@@ -43,12 +43,12 @@ void ManoloBot::checkGoals(void){
 	if (unitManager != NULL)
 		unitManager->executeActions();
 	
-//	if ((analizador != NULL) && (analizador->analisisListo())){
-	//	if ((analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 3) || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 4)/* || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 1)*/)
-	//		Broodwar->restartGame();
-//		analizador->dibujarResultados();
-//	}
 
+	if ((analizador != NULL) && (analizador->analisisListo())){
+		//if ((analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 3) || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 4)/* || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 1)*/)
+		//	Broodwar->restartGame();
+		analizador->dibujarResultados();
+	}
 }
 
 void ManoloBot::onUnitCreate(Unit* u){
