@@ -141,4 +141,6 @@ private:
 
 	// recorre la lista de tanques y si encuentra un tanque que ya no existe lo reemplaza por el nuevo tanque. Retorna true si encontro una posicion vacia, false en caso contrario
 	bool rellenarPosicionTanque(Unit *u); 
+
+	void dibujarPosiciones();
 };

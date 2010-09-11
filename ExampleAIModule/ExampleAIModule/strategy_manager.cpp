@@ -91,7 +91,6 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] = 1;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_U238])){
-			//Broodwar->printf("Entre aca y quiero crear 3 tanques");
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 3;
 			GoalResearch[Utilidades::INDEX_GOAL_TANK_SIEGE_MODE] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_U238] = 1;
@@ -118,8 +117,6 @@ void strategy_manager::checkGoals(void){
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1])){
 			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_OPTICAL_FLARE] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_COVERT_OPS] = 1;
-			GoalResearch[Utilidades::INDEX_GOAL_LOCKDOWN] = 1;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
@@ -127,17 +124,19 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 7;
 			GoalUnidades[Utilidades::INDEX_GOAL_GOLIATH] = 4;
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 12;
-			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] = 1;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_STARPORT] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] == 0)){
 			GoalUnidades[Utilidades::INDEX_GOAL_CONTROL_TOWER] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] = 1;
+			GoalUnidades[Utilidades::INDEX_GOAL_COVERT_OPS] = 1;
+			GoalResearch[Utilidades::INDEX_GOAL_LOCKDOWN] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
 		}
 
-		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0) /*&& (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)*/){
 			Broodwar->printf("Pase al estado 5 en el strategy manager");
 			estadoActual = 5;
 		}
@@ -148,10 +147,10 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 2;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 6;
 			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 30;
-			//GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 2;
+			GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 2;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 6) && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3)){
-			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 10;
+			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 15;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2] = 1;

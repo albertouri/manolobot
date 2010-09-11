@@ -1,6 +1,7 @@
 #include "GrupoBunkers.h"
 
 Region *e = NULL;
+bool faltaMover;
 
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
@@ -13,6 +14,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 	bunkerCentral = posicionPrimerBunker(reg, choke);
 
 	contadorMovimientos = 0;
+	faltaMover = false;
 
 	// ------------------------------------------------------------------------------------------
 	// calcula la posicion de reunion de los soldados, a la cual se dirigiran si el bunker en el que estaban es destruido, para
@@ -136,6 +138,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemig
 
 	analizador = a;
 	contadorMovimientos = 0;
+	faltaMover = false;
 
 	// ------------------------------------------------------------------------------------------
 	// calcula la posicion de reunion de los soldados, a la cual se dirigiran si el bunker en el que estaban es destruido, para
@@ -301,51 +304,6 @@ int GrupoBunkers::getCantTanks(){
 
 	return cont;
 }
-
-
-// el bunker atacado es pasado como parametro
-/*void GrupoBunkers::estrategia1(Unit *u){
-
-	if (perteneceBunker(u)){
-
-		if (u->getLoadedUnits().size() > 0){
-			std::list<Unit*>::iterator It1;
-			std::list<Unit*>::iterator It2;
-			std::list<Unit*> temp;
-			
-			It1 = u->getLoadedUnits().begin();
-
-			//u->unloadAll();
-
-			// si el bunker atacado pertenece al grupo actual, expulsa a los soldados, les aplica el stim pack y los vuelve a ingresar al bunker
-			while (It1 != u->getLoadedUnits().end()){
-				//if (((*It1)->getType().getID() == Utilidades::ID_MARINE) || ((*It1)->getType().getID() == Utilidades::ID_FIREBAT)){
-					
-					//if ((*It1)->exists() && ((!(*It1)->isStimmed()) || ((*It1)->getStimTimer() == 0))){
-						// agrega al soldado a una lista temporal
-						temp.push_front(*It1);
-						//u->unload(*It1);
-					//}
-				//}
-				It1++;
-			}
-		
-			u->unloadAll();
-
-			// ahora vuelve a cargar los soldados en el bunker
-			It2 = temp.begin();
-
-			while (It2 != temp.end()){
-				// si no esta dentro de un contenedor, se aplica el stim pack a la unidad
-				/*if (!(*It1)->isLoaded())
-					(*It1)->useTech(*(new TechType(TechTypes::Stim_Packs)));*/
-
-				/*u->load(*It2);
-				It2++;
-			}
-		}
-	}
-}*/
 
 
 bool GrupoBunkers::perteneceBunker(Unit *u){
@@ -805,6 +763,9 @@ void GrupoBunkers::onFrame(){
 
 	resaltarUnidades();
 
+	if ((Broodwar->getFrameCount() % 24 == 0) && (faltaMover))
+		moverSoldadosPosEncuentro();
+
 	if (Broodwar->getFrameCount() % frameLatency == 0){
 		if (getCantBunkers() > 1)
 			ponerACubierto();
@@ -812,13 +773,7 @@ void GrupoBunkers::onFrame(){
 		ubicarModoSiege();
 	}
 
-	if (contadorMovimientos > 0){
-		moverSoldadosPosEncuentro();
-		contadorMovimientos--;
-	}
-
-	if (posEncuentro != NULL)
-		Graficos::dibujarCuadro(new TilePosition(posEncuentro->x() / 32, posEncuentro->y() / 32), 1, 1);
+	dibujarPosiciones();
 }
 
 
@@ -847,16 +802,33 @@ bool GrupoBunkers::faltanMisileTurrets(){
 }
 
 void GrupoBunkers::moverSoldadosPosEncuentro(){
+	bool estanAtacando = false;
+
 	if (posEncuentro != NULL){
 		std::list<Unit*>::iterator It1;
+
 		It1 = listMarines.begin();
 
 		while (It1 != listMarines.end()){
-			if (((*It1)->isCompleted()) && (!(*It1)->isLoaded()))
-				(*It1)->rightClick(*posEncuentro);
+			if (((*It1)->exists()) && ((*It1)->isCompleted()) && (!(*It1)->isLoaded()))
+				estanAtacando = estanAtacando || (*It1)->isAttacking();
 
 			It1++;
 		}
+
+		if (!estanAtacando){
+			It1 = listMarines.begin();
+
+			while (It1 != listMarines.end()){
+				if (((*It1)->exists()) && ((*It1)->isCompleted()) && (!(*It1)->isLoaded()))
+					(*It1)->move(*posEncuentro);
+
+				It1++;
+			}
+			faltaMover = false;
+		}
+		else
+			faltaMover = true;
 	}
 	else
 		Broodwar->printf("ERROR 001: posicion de encuentro no seteada");
@@ -1512,7 +1484,7 @@ bool GrupoBunkers::perteneceMarine(Unit *u){
 
 	It = listMarines.begin();
 	while (It != listMarines.end()){
-		if ((*It)->getID() == u->getID())
+		if (((*It)->exists()) && (u->exists()) && ((*It)->getID() == u->getID()))
 			return true;
 		It++;
 	}
@@ -1530,4 +1502,30 @@ int GrupoBunkers::cantMaximaTurrets(){
 
 Region* GrupoBunkers::getRegion(){
 	return reg;
+}
+
+
+void GrupoBunkers::dibujarPosiciones(){
+
+	TilePosition *t111 = NULL;
+	TilePosition *t222 = NULL;
+	TilePosition *t333 = NULL;
+	
+	t111 = posicionNuevoBunker();
+	
+	if (t111 != NULL)
+		Graficos::dibujarCuadro(t111, 3, 2);
+
+	t222 = posicionNuevaTorreta();
+	if (t222 != NULL)
+		Graficos::dibujarCuadro(t222, 2, 2);
+
+	t333 = posicionNuevoTanque();		
+	if (t333 != NULL){
+		Graficos::dibujarCuadro(t333, 1, 1);
+		delete t333;
+	}
+
+	if (posEncuentro != NULL)
+		Graficos::dibujarCuadro(new TilePosition(posEncuentro->x() / 32, posEncuentro->y() / 32), 1, 1);
 }
