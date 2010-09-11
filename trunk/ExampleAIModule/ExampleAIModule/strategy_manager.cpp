@@ -56,7 +56,7 @@ void strategy_manager::checkGoals(void){
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] >= 1)&& (cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 4)){
 			GoalUnidades[Utilidades::INDEX_GOAL_BARRACK] = 2;
 		}
-		else if((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] == 2) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] >= 8)){
+		else if((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] >= 2) && (cantUnidades[Utilidades::INDEX_GOAL_MARINE] >= 8)){
 			Broodwar->printf("Pase al estado 1 en el strategy manager");
 			estadoActual = 1;
 		}
