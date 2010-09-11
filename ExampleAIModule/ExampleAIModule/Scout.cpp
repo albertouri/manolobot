@@ -351,7 +351,7 @@ void Scout::explorar(void){
 
 		//-- dibuja la region que se esta explorando actualmente
 
-		if ((explorer != NULL) && (explorer->exists()) && (regActual != NULL)){
+		/*if ((explorer != NULL) && (explorer->exists()) && (regActual != NULL)){
 			Polygon p = regActual->getPolygon();
 			for(int j=0;j<(int)p.size();j++)
 			{
@@ -361,7 +361,7 @@ void Scout::explorar(void){
 			}
 
 			Broodwar->drawLineMap(explorer->getPosition().x(), explorer->getPosition().y(), regActual->getCenter().x(), regActual->getCenter().y(), Colors::White);
-		}
+		}*/
 
 		//grafo->dibujarRegionesNiveles();
 

@@ -2181,6 +2181,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_ACADEMY:
 				if ((cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY]){
 					u->getBuildUnit()->haltConstruction();
+					u->getBuildUnit()->stop();
 					u->cancelConstruction();
 				}
 				else
@@ -2190,6 +2191,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_BARRACK:
 				if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK]){
 					u->getBuildUnit()->haltConstruction();
+					u->getBuildUnit()->stop();
 					u->cancelConstruction();
 				}
 				else
@@ -2223,6 +2225,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_FACTORY:
 				if ((cantUnidades[Utilidades::INDEX_GOAL_FACTORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_FACTORY]){
 					u->getBuildUnit()->haltConstruction();
+					u->getBuildUnit()->stop();
 					u->cancelConstruction();
 				}
 				else
@@ -2239,6 +2242,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_ENGINEERING_BAY:
 				if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]){
 					u->getBuildUnit()->haltConstruction();
+					u->getBuildUnit()->stop();
 					u->cancelConstruction();
 				}
 				else
@@ -2248,6 +2252,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 			case Utilidades::ID_ARMORY:
 				if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ARMORY]){
 					u->getBuildUnit()->haltConstruction();
+					u->getBuildUnit()->stop();
 					u->cancelConstruction();
 				}
 				else
