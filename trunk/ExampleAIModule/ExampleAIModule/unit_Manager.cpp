@@ -183,7 +183,9 @@ void unit_Manager::executeActions(){
 			if ((*i)->exists()){
 				// si es una edificacion o es una unidad mecanica, verifica si esta dañada y la repara
 				if ((Broodwar->self()->minerals() > 70) && (((*i)->getType().isBuilding()) || ((*i)->getType().isMechanical())) && ((*i)->isCompleted()) && ((*i)->getType().maxHitPoints() > (*i)->getHitPoints())){
-					repararUnidad(*i);
+					// evita que reparen el scout, de otro modo los reparadores seguiran al scout a lo largo de toda la exploracion
+					if ((magallanes->getExplorador() != NULL) && (magallanes->exists()) && (magallanes->getExplorador()->getID() != (*i)->getID()))
+						repararUnidad(*i);
 				}
 				else if ((*i)->getType().isBuilding() && (!(*i)->isCompleted()) && (!(*i)->isBeingConstructed())){
 					// si una unidad es una edificacion, no esta completada y no esta siendo construida por nadie (es decir quedo su construccion incompleta) manda a un SCV a finalizar su construccion

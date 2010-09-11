@@ -319,9 +319,9 @@ Scout::Scout(Unit *unidad, Grafo *g){
 	primeraExploracion = true;
 }
 
-void Scout::asignarNuevoScout(Unit* nuevoScout){
+/*void Scout::asignarNuevoScout(Unit* nuevoScout){
 	explorer = nuevoScout;
-}
+}*/
 
 
 bool Scout::exists(){
@@ -374,7 +374,7 @@ void Scout::explorar(void){
 					tiempoMax = 0;
 				}
 				else{
-					if (tiempoMax > 900){
+					if (tiempoMax > 700){
 						tiempoMax = 0;
 						regActual = grafo->siguienteNodoNiveles();
 					}
@@ -514,4 +514,9 @@ void Scout::setExplorador(Unit *unidad){
 	regActual = grafo->primerNodoNiveles();
 	tiempoMax = 0;
 	primeraExploracion = false;
+}
+
+
+Unit* Scout::getExplorador(){
+	return explorer;
 }
