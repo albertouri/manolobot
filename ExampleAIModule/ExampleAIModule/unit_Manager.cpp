@@ -1083,8 +1083,8 @@ void unit_Manager::buildUnitAddOn(int id){
 									else{
 										if ((bunk!=NULL)&&(bunk->exists()))
 											(*It1)->rightClick(bunk->getTilePosition());
-										It1++;
 									}
+									It1++;
 								}
 							}
 							else{
@@ -1913,8 +1913,11 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		else if ((grupoB2 != NULL) && (grupoB2->faltanMarines()))
 			grupoB2->agregarUnidad(unit);
 		else{
-			if ((cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 16) && (Fox != NULL) && (Fox->faltanMarines()))
+			if ((cantUnidades[Utilidades::INDEX_GOAL_MARINE] > 16) && (Fox != NULL) && (Fox->faltanMarines())){
 				Fox->asignarUnidad(unit);
+				if (analizador->analisisListo())
+					unit->move(analizador->regionInicial()->getCenter());
+			}
 			else {
 			//	if ((Easy != NULL)&& (Charlie!=NULL))
 			//		if((turnoAsignacionMarines == 1)&&(Charlie->faltanMarines())){
@@ -1929,8 +1932,12 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 		}
 	}
 	else if (unit->getType().getID() == Utilidades::ID_MEDIC){
-		if ((Fox != NULL) && (Fox->faltanMedics()))
+		if ((Fox != NULL) && (Fox->faltanMedics())){
 			Fox->asignarUnidad(unit);
+
+			if (analizador->analisisListo())
+				unit->move(analizador->regionInicial()->getCenter());
+		}
 		else {
 		//	if ((Easy != NULL)&& (Charlie!=NULL))
 		//		if((turnoAsignacionMedics == 1)&&(Charlie->faltanMedicos())){
@@ -1988,8 +1995,12 @@ void unit_Manager::asignarUnidadACompania(Unit* unit){
 			ct->asignarUnidad(unit);
 	}
 	else if (unit->getType().getID() == Utilidades::ID_GHOST){
-		if ((Fox != NULL) && (Fox->faltanGhosts()))
+		if ((Fox != NULL) && (Fox->faltanGhosts())){
 			Fox->asignarUnidad(unit);
+
+			if (analizador->analisisListo())
+				unit->move(analizador->regionInicial()->getCenter());
+		}
 	}
 
 }
@@ -2167,6 +2178,7 @@ void unit_Manager::moverUnidades(TilePosition *t){
 				if (!(*It1)->getType().isBuilding()){
 					(*It1)->rightClick(*pos);
 				}
+				It1++;
 			}
 
 			delete pos;
