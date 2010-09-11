@@ -1,9 +1,6 @@
 #include "GrupoBunkers.h"
 
-Region *e = NULL;
-bool faltaMover;
-
-int cantChokes;
+//Region *e = NULL;
 
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
@@ -15,7 +12,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 
 	bunkerCentral = posicionPrimerBunker(reg, choke);
 
-	contadorMovimientos = 0;
+	//contadorMovimientos = 0;
 	faltaMover = false;
 
 	// ------------------------------------------------------------------------------------------
@@ -62,7 +59,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemiga)
 {
-	e = regionEnemiga;
+	//e = regionEnemiga;
 	Chokepoint *chokeEnemigo = NULL;
 	Chokepoint *c2 = NULL;
 
@@ -144,7 +141,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemig
 	delete inicio;
 
 	analizador = a;
-	contadorMovimientos = 0;
+	//contadorMovimientos = 0;
 	faltaMover = false;
 
 	// ------------------------------------------------------------------------------------------
@@ -768,10 +765,10 @@ void GrupoBunkers::onFrame(){
 	/*if (e != NULL)
 		posicionPrimerBunker2(reg, choke, false, e);*/
 
-	if (choke != NULL)
+	/*if (choke != NULL)
 		Broodwar->drawLineMap(choke->getCenter().x(), choke->getCenter().y(), analizador->regionInicial()->getCenter().x(), analizador->regionInicial()->getCenter().y(), Colors::White);
-
-	resaltarUnidades();
+*/
+	//resaltarUnidades();
 
 	if ((Broodwar->getFrameCount() % 24 == 0) && (faltaMover))
 		moverSoldadosPosEncuentro();
@@ -783,7 +780,7 @@ void GrupoBunkers::onFrame(){
 		ubicarModoSiege();
 	}
 
-	dibujarPosiciones();
+	//dibujarPosiciones();
 }
 
 
@@ -791,7 +788,7 @@ void GrupoBunkers::onUnitDestroy(Unit *u){
 	if (u->getType().getID() == Utilidades::ID_BUNKER){
 		if (perteneceBunker(u)){
 			controlDestruidos();
-			contadorMovimientos++;
+			//contadorMovimientos++;
 		}
 	}
 	else if ((u->getType().getID() == Utilidades::ID_MISSILE_TURRET) || (u->getType().getID() == Utilidades::ID_TANKSIEGE) || (u->getType().getID() == Utilidades::ID_TANKSIEGE_SIEGEMODE))

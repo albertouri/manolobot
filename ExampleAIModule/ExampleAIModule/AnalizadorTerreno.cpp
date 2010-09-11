@@ -31,7 +31,7 @@ AnalizadorTerreno::~AnalizadorTerreno(void)
 
 void AnalizadorTerreno::dibujarResultados(void){
 
-	Graficos::dibujarTerreno(show_visibility_data, analyzed);
+	//Graficos::dibujarTerreno(show_visibility_data, analyzed);
 
 	if (analysis_just_finished)
 	{
@@ -194,10 +194,6 @@ bool AnalizadorTerreno::analisisListo(void){
 Region* AnalizadorTerreno::regionInicial(){
 	return home;
 }
-
-
-
-
 
 
 // retorna el angulo que forma una recta que une los dos puntos con respecto a la vertical

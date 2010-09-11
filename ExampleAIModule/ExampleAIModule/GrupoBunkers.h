@@ -100,7 +100,9 @@ private:
 	// puntero al analizador del terreno
 	AnalizadorTerreno *analizador; 
 
-	int contadorMovimientos;
+	//int contadorMovimientos;
+	bool faltaMover;
+	int cantChokes;
 
 	// listas de unidades pertenecientes al grupo de bunkers
 	std::list<Unit*> listBunkers;
