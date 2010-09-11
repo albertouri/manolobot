@@ -2308,13 +2308,9 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_VULTURE:
 				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]++;
-				if (magallanes->exists()){
-					asignarUnidadACompania(u);
-				}
-				else{
-					magallanes->setExplorador(u);
-					Broodwar->printf("asigné a magallanes");
-				}
+				magallanes->setExplorador(u);
+				Broodwar->printf("asigné a magallanes");
+
 				break;
 		}
 	}
