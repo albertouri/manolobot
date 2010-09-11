@@ -8,6 +8,7 @@ int latencia=0;
 int latenciaMovimientoTropas = 0;
 
 bool atacando = false;
+bool moviendoARegionContigua = false;
 
 
 std::list<Unit*> listaDeTanquesAUbicar;
@@ -943,7 +944,7 @@ void compania::setComandantes(void){
 		
 		actualizarEstado(&listTanks);
 		if (listTanks.size() > 0){
-			if((BWTA::getRegion((*listTanks.begin())->getTilePosition()) == regionActual)||(atacando== false)){
+			if((BWTA::getRegion((*listTanks.begin())->getTilePosition()) == regionActual)/*||(atacando== false)*/){
 				comandante = *(listTanks.begin());
 			}
 		}
