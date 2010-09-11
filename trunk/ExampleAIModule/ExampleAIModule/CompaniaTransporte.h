@@ -16,6 +16,9 @@ public:
 	void onFrame();
 	void asignarUnidad(Unit* u);
 
+	bool faltanDropships();
+	bool faltanWraiths();
+
 	// retorna true si la compañia de transporte esta lista a transportar las unidades
 	bool listaTransportar();
 
@@ -27,16 +30,18 @@ private:
 	std::list<Unit*> listWraiths;
 	std::list<Position*> pathBaseEnemiga;
 
+	Position *puntoDesembarco;
+
 	// puntero a la posicion del centro de comando enemigo
 	Position *baseEnemiga;
 	Region *regionBaseEnemiga;
 
 	// puntero al punto de la region de la base enemiga mas lejano del chokepoint defendido
-	Position *bordeMasLejano;
+	//Position *bordeMasLejano;
 
-	Position *puntoDesembarco;
 	void dibujarPath();
 	void crearPath();
+	void desembarcar();
 
 	void controlarEliminados();
 	
@@ -53,10 +58,11 @@ private:
 	bool comandanteCargado;
 
 	//-- posibles estados de la compañia de transporte
-	static const int ESPERANDO_CARGAR = 0;
-	static const int TRANSPORTANDO = 1;
-	static const int DESEMBARCANDO = 2;
-	static const int RETORNANDO_BASE = 3;
+	static const int ESPERANDO_CARGAR = 1;
+	static const int CARGANDO = 2;
+	static const int TRANSPORTANDO = 3;
+	static const int DESEMBARCANDO = 4;
+	static const int RETORNANDO_BASE = 5;
 
 	// variable que mantiene el estado actual de la compañia de transporte
 	int estadoActual;
@@ -72,4 +78,10 @@ private:
 	// asigna un nuevo lider al grupo de transporte, si es que hay alguna unidad existente
 	void reasignarLiderFormacion();
 
+	bool seteadoPuntoDesembarco;
+
+	// contador que determina un tiempo maximo de espera para que se carguen todas las unidades en los transportes. Si se alcanza el tiempo maximo
+	// se envia a la compañia de transporte al ataque aunque no esten cargadas todas las unidades de la compañia
+	int esperaDeCarga;
+	static const int ESPERA_MAXIMA = 500;
 };

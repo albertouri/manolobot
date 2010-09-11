@@ -117,18 +117,17 @@ void strategy_manager::checkGoals(void){
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (!ResearchDone[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1])){
 			GoalResearch[Utilidades::INDEX_GOAL_VEHICLE_WEAPONS_LVL1] = 1;
-			//GoalResearch[Utilidades::INDEX_GOAL_OPTICAL_FLARE] = 1;
+			GoalResearch[Utilidades::INDEX_GOAL_OPTICAL_FLARE] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_COVERT_OPS] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_LOCKDOWN] = 1;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_RESTORATION] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 6;
+			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 7;
 			GoalUnidades[Utilidades::INDEX_GOAL_GOLIATH] = 4;
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 12;
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] = 1;
-			//GoalUnidades[Utilidades::INDEX_GOAL_WRAITH] = 2;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_ARMOR_LVL1] = 1;
@@ -138,7 +137,7 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
 		}
 
-		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0)/* && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)*/){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)){
 			Broodwar->printf("Pase al estado 5 en el strategy manager");
 			estadoActual = 5;
 		}
@@ -152,7 +151,7 @@ void strategy_manager::checkGoals(void){
 			//GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 2;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 6) && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3)){
-			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 6;
+			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 10;
 		}
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL2] = 1;

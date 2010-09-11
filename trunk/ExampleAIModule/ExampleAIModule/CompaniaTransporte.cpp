@@ -4,22 +4,10 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, comp
 	baseEnemiga = baseEnem;
 	regionBaseEnemiga = regEnem;
 
+	puntoDesembarco = NULL;
+	seteadoPuntoDesembarco = false;
+
 	if (baseEnemiga != NULL){
-		/*//-- busca el punto mas lejano de la region enemiga con respecto al chokepoint defendido en la base enemiga
-		Position *pr = new Position((*regionBaseEnemiga->getChokepoints().begin())->getCenter().x(), (*regionBaseEnemiga->getChokepoints().begin())->getCenter().y());
-		int masLejano = 0;
-
-		BWTA::Polygon pol = regionBaseEnemiga->getPolygon();
-		for(int j = 0; j < (int)pol.size(); j++){
-			if (pol[j].getDistance(*pr) > pol[masLejano].getDistance(*pr))
-				masLejano = j;
-		}
-
-		delete pr;
-
-		bordeMasLejano = new Position(pol[masLejano].x(), pol[masLejano].y());*/
-
-
 		//-- crea el camino que recorreran los transportes
 		crearPath();
 	}
@@ -30,6 +18,7 @@ CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, comp
 	comandanteCargado = false;
 
 	estadoActual = ESPERANDO_CARGAR;
+	esperaDeCarga = 0;
 }
 
 
@@ -40,65 +29,7 @@ CompaniaTransporte::~CompaniaTransporte(void)
 
 
 void CompaniaTransporte::crearPath(){
-	//-- region donde manolobot inicia el juego
-	/*Region *inicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
-	Position *p1, *p2, *centroBase;
-	Chokepoint *choke = NULL;
-
-	centroBase = new Position(inicial->getCenter().x(), inicial->getCenter().y());
-	pathBaseEnemiga.push_back(centroBase);
-
-	p1 = new Position(inicial->getCenter().x(), bordeMasLejano->y());
-	p2 = new Position(bordeMasLejano->x(), inicial->getCenter().y());
-
-	//-- calcula el chokepoint que debe estar defendido en la base enemiga, para evitar pasar por ahi
-	if (regionBaseEnemiga->getChokepoints().size() > 1){
-		std::set<Chokepoint*>::const_iterator It;
-
-		It = regionBaseEnemiga->getChokepoints().begin();
-
-		while (It != regionBaseEnemiga->getChokepoints().end()){
-
-			if ((*It)->getRegions().first != regionBaseEnemiga){
-				//-- si tiene mas de 1 chokepoint, esa region tiene otro punto de entrada, por lo tanto el chokepoint debe estar defendido
-				if ((*It)->getRegions().first->getChokepoints().size() > 1){
-					choke = (*It);
-					break;
-				}
-			}
-			else{
-				//-- si tiene mas de 1 chokepoint, esa region tiene otro punto de entrada, por lo tanto el chokepoint debe estar defendido
-				if ((*It)->getRegions().second->getChokepoints().size() > 1){
-					choke = (*It);
-					break;
-				}
-			}
-
-			It++;
-		}
-	}
-	else
-		choke = *regionBaseEnemiga->getChokepoints().begin();
-
-	//-- fin busqueda chokepoint defendido
-
-
-	if (choke != NULL){
-		if (p1->getDistance(choke->getCenter()) > p2->getDistance(choke->getCenter())){
-			pathBaseEnemiga.push_back(p1);
-			delete p2;
-		}
-		else{
-			pathBaseEnemiga.push_back(p2);
-			delete p1;
-		}
-
-		pathBaseEnemiga.push_back(bordeMasLejano);
-	}
-
-
-	ItPosiciones = pathBaseEnemiga.begin();*/
-
+	// region donde iniciamos el juego
 	Region *regInicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
 	int ubicacionDefensa = 0;
 
@@ -185,7 +116,8 @@ void CompaniaTransporte::crearPath(){
 					// no se puede entrar por abajo, entro por la izquierda
 					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 					Position *p2 = new Position(regInicial->getCenter().x(), p[acoIzq].y());
-					Position *puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y());
+					puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y());
+
 					//Position *puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y() - TILE_SIZE);
 
 					pathBaseEnemiga.push_back(p1);
@@ -198,7 +130,7 @@ void CompaniaTransporte::crearPath(){
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
-				Position *puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() + TILE_SIZE);
+				puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() + TILE_SIZE);
 
 				pathBaseEnemiga.push_back(p1);
 				pathBaseEnemiga.push_back(p2);
@@ -216,7 +148,7 @@ void CompaniaTransporte::crearPath(){
 					// no se puede entrar por abajo, entro por la derecha
 					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 					Position *p2 = new Position(regInicial->getCenter().x(), p[acoIzq].y());
-					Position *puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y());
+					puntoDesembarco = new Position(p[acoIzq].x() + TILE_SIZE, p[acoIzq].y());
 
 					pathBaseEnemiga.push_back(p1);
 					pathBaseEnemiga.push_back(p2);
@@ -228,7 +160,7 @@ void CompaniaTransporte::crearPath(){
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
-				Position *puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() - TILE_SIZE);
+				puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() - TILE_SIZE);
 
 				pathBaseEnemiga.push_back(p1);
 				pathBaseEnemiga.push_back(p2);
@@ -249,7 +181,7 @@ void CompaniaTransporte::crearPath(){
 					// no se puede entrar por arriba, entro por la derecha
 					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 					Position *p2 = new Position(regInicial->getCenter().x(), p[acoDer].y());
-					Position *puntoDesembarco = new Position(p[acoDer].x() - TILE_SIZE, p[acoDer].y());
+					puntoDesembarco = new Position(p[acoDer].x() - TILE_SIZE, p[acoDer].y());
 
 					pathBaseEnemiga.push_back(p1);
 					pathBaseEnemiga.push_back(p2);
@@ -261,7 +193,7 @@ void CompaniaTransporte::crearPath(){
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
-				Position *puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() + TILE_SIZE);
+				puntoDesembarco = new Position(p[acoArr].x(), p[acoArr].y() + TILE_SIZE);
 
 				pathBaseEnemiga.push_back(p1);
 				pathBaseEnemiga.push_back(p2);
@@ -278,7 +210,7 @@ void CompaniaTransporte::crearPath(){
 					// no se puede entrar por abajo, entro por la derecha
 					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 					Position *p2 = new Position(regInicial->getCenter().x(), p[acoDer].y());
-					Position *puntoDesembarco = new Position(p[acoDer].x() - TILE_SIZE, p[acoDer].y());
+					puntoDesembarco = new Position(p[acoDer].x() - TILE_SIZE, p[acoDer].y());
 
 					pathBaseEnemiga.push_back(p1);
 					pathBaseEnemiga.push_back(p2);
@@ -290,7 +222,7 @@ void CompaniaTransporte::crearPath(){
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoAba].x(), regInicial->getCenter().y());
-				Position *puntoDesembarco = new Position(p[acoAba].x(), p[acoAba].y() - TILE_SIZE);
+				puntoDesembarco = new Position(p[acoAba].x(), p[acoAba].y() - TILE_SIZE);
 
 				pathBaseEnemiga.push_back(p1);
 				pathBaseEnemiga.push_back(p2);
@@ -299,7 +231,7 @@ void CompaniaTransporte::crearPath(){
 		}
 	}
 
-
+	ItPosiciones = pathBaseEnemiga.begin();
 	
 }
 
@@ -325,19 +257,59 @@ void CompaniaTransporte::dibujarPath(){
 void CompaniaTransporte::onFrame(){
 	dibujarPath();
 
+	if (estadoActual == CARGANDO)
+		esperaDeCarga++;
+
 	if ((liderFormacion != NULL) && (liderFormacion->exists()))
 		Graficos::resaltarUnidad(liderFormacion, Colors::Green);
 
 	if ((Broodwar->getFrameCount() % 12 == 0)){
 		if ((liderFormacion == NULL) || (!liderFormacion->exists())){
 			controlarEliminados();
-			reasignarLiderFormacion();
+
+			if (listDropships.empty() && listWraiths.empty() && ((estadoActual != ESPERANDO_CARGAR) || (comandanteCargado))){
+				estadoActual = ESPERANDO_CARGAR;
+				comandanteCargado = false;
+				ItPosiciones = pathBaseEnemiga.begin();
+				esperaDeCarga = 0;
+			}
+			else
+				reasignarLiderFormacion();
+		}
+		
+		if (estadoActual == CARGANDO){
+			if (esperaDeCarga < ESPERA_MAXIMA){
+				if (aero->companiaAbordo()){
+					estadoActual = TRANSPORTANDO;
+					esperaDeCarga = 0;
+				}
+				else
+					aero->abordarTransporte(&listDropships);
+			}
+			else{
+				Broodwar->printf("Se alcanzo la espera maxima, transportando");
+				estadoActual = TRANSPORTANDO;
+			}
 		}
 	}
 	else if (Broodwar->getFrameCount() % 30 == 0){
+
+		/*if (estadoActual == CARGANDO)
+			Broodwar->printf("compañia de transporte CARGANDO");
+		else if (estadoActual == TRANSPORTANDO)
+			Broodwar->printf("compañia de transporte TRANSPORTANDO");
+		else if (estadoActual == DESEMBARCANDO)
+			Broodwar->printf("compañia de transporte DESEMBARCANDO");
+		else if (estadoActual == RETORNANDO_BASE)
+			Broodwar->printf("compañia de transporte RETORNANDO_BASE");
+		else if (estadoActual == ESPERANDO_CARGAR)
+			Broodwar->printf("compañia de transporte ESPERANDO_CARGAR");*/
+
+
 		if (estadoActual == ESPERANDO_CARGAR){
+			//Broodwar->printf("tengo %d dropships, necesito %d  - tengo %d marines - %d medics - %d goliaths", listDropships.size(), aero->cantidadTransportes(), aero->countMarines(), aero->countMedics(), aero->countGoliaths());
 			if (listaTransportar())
-				estadoActual = TRANSPORTANDO;
+				estadoActual = CARGANDO;
 		}
 		else if (estadoActual == TRANSPORTANDO){
 			ejecutarTransporte();
@@ -345,6 +317,8 @@ void CompaniaTransporte::onFrame(){
 		else if (estadoActual == DESEMBARCANDO){
 			if (desembarcoListo())
 				estadoActual = RETORNANDO_BASE;
+			else
+				desembarcar();
 		}
 		else if (estadoActual == RETORNANDO_BASE){
 			retornarBase();
@@ -379,9 +353,8 @@ void CompaniaTransporte::asignarUnidad(Unit* u){
 
 
 bool CompaniaTransporte::listaTransportar(){
-	/*Broodwar->printf("tengo %d dropships, necesito %d  - tengo %d marines", listDropships.size(), aero->cantidadTransportes(), aero->countMarines());
 
-	if (aero->listaParaAtacar())
+	/*if (aero->listaParaAtacar())
 		Broodwar->printf("compañia lista para atacar");
 	else
 		Broodwar->printf("compañia NO ESTA lista para atacar");
@@ -389,12 +362,17 @@ bool CompaniaTransporte::listaTransportar(){
 	Broodwar->printf("----------------------------------------------");*/
 
 
-	if ((listDropships.size() == aero->cantidadTransportes()) && (listWraiths.size() == 2) && (aero->listaParaAtacar())){
-		aero->abordarTransporte(&listDropships);
-		return aero->companiaAbordo();
-	}
-	else
-		return false;
+	return ((!faltanDropships()) && (!faltanWraiths()) && (aero->listaParaAtacar()));
+}
+
+
+bool CompaniaTransporte::faltanDropships(){
+	return (listDropships.size() < aero->cantidadTransportes());
+}
+
+
+bool CompaniaTransporte::faltanWraiths(){
+	return (listWraiths.size() < 2);
 }
 
 
@@ -456,36 +434,28 @@ void CompaniaTransporte::ejecutarTransporte(){
 		ItPosiciones++;
 	}
 
-	if ((liderFormacion != NULL) && (liderFormacion->exists())){
-		//Broodwar->printf("intento desembarcar, distancia %lf", liderFormacion->getPosition().getDistance((*bordeMasLejano)));
+	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (puntoDesembarco != NULL)){
+		//Broodwar->printf("intento desembarcar, distancia %lf", liderFormacion->getPosition().getDistance((*puntoDesembarco)));
 
-		if (liderFormacion->getPosition().getDistance(*bordeMasLejano) < 120.0){
-			Position *p;
-
-			if (bordeMasLejano->x() < regionBaseEnemiga->getCenter().x())
-				p = new Position(bordeMasLejano->x() + 64, bordeMasLejano->y());
-			else
-				p = new Position(bordeMasLejano->x() - 64, bordeMasLejano->y());
-
-			It = listDropships.begin();
-			while (It != listDropships.end()){
-				if ((*It)->exists()){
-					(*It)->unloadAll(*p);
-				}
-
-				It++;
-			}
+		if (liderFormacion->getPosition().getDistance(*puntoDesembarco) < 250.0){
 
 			It = listWraiths.begin();
 			while (It != listWraiths.end()){
 				if ((*It)->exists()){
-					(*It)->attackMove(regionBaseEnemiga->getCenter());
+					//(*It)->attackMove(regionBaseEnemiga->getCenter());
+					(*It)->move(regionBaseEnemiga->getCenter());
 				}
 
 				It++;
 			}
+
+			// manda a los dropships que desembarquen los soldados
+			desembarcar();
+			estadoActual = DESEMBARCANDO;
 		}
 	}
+	else if (puntoDesembarco == NULL)
+		Broodwar->printf("Garcamos, el punto de desembarco es NULL");
 }
 
 
@@ -493,7 +463,7 @@ bool CompaniaTransporte::desembarcoListo(){
 	std::list<Unit*>::iterator It = listDropships.begin();
 
 	while (It != listDropships.end()){
-		if (((*It) != NULL) && ((*It)->exists()) && (!(*It)->getLoadedUnits().empty()))
+		if ((*It)->exists() && (!(*It)->getLoadedUnits().empty()))
 			return false;
 
 		It++;
@@ -503,30 +473,46 @@ bool CompaniaTransporte::desembarcoListo(){
 }
 
 
+void CompaniaTransporte::desembarcar(){
+	std::list<Unit*>::iterator It = listDropships.begin();
+
+	while (It != listDropships.end()){
+		if ((*It)->exists())
+			(*It)->unloadAll(*puntoDesembarco);
+
+		It++;
+	}
+}
+
+
 void CompaniaTransporte::retornarBase(){
 	std::list<Unit*>::iterator It;
 
 	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (ItPosiciones != pathBaseEnemiga.begin())){
 
-		/*It = listWraiths.begin();
+		It = listWraiths.begin();
 		while (It != listWraiths.end()){
 			if ((*It)->exists())
-				(*It)->move(**ItPosiciones);
+				(*It)->move(*(*pathBaseEnemiga.begin()));/*(**ItPosiciones);*/
 
 			It++;
-		}*/
+		}
 
 		It = listDropships.begin();
 		while (It != listDropships.end()){
 			if ((*It)->exists())
-				(*It)->move(**ItPosiciones);
+				(*It)->move(*(*pathBaseEnemiga.begin()));/*(**ItPosiciones);*/
 
 			It++;
 		}
-		ItPosiciones++;
+		//ItPosiciones--;
 	}
-	else
-		estadoActual = ESPERANDO_CARGAR;
+	else{
+		if ((liderFormacion != NULL) && (liderFormacion->isIdle()) && (liderFormacion->getPosition().getDistance(*(*(pathBaseEnemiga.begin()))) < 120.0)){
+			estadoActual = ESPERANDO_CARGAR;
+			ItPosiciones = pathBaseEnemiga.begin();
+		}
+	}
 }
 
 

@@ -17,9 +17,6 @@ CompaniaTransporte *ct = NULL;
 
 int latenciaScout = 0;
 
-//int tiempoProxFinalizacion = 0; // mantiene el tiempo hasta la proxima finalizacion de la construccion o entrenamiento de una unidad para evitar ejecutar en todos los frames el metodo controlarFinalizacion
-//int contProxFinalizacion = 0; // contador que se incrementa en cada frame, para controlar la finalizacion de una construccion o entrenamiento
-
 unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 {
 	SCVgatheringMinerals = 0;
@@ -27,14 +24,7 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	ultimaFinalizada = NULL;
 	buildingSemaphore = 0;
 
-	Easy = new compania(analizador, Colors::Red);
-//	Charlie = new compania(analizador, Colors::Yellow);
-//	Charlie->setComportanmientoEsperando();
-	Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
-	//Fox = NULL;
 
-	//magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
-	magallanes = NULL;
 
 	frameLatency = 0;
 
@@ -68,8 +58,22 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	// TODO: arreglar para que se puede jugar contra varios enemigos
 	enemigo = Broodwar->enemy();
 	
+
+	//-- inicializa los objetos creados por nosotros
+	Easy = new compania(analizador, Colors::Red);
+	Fox = new CompaniaDefensiva(Colors::Yellow); // esta compañia se encargara de atacar a los fantasmas que ataquen la base
+	//Fox = NULL;
+	//	Charlie = new compania(analizador, Colors::Yellow);
+	//	Charlie->setComportanmientoEsperando();
+
+	//magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
+	magallanes = NULL;
 	grupoB1 = NULL;
 	grupoB2 = NULL;
+	ct = NULL;
+
+	//-- fin de inicializacion de objetos
+
 
 	primerConstruccionDescubierta = true;
 	baseEnemiga = NULL;
@@ -81,15 +85,12 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 
 void unit_Manager::executeActions(){
 
-	/*if (Broodwar->getFrameCount() % 150 == 0)
-		Broodwar->printf("estadoActual = %d", estadoActual);*/
-
 	if (analizador->analisisListo()){
 
 		if (!analisisListo)
 			analisisListo = true;
 
-		if (ct != NULL)
+		if ((ct != NULL) && (estadoActual == 5))
 			ct->onFrame();
 
 		if (grf == NULL)
@@ -113,7 +114,7 @@ void unit_Manager::executeActions(){
 			grupoB2->onFrame();
 		
 		//-- BUSCA LA REGION PARA EL SEGUNDO GRUPO DE BUNKERS
-		if (analizador->analisisListo() && (grupoB2 == NULL) && (estadoActual == 5)&&(regionBaseEnemiga != NULL)){
+		if (analizador->analisisListo() && (grupoB2 == NULL) && (estadoActual == 5) && (regionBaseEnemiga != NULL)){
 			std::set<Region*>::const_iterator It = analizador->regionInicial()->getReachableRegions().begin();
 			Region *temp = NULL;
 
@@ -134,7 +135,7 @@ void unit_Manager::executeActions(){
 			else{
 				TilePosition* posB = new TilePosition((*temp->getBaseLocations().begin())->getTilePosition().x(), (*temp->getBaseLocations().begin())->getTilePosition().y());
 				grupoB2 = new GrupoBunkers(analizador, temp, regionBaseEnemiga);
-				Broodwar->printf("Grupo bunkers n2 creado, debo construir %d bunkers", goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]);
+				//Broodwar->printf("Grupo bunkers n2 creado, debo construir %d bunkers", goalCantUnidades[Utilidades::INDEX_GOAL_BUNKER]);
 				delete posB;
 			}
 		}
@@ -181,11 +182,6 @@ void unit_Manager::executeActions(){
 	else
 		Broodwar->printf("ERROR: Easy es NULL");
 
-
-	// verifica si se termino de construir alguna unidad en este frame
-	//ultimaFinalizada = controlarFinalizacion();
-
-	//verificarBunkers(); // verifica daños en los bunkers 
 
 	//-- seccion que imprime algunos graficos en pantalla, solo a fines de debugging
 	if ((analizador->analisisListo()) && (grupoB1 != NULL)){
@@ -417,7 +413,7 @@ void unit_Manager::ejecutarConstrucciones(){
 	}
 
 	//-- VULTURES
-	if(cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] && (cantUnidades[Utilidades::INDEX_GOAL_VULTURE] < goalCantUnidades[Utilidades::INDEX_GOAL_VULTURE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {
+	if(cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] && (cantUnidades[Utilidades::INDEX_GOAL_VULTURE] < goalCantUnidades[Utilidades::INDEX_GOAL_VULTURE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {	
 		trainVulture();
 	}
 
@@ -554,7 +550,7 @@ void unit_Manager::ejecutarConstrucciones(){
 			}
 		}
 		// Borrar esto despues de probar...
-		else if ((grupoB2 != NULL) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
+		/*else if ((grupoB2 != NULL) && (grupoB2->faltanMisileTurrets()) && (Broodwar->self()->minerals() > 100) && (buildingSemaphore == 0)){
 			posB = grupoB2->posicionNuevaTorreta();
 
 			if (posB != NULL){
@@ -562,7 +558,7 @@ void unit_Manager::ejecutarConstrucciones(){
 
 				delete posB;
 			}
-		}
+		}*/
 	}
 	
 	
@@ -644,42 +640,16 @@ void unit_Manager::ejecutarConstrucciones(){
 	}
 
 	//-- DROPSHIP
-	//if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && /*(cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < goalCantUnidades[Utilidades::INDEX_GOAL_DROPSHIP])*/ (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] < Easy->cantidadTransportes()) && (buildingSemaphore == 0)){
-	/*	trainUnit(Utilidades::ID_DROPSHIP);
-	}*/
+	if((Broodwar->self()->minerals() > 100) && (Broodwar->self()->gas() > 100) && ((estadoActual == 5) && (ct != NULL) && (ct->faltanDropships())) && (buildingSemaphore == 0)){
+		trainUnit(Utilidades::ID_DROPSHIP);
+	}
 
 	//-- WRAITH
-	if((Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 100) && (cantUnidades[Utilidades::INDEX_GOAL_WRAITH] < goalCantUnidades[Utilidades::INDEX_GOAL_WRAITH]) && (buildingSemaphore == 0)){
+	if((Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 100) && ((estadoActual == 5) && (ct != NULL) && (ct->faltanWraiths())) && (buildingSemaphore == 0)){
 		trainUnit(Utilidades::ID_WRAITH);
 	}
 
 
-	/*Position* p100 = new Position(Broodwar->enemy()->getStartLocation().x() * TILE_SIZE, Broodwar->enemy()->getStartLocation().y() * TILE_SIZE);
-	Broodwar->drawCircleMap(p100->x(), p100->y(), 16, Colors::Green, true);
-	Position *p200 = new Position(Broodwar->self()->getStartLocation().x() * TILE_SIZE, Broodwar->self()->getStartLocation().y() * TILE_SIZE);
-	Broodwar->drawLineMap(p100->x(), p100->y(), p200->x(), p200->y(), Colors::White);
-	delete p100;
-	delete p200;*/
-
-	/*if (cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP] == 4){
-		if (Broodwar->getFrameCount() % 250 == 0){
-			Position* p = new Position(Broodwar->enemy()->getStartLocation().x() * TILE_SIZE, Broodwar->enemy()->getStartLocation().y() * TILE_SIZE);
-
-			std::set<Unit*>::const_iterator It = Broodwar->self()->getUnits().begin();
-		
-			while (It != Broodwar->self()->getUnits().end()){
-				if ((*It)->getType().getID() == Utilidades::ID_DROPSHIP)
-					(*It)->move(*p);
-
-				It++;
-			}
-			delete p;
-		}
-	}*/
-
-
-
-	
 	// ----------------------------------------------------------------------------
 	//								Investigaciones
 	// ----------------------------------------------------------------------------
@@ -2220,16 +2190,20 @@ void unit_Manager::onUnitCreate(Unit *u){
 
 		switch (u->getType().getID()){
 			case Utilidades::ID_ACADEMY:
-				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY])
+				if ((cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY]){
+					u->getBuildUnit()->haltConstruction();
 					u->cancelConstruction();
-				else*/
+				}
+				else
 					cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]++;
 
 				break;
 			case Utilidades::ID_BARRACK:
-				/*if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK])
+				if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK]){
+					u->getBuildUnit()->haltConstruction();
 					u->cancelConstruction();
-				else*/
+				}
+				else
 					cantUnidades[Utilidades::INDEX_GOAL_BARRACK]++;
 
 				break;
@@ -2258,9 +2232,11 @@ void unit_Manager::onUnitCreate(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
 				break;
 			case Utilidades::ID_FACTORY:
-				/*if ((cantUnidades[Utilidades::INDEX_GOAL_FACTORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_FACTORY])
+				if ((cantUnidades[Utilidades::INDEX_GOAL_FACTORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_FACTORY]){
+					u->getBuildUnit()->haltConstruction();
 					u->cancelConstruction();
-				else*/
+				}
+				else
 					cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
 
 				break;	
@@ -2272,16 +2248,20 @@ void unit_Manager::onUnitCreate(Unit *u){
 				asignarUnidadACompania(u);
 				break;
 			case Utilidades::ID_ENGINEERING_BAY:
-				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY])
+				if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]){
+					u->getBuildUnit()->haltConstruction();
 					u->cancelConstruction();
-				else*/
+				}
+				else
 					cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
 
 				break;
 			case Utilidades::ID_ARMORY:
-				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ARMORY])
+				if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ARMORY]){
+					u->getBuildUnit()->haltConstruction();
 					u->cancelConstruction();
-				else*/
+				}
+				else
 					cantUnidades[Utilidades::INDEX_GOAL_ARMORY]++;
 
 				break;
@@ -2303,10 +2283,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_DROPSHIP:
 				cantUnidades[Utilidades::INDEX_GOAL_DROPSHIP]++;
-				
-				if (ct != NULL)
-					asignarUnidadACompania(u);
-
+				asignarUnidadACompania(u);
 				break;
 			case Utilidades::ID_SCIENCE_FACILITY:
 				cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY]++;
@@ -2317,10 +2294,7 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_WRAITH:
 				cantUnidades[Utilidades::INDEX_GOAL_WRAITH]++;
-
-				if (ct != NULL)
-					asignarUnidadACompania(u);
-
+				asignarUnidadACompania(u);
 				break;
 			case Utilidades::ID_COVERT_OPS:
 				cantUnidades[Utilidades::INDEX_GOAL_COVERT_OPS]++;
@@ -2334,11 +2308,11 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_VULTURE:
 				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]++;
-				if(magallanes->exists()){
+				if (magallanes->exists()){
 					asignarUnidadACompania(u);
 				}
 				else{
-					magallanes->asignarNuevoScout(u);
+					magallanes->setExplorador(u);
 					Broodwar->printf("asigné a magallanes");
 				}
 				break;
@@ -2508,10 +2482,9 @@ void unit_Manager::onNukeDetect(Position p){
 			if ((int)p.getDistance(masCercana->getPosition()) <= (masCercana->getType().sightRange() + 64)){
 				// sumo 64 al sightRange para tener en cuenta la mejora de vision del fantasma
 				if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() >= 50) && (!masCercana->isDetected()))
-					//detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
 					detector->useTech(TechTypes::Scanner_Sweep, masCercana->getPosition());
 
-				Broodwar->printf("Fantasma detectado, atacando...");
+				//Broodwar->printf("Fantasma detectado, atacando...");
 
 				if (Fox != NULL) 
 					Fox->atacar(masCercana->getPosition());
@@ -2520,10 +2493,9 @@ void unit_Manager::onNukeDetect(Position p){
 				Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
 
 				if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() >= 50))
-					//detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
 					detector->useTech(TechTypes::Scanner_Sweep, p);
 
-				Broodwar->printf("Fantasma detectado, movimiento de ataque...");
+				//Broodwar->printf("Fantasma detectado, movimiento de ataque...");
 
 				if (Fox != NULL) 
 					Fox->atacar(p);
@@ -2535,10 +2507,9 @@ void unit_Manager::onNukeDetect(Position p){
 			Unit *detector = getUnit(Utilidades::ID_COMSAT_STATION);
 
 			if ((detector != NULL) && (detector->exists()) && (detector->getEnergy() >= 50))
-				//detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
 				detector->useTech(TechTypes::Scanner_Sweep, p);
 
-			Broodwar->printf("Fantasma detectado, movimiento de ataque...");
+			//Broodwar->printf("Fantasma detectado, movimiento de ataque...");
 
 			if (Fox != NULL) 
 				Fox->atacar(p);
@@ -2567,6 +2538,8 @@ void unit_Manager::onUnitShow(Unit *u){
 					if (Easy != NULL)
 						Easy->setBasesEnemigas(new TilePosition(regionBaseEnemiga->getCenter()));
 				}
+				
+				// crea la compañia de transporte
 				//ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
 
 				encontre = true;
@@ -2600,7 +2573,6 @@ void unit_Manager::buscarUnidadesOcultas(){
 				if (((*It) != NULL) && ((*It)->exists()) && (((*It)->isBurrowed()) || ((*It)->isCloaked())) && ((*It)->isVisible()) && (!(*It)->isDetected())){
 					if (detector->getEnergy() >= 50){
 						detector->useTech(TechTypes::Scanner_Sweep, (*It)->getPosition());
-						//Broodwar->setScreenPosition((*It)->getPosition());
 					}
 				}
 
