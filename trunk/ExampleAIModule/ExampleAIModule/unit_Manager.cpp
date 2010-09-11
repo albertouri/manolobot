@@ -1082,7 +1082,7 @@ void unit_Manager::buildUnitAddOn(int id){
 									}
 									else{
 										if ((bunk!=NULL)&&(bunk->exists()))
-											(*It1)->rightClick(bunk);
+											(*It1)->rightClick(bunk->getTilePosition());
 										It1++;
 									}
 								}
