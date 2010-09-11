@@ -3,6 +3,8 @@
 Region *e = NULL;
 bool faltaMover;
 
+int cantChokes;
+
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
 	int cuadrante;
@@ -100,29 +102,34 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemig
 			It++;
 		}
 
+		cantChokes = 2;
 		bunkerCentral = posicionPrimerBunker2(reg, choke, false, regionEnemiga);
 	}
 	else{
 		//-- si hay mas de 2 chokepoints en la region, busca el mas lejano a la base y ahi ubica los bunkers
+		cantChokes = r->getChokepoints().size();
+
 		It = r->getChokepoints().begin();
 		while (It != r->getChokepoints().end()){
 			if ((*It) != c2){
 				if (chokeEnemigo == NULL)
 					chokeEnemigo = (*It);
 				else{
-					// TODO: mejorar la seleccion del chokepoint a defender, hay un mapa en el cual no funca
+					if (Broodwar->mapName() == "| iCCup | Destination 1.1"){
+						if ((*It)->getCenter().x() > chokeEnemigo->getCenter().x())
+							chokeEnemigo = (*It);
+					}
+					else{
+						fin1 = new TilePosition((*It)->getCenter().x() / TILE_SIZE, (*It)->getCenter().y() / TILE_SIZE);
+						fin2 = new TilePosition(chokeEnemigo->getCenter().x() / TILE_SIZE, chokeEnemigo->getCenter().y() / TILE_SIZE);
+						
+						//if ((BWTA::getGroundDistance(*inicio, *fin1)) > (BWTA::getGroundDistance(*inicio, *fin2)))
+						if (abs((*It)->getCenter().x() - ((Broodwar->mapWidth() * TILE_SIZE) / 2)) < abs(chokeEnemigo->getCenter().x() - ((Broodwar->mapWidth() * TILE_SIZE) / 2)))
+							chokeEnemigo = (*It);
 
-					/*fin1 = new TilePosition((*It)->getCenter().x() / TILE_SIZE, (*It)->getCenter().y() / TILE_SIZE);
-					fin2 = new TilePosition(chokeEnemigo->getCenter().x() / TILE_SIZE, chokeEnemigo->getCenter().y() / TILE_SIZE);
-					
-					if ((BWTA::getGroundDistance(*inicio, *fin1)) > (BWTA::getGroundDistance(*inicio, *fin2)))
-						chokeEnemigo = (*It);
-
-					delete fin1;
-					delete fin2;*/
-					//if (((*It)->getCenter().y() - ((Broodwar->mapHeight() * TILE_SIZE) / 2)) < (chokeEnemigo->getCenter().y() - ((Broodwar->mapHeight() * TILE_SIZE) / 2)))
-					if ((*It)->getCenter().x() > chokeEnemigo->getCenter().x())
-						chokeEnemigo = (*It);
+						delete fin1;
+						delete fin2;
+					}
 				}
 			}
 
@@ -761,6 +768,9 @@ void GrupoBunkers::onFrame(){
 	/*if (e != NULL)
 		posicionPrimerBunker2(reg, choke, false, e);*/
 
+	if (choke != NULL)
+		Broodwar->drawLineMap(choke->getCenter().x(), choke->getCenter().y(), analizador->regionInicial()->getCenter().x(), analizador->regionInicial()->getCenter().y(), Colors::White);
+
 	resaltarUnidades();
 
 	if ((Broodwar->getFrameCount() % 24 == 0) && (faltaMover))
@@ -889,17 +899,20 @@ TilePosition* GrupoBunkers::posicionPrimerBunker2(Region* r, Chokepoint* c, bool
 	cuadrante = analizador->getCuadrante(r->getCenter());
 	int angulo1;// = analizador->calcularAnguloGrupo(angulo);
 	
-	/*if ((angulo >= 135) && (angulo <= 179))
-		angulo1 = 0;
-	else if ((angulo <= 45) && (angulo >= 0))
-		angulo1 = 0;
-	else
-		angulo1 = 90;*/
-
-	if (abs(r->getCenter().x() - regionEnemiga->getCenter().x()) < abs(r->getCenter().y() - regionEnemiga->getCenter().y()))
-		angulo1 = 90;
-	else
-		angulo1 = 0;
+	if (cantChokes == 2){
+		if ((angulo >= 135) && (angulo <= 179))
+			angulo1 = 0;
+		else if ((angulo <= 45) && (angulo >= 0))
+			angulo1 = 0;
+		else
+			angulo1 = 90;
+	}
+	else{
+		if (abs(r->getCenter().x() - regionEnemiga->getCenter().x()) < abs(r->getCenter().y() - regionEnemiga->getCenter().y()))
+			angulo1 = 90;
+		else
+			angulo1 = 0;
+	}
 	
 	return encontrarPosicion2(cuadrante, c->getCenter(), angulo1, buscarHaciaAdentro);
 }
@@ -961,7 +974,7 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 		while (contY < /*10*/15){
 			//-- Posicion del bunker central
 			t = new TilePosition((p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
-			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
+			Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
 			//Broodwar->printf("horizontal");
 
 			//Broodwar->printf("Intento en x: %d - y: %d", (p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
@@ -1066,7 +1079,6 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 	else if (angulo == 0){
 		contY = /*-3*/-10;
 
-		//Broodwar->printf("pipiripi 1");
 		//-- CODIGO GIRATORIO
 		// busco el punto mas a la izquierda y mas a la derecha de la region
 		int i = 0, d = 0;
@@ -1081,7 +1093,6 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 					d = j;
 			}
 		}
-		//Broodwar->printf("pipiripi 2");
 
 		//-- Verifica si hay espacio suficiente entre el borde del mapa y el grupo de bunkers
 		//bool condicion1 = ((cuadrante == 1) || (cuadrante == 3)) && ((p.x() / 32) > 12);
@@ -1089,22 +1100,18 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 		bool condicion1 = ((cuadrante == 1) || (cuadrante == 3)) && (((p.x() - pol[i].x()) / 32) > 12);
 		bool condicion2 = ((cuadrante == 2) || (cuadrante == 4)) && ((p.x() / 32) < ((pol[d].x() / 32) - 11));
 
-		//Broodwar->printf("pipiripi 3");
-
 		// si el bunker central esta separado mas de 11 build tiles del borde esta OK, sino lo intenta ubicar en forma horizontal
 		if (!(condicion1 || condicion2)){
-			Broodwar->printf("Intenta girar el grupo");
+			//Broodwar->printf("Intenta girar el grupo");
 			return encontrarPosicion2(cuadrante, p, 90, buscarHaciaAdentro);
 		}
 
 		//-- FIN CODIGO GIRATORIO
 
-		//Broodwar->printf("pipiripi 4");
-
 		while (contX < 10){
 			//-- Posicion del bunker central
 			t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + contY);
-			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
+			Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
 			//Broodwar->printf("Intento en x: %d - y: %d", (p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
 			//Broodwar->printf("VERTICAL");
 			hayPosicion = puedoConstruir2(*t, *bunker);
