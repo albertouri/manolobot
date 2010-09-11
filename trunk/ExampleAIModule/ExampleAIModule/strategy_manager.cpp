@@ -136,7 +136,7 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
 		}
 
-		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0) /*&& (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)*/){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)){
 			Broodwar->printf("Pase al estado 5 en el strategy manager");
 			estadoActual = 5;
 		}
