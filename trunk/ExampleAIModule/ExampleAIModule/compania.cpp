@@ -395,8 +395,7 @@ void compania::onFrame(){
 							regionActual = BWTA::getRegion(*It1);
 							break;
 						}
-						else{
-							It1++;
+						It1++;
 						}
 					}
 
