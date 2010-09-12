@@ -112,7 +112,7 @@ void unit_Manager::executeActions(){
 			grupoB2->onFrame();
 		
 		//-- BUSCA LA REGION PARA EL SEGUNDO GRUPO DE BUNKERS
-		if (analizador->analisisListo() && (grupoB2 == NULL) && (estadoActual == 5) && (/*regionBaseEnemiga*/regionBasePrincipalEnemiga != NULL)){
+		if (analizador->analisisListo() && (grupoB2 == NULL) && (estadoActual == 5) && (regionBasePrincipalEnemiga != NULL)){
 			std::set<Region*>::const_iterator It = analizador->regionInicial()->getReachableRegions().begin();
 			Region *temp = NULL;
 
@@ -132,7 +132,7 @@ void unit_Manager::executeActions(){
 				Broodwar->printf("No hay lugar para una nueva base...");
 			else{
 				TilePosition* posB = new TilePosition((*temp->getBaseLocations().begin())->getTilePosition().x(), (*temp->getBaseLocations().begin())->getTilePosition().y());
-				grupoB2 = new GrupoBunkers(analizador, temp, /*regionBaseEnemiga*/regionBasePrincipalEnemiga);
+				grupoB2 = new GrupoBunkers(analizador, temp, regionBasePrincipalEnemiga);
 				delete posB;
 			}
 		}
