@@ -1724,7 +1724,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 				while((k>=-i) && (encontre==0)){
 					if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
-						if(Broodwar->isExplored(*pos)){
+						if(Broodwar->isExplored(*pos)&&(analizador->analisisListo())&&(BWTA::getRegion(*pos)==analizador->regionInicial())){
 							if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 						}
 					}
@@ -1737,7 +1737,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 				while((j>=-i) && (encontre==0)){
 					if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 						pos = new TilePosition(x + j, y + k);
-						if(Broodwar->isExplored(*pos)){
+						if(Broodwar->isExplored(*pos)&&(analizador->analisisListo())&&(BWTA::getRegion(*pos)==analizador->regionInicial())){
 							if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 						}
 					}
@@ -1750,7 +1750,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 			while((k>=-i) && (encontre==0)){
 				if ((y+k>=0)&& (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
-					if(Broodwar->isExplored(*pos)){
+					if(Broodwar->isExplored(*pos)&&(analizador->analisisListo())&&(BWTA::getRegion(*pos)==analizador->regionInicial())){
 						if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 					}
 				}
@@ -1762,7 +1762,7 @@ TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 			while((j>=-i) && (encontre==0)){
 				if ((x+j>=0) && (!((x+j>x-1) && (x+j<x+5) && (y+k>y-1) && (y+k<y+4)))){
 					pos = new TilePosition(x + j, y + k);
-					if(Broodwar->isExplored(*pos)){
+					if(Broodwar->isExplored(*pos)&&(analizador->analisisListo())&&(BWTA::getRegion(*pos)==analizador->regionInicial())){
 						if ((Broodwar->canBuildHere(worker, *pos, *U))&& (isFreeOfBuildingsRightAndLeft(U, pos))) {encontre = 1;}
 					}
 				}
