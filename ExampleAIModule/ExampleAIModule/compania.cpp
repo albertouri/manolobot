@@ -17,20 +17,22 @@ Unit* herido;
 std::list<Unit*> listaDeUnidadesAfectadas;
 std::list<Unit*> listaDeUnidadesNotMatrixed;
 
-std::list<Unit*> soyUnSet;
+
+std::set<TilePosition> setPosicionesEdificiosEnemigos;
 
 Region* regionActual = NULL;
 Region* puntoDeRetirada = NULL;
 
 compania::compania(AnalizadorTerreno *at, Color ID)
 {
-	posicionEnemigo = NULL;
 	c = ID;
 	analizador = at;
 	comandante = NULL;
 	cantTransportes = 0;
 	listRefuerzos.clear();
 	esperar = false;
+
+	setPosicionesEdificiosEnemigos.clear();
 }
 
 compania::~compania(void)
@@ -306,10 +308,10 @@ void compania::onFrame(){
 		}
 	}
 	else{
-		if((posicionEnemigo != NULL) && (regionActual== analizador->regionInicial()) && (Broodwar->getFrameCount()%30 == 15)){
+		if((setPosicionesEdificiosEnemigos.size()>0) && (regionActual== analizador->regionInicial()) && (Broodwar->getFrameCount()%30 == 15)){
 			Broodwar->printf("cambie a la region de al lado");
 			TilePosition* centroRegionActual = new TilePosition(analizador->regionInicial()->getCenter());
-			std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(*centroRegionActual, *posicionEnemigo);
+			std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(*centroRegionActual, setPosicionesEdificiosEnemigos);
 			std::vector<BWAPI::TilePosition>::iterator It1;
 			It1 = vectorPosiciones.begin();
 
@@ -381,9 +383,9 @@ void compania::onFrame(){
 			controlarDistancia(); 
 
 		//codigo para decidir si marcha a combate
-			if((esperar==false)&&(latenciaMovimientoTropas>50)&&(listaParaAtacar()) && (posicionEnemigo != NULL) ){
+			if((esperar==false)&&(latenciaMovimientoTropas>50)&&(listaParaAtacar()) && (setPosicionesEdificiosEnemigos.size()>0) ){
 				if (analizador->analisisListo()){
-					std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(comandante->getTilePosition(), *posicionEnemigo);
+					std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(comandante->getTilePosition(), setPosicionesEdificiosEnemigos);
 					std::vector<BWAPI::TilePosition>::iterator It1;
 					It1 = vectorPosiciones.begin();
 
@@ -927,9 +929,17 @@ bool compania::companiaAbordo(){
 
 
 
-void compania::setBasesEnemigas(TilePosition* enemigo){
-	posicionEnemigo = enemigo;
+
+
+void compania::onEnemyBuildingShow(Unit* enemyB){
+	setPosicionesEdificiosEnemigos.insert(enemyB->getTilePosition());
 }
+
+
+void compania::onEnemyBuildingDestroy(Unit* enemyB){
+	setPosicionesEdificiosEnemigos.erase(enemyB->getTilePosition());
+}
+
 
 Unit* compania::getComandante(){
 	return comandante;
