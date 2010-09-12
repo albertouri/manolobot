@@ -148,7 +148,7 @@ void unit_Manager::executeActions(){
 			Fox->onFrame();
 	}
 
-	if (Broodwar->getFrameCount() % 50 == 0)
+	if (Broodwar->getFrameCount() % 46 == 3)
 		buscarUnidadesOcultas();
 	
 	// ---------------------------------------------------------------------------
@@ -179,7 +179,7 @@ void unit_Manager::executeActions(){
 	// ---------------------------------------------------------------------------
 	//--						CODIGO DE REPARACION DE UNIDADES
 
-	if (Broodwar->getFrameCount() % 25 == 0){
+	if (Broodwar->getFrameCount() % 26 == 0){
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
 			if ((*i)->exists()){
 				// si es una edificacion o es una unidad mecanica, verifica si esta dañada y la repara
@@ -365,7 +365,7 @@ void unit_Manager::ejecutarConstrucciones(){
 	}
 
 	//-- VULTURES
-	if(cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] && (cantUnidades[Utilidades::INDEX_GOAL_VULTURE] < goalCantUnidades[Utilidades::INDEX_GOAL_VULTURE]) && (Broodwar->self()->minerals()>= 150) && (Broodwar->self()->gas()>= 100)) {	
+	if(cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] && (cantUnidades[Utilidades::INDEX_GOAL_VULTURE] < goalCantUnidades[Utilidades::INDEX_GOAL_VULTURE]) && (Broodwar->self()->minerals() >= 75)) {	
 		trainVulture();
 	}
 

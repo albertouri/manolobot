@@ -45,8 +45,10 @@ private:
 
 	Unit* buscarObjetivosGhost();
 	Unit* buscarObjetivosMedics();
+	Unit* buscarObjetivosMarines();
 
 	void defenderBaseGhosts();
 	void defenderBaseMedics();
+	void defenderBaseMarines();
 
 };

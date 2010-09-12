@@ -23,7 +23,7 @@ void CompaniaDefensiva::onFrame(){
 
 
 	// ------------------------ realiza un recuadro a las unidades de la compañia ------------------------
-	if (!listMarines.empty()){
+	/*if (!listMarines.empty()){
 
 		std::list<Unit*>::iterator It1;
 		It1 = listMarines.begin();
@@ -36,14 +36,14 @@ void CompaniaDefensiva::onFrame(){
 					// dibuja una linea conectando a la unidad con su objetivo actual
 					if ((*It1)->getTarget() != NULL){
 						u = (*It1)->getTarget();
-						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
+						//Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
 					}
 					else if ((*It1)->getOrderTarget() != NULL){
 						u = (*It1)->getOrderTarget();
-						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getPosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
+						//Broodwar->drawLine(CoordinateType::Map, ((*It1)->getPosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
 					}
 
-					Graficos::resaltarUnidad(*It1, c);
+					//Graficos::resaltarUnidad(*It1, c);
 				}
 			}
 
@@ -63,14 +63,14 @@ void CompaniaDefensiva::onFrame(){
 					// dibuja una linea conectando a la unidad con su objetivo actual
 					if ((*It1)->getTarget() != NULL){
 						u = (*It1)->getTarget();
-						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
+						//Broodwar->drawLine(CoordinateType::Map, ((*It1)->getTilePosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
 					}
 					else if ((*It1)->getOrderTarget() != NULL){
 						u = (*It1)->getOrderTarget();
-						Broodwar->drawLine(CoordinateType::Map, ((*It1)->getPosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
+						//Broodwar->drawLine(CoordinateType::Map, ((*It1)->getPosition().x() + (*It1)->getType().tileWidth()) * 32, ((*It1)->getTilePosition().y() + (*It1)->getType().tileHeight()) * 32, u->getPosition().x(), u->getPosition().y(), Colors::Red);
 					}
 
-					Graficos::resaltarUnidad(*It1, c);
+					//Graficos::resaltarUnidad(*It1, c);
 				}
 
 			}
@@ -103,7 +103,7 @@ void CompaniaDefensiva::onFrame(){
 			}
 			It1++;
 		}
-	}
+	}*/
 }
 
 int CompaniaDefensiva::countMarines(){
@@ -284,6 +284,37 @@ Unit* CompaniaDefensiva::buscarObjetivosMedics(){
 	return objetivo;
 }
 
+Unit* CompaniaDefensiva::buscarObjetivosMarines(){
+	Unit *objetivo = NULL;
+
+	if (!Broodwar->enemy()->getUnits().empty()){
+		std::set<Unit*>::const_iterator ItObj;
+		
+		Region *inicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
+
+		ItObj = Broodwar->enemy()->getUnits().begin();
+		while (ItObj != Broodwar->enemy()->getUnits().end()){
+			// busca una unidad mecanica que este dentro de la region defendida por el fantasma o una unidad mecanica que este atacando alguna unidad nuestra 
+			if ((*ItObj)->exists() && ((*ItObj)->isVisible()) && (!(*ItObj)->getType().isMechanical()) && (inicial->getPolygon().isInside((*ItObj)->getPosition()))){
+				if (objetivo == NULL){
+					objetivo = (*ItObj);
+					return objetivo;
+				}
+				else{
+					if ((objetivo->getType().size() == UnitSizeTypes::Large) && (((*ItObj)->getType().size() == UnitSizeTypes::Medium) || ((*ItObj)->getType().size() == UnitSizeTypes::Small)))
+						objetivo = (*ItObj);
+					else if ((objetivo->getType().size() == UnitSizeTypes::Medium) && ((*ItObj)->getType().size() == UnitSizeTypes::Small))
+						objetivo = (*ItObj);
+				}
+			}
+
+			ItObj++;
+		}
+	}
+
+	return objetivo;
+}
+
 
 void CompaniaDefensiva::defenderBaseGhosts(){
 
@@ -327,6 +358,36 @@ void CompaniaDefensiva::defenderBaseMedics(){
 					encontre = true;
 				}
 				It++;
+			}
+		}
+	}
+}
+
+void CompaniaDefensiva::defenderBaseMarines(){
+	
+	if (!listMarines.empty()){
+		std::list<Unit*>::iterator It = listMarines.begin();
+		bool atacando = false;
+
+		while (It != listMarines.end()){
+			if ((*It)->exists())
+				atacando = atacando || (*It)->isAttacking();
+
+			It++;
+		}
+
+		if (!atacando){
+			Unit* objetivo = buscarObjetivosMarines();
+			
+			if (objetivo != NULL){
+				It = listMarines.begin();
+
+				while (It != listMarines.end()){
+					if ((*It)->exists())
+						(*It)->attackUnit(objetivo);
+
+					It++;
+				}
 			}
 		}
 	}

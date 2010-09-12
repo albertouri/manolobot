@@ -126,7 +126,7 @@ GrupoAntiaereo::~GrupoAntiaereo(void)
 
 
 void GrupoAntiaereo::onFrame(){
-	if (tIzq != NULL)
+	/*if (tIzq != NULL)
 		Graficos::dibujarCuadro(tIzq, 2, 2, Colors::Cyan, false);
 
 	if (tDer != NULL)
@@ -136,7 +136,7 @@ void GrupoAntiaereo::onFrame(){
 		Graficos::dibujarCuadro(tArr, 2, 2, Colors::Cyan, false);
 
 	if (tAba != NULL)
-		Graficos::dibujarCuadro(tAba, 2, 2, Colors::Cyan, false);
+		Graficos::dibujarCuadro(tAba, 2, 2, Colors::Cyan, false);*/
 
 	//Broodwar->drawBox(CoordinateType::Map, regionDefender->getCenter().x(), regionDefender->getCenter().y(), regionDefender->getCenter().x() + 10, regionDefender->getCenter().y() + 10, Colors::Red, true);
 	
