@@ -50,8 +50,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 				break;
 		}
 	}
-	else
-		Broodwar->printf("ERROR 002: No encuentro ubicacion posible para la posicion de encuentro");
+	/*else
+		Broodwar->printf("ERROR 002: No encuentro ubicacion posible para la posicion de encuentro");*/
 	// ------------------------------------------------------------------------------------------
 
 }
@@ -179,8 +179,8 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemig
 				break;
 		}
 	}
-	else
-		Broodwar->printf("ERROR 002: No encuentro ubicacion posible para la posicion de encuentro");
+	/*else
+		Broodwar->printf("ERROR 002: No encuentro ubicacion posible para la posicion de encuentro");*/
 }
 
 
@@ -228,8 +228,8 @@ void GrupoBunkers::agregarUnidad(Unit* u){
 				u->move(*p);
 			}
 		}
-		else
-			Broodwar->printf("No se puede agregar ese tipo de unidad a un grupo de bunkers");
+		/*else
+			Broodwar->printf("No se puede agregar ese tipo de unidad a un grupo de bunkers");*/
 	}
 }
 
@@ -384,7 +384,7 @@ TilePosition* GrupoBunkers::posicionNuevoBunker(){
 		}
 	}
 	else{
-		Broodwar->printf("El bunker central es NULL");
+		//Broodwar->printf("El bunker central es NULL");
 		return NULL;
 	}
 }
@@ -658,7 +658,7 @@ TilePosition* GrupoBunkers::posicionNuevoTanque(){
 				return NULL;
 		}
 		else{
-			Broodwar->printf("ERROR: No se encontro posicion - Metodo: posicionNuevoTanque - Clase: GrupoBunkers");
+			//Broodwar->printf("ERROR: No se encontro posicion - Metodo: posicionNuevoTanque - Clase: GrupoBunkers");
 			return NULL;
 		}
 	}
@@ -837,8 +837,8 @@ void GrupoBunkers::moverSoldadosPosEncuentro(){
 		else
 			faltaMover = true;
 	}
-	else
-		Broodwar->printf("ERROR 001: posicion de encuentro no seteada");
+	/*else
+		Broodwar->printf("ERROR 001: posicion de encuentro no seteada");*/
 }
 
 
@@ -1414,7 +1414,7 @@ TilePosition* GrupoBunkers::encontrarPosicion(int cuadrante, Position p, int ang
 
 		// si el bunker central esta separado mas de 11 build tiles del borde esta OK, sino lo intenta ubicar en forma horizontal
 		if (!(condicion1 || condicion2)){
-			Broodwar->printf("Intenta girar el grupo");
+			//Broodwar->printf("Intenta girar el grupo");
 			return encontrarPosicion(cuadrante, p, 90);
 		}
 
