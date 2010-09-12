@@ -396,7 +396,7 @@ void compania::onFrame(){
 							break;
 						}
 						It1++;
-						}
+						
 					}
 
 					if(BWTA::getRegion(comandante->getTilePosition()) != regionActual){
