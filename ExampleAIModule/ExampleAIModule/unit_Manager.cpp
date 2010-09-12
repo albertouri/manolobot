@@ -1,7 +1,6 @@
 #include "unit_Manager.h"
-#include "GrupoAntiaereo.h"
 
-GrupoAntiaereo *anti = NULL;
+
 int goalLimiteGeiser = 2;
 
 int turnoAsignacionMarines = 0;
@@ -53,7 +52,6 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	// supongo que jugamos contra un solo enemigo
 	// TODO: arreglar para que se puede jugar contra varios enemigos
 	enemigo = Broodwar->enemy();
-	
 
 	//-- inicializa los objetos creados por nosotros
 
@@ -63,15 +61,14 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	//	Charlie = new compania(analizador, Colors::Yellow);
 	//	Charlie->setComportanmientoEsperando();
 
-	//magallanes = new Scout(getWorker()); // revisar como genera las posiciones a partir de la 4ta posicion a explorar pq se rompe
 	magallanes = NULL;
 	grupoB1 = NULL;
 	grupoB2 = NULL;
 	ct = NULL;
 	grf = NULL;
+	anti = NULL;
 
 	//-- fin de inicializacion de objetos
-
 
 	primerConstruccionDescubierta = true;
 	baseEnemiga = NULL;
@@ -178,7 +175,7 @@ void unit_Manager::executeActions(){
 	// ---------------------------------------------------------------------------
 	//--						CODIGO DE REPARACION DE UNIDADES
 
-	if (Broodwar->getFrameCount() % 27 == 0){
+	if (Broodwar->getFrameCount() % 25 == 0){
 		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
 			if ((*i)->exists()){
 				// si es una edificacion o es una unidad mecanica, verifica si esta dañada y la repara
@@ -2314,8 +2311,11 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_VULTURE:
 				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]++;
-				magallanes->setExplorador(u);
-				Broodwar->printf("asigné a magallanes");
+				if (magallanes != NULL)
+					magallanes->setExplorador(u);
+					//magallanes = new Scout(u, grf);
+
+				//Broodwar->printf("asigné a magallanes");
 
 				break;
 		}

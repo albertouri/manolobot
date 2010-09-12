@@ -166,6 +166,7 @@ Scout::~Scout(void)
 {
 }
 
+
 // Nuevo constructor
 Scout::Scout(Unit *unidad, Grafo *g){
 	explorer = unidad;
@@ -511,9 +512,21 @@ void Scout::dibujarGrilla(void){
 void Scout::setExplorador(Unit *unidad){
 	explorer = unidad;
 	ID = explorer->getID();
-	regActual = grafo->primerNodoNiveles();
 	tiempoMax = 0;
-	primeraExploracion = false;
+
+	if (grafo != NULL)
+		regActual = grafo->primerNodoNiveles();
+	else
+		regActual = NULL;
+
+	if (regActual != NULL){
+		primeraExploracion = false;
+	}
+	else{
+		// parte nueva, si falla borrarlo
+		primeraExploracion = true;
+		cont = 0;
+	}
 }
 
 
