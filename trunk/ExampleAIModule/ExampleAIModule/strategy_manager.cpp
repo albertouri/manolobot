@@ -134,21 +134,28 @@ void strategy_manager::checkGoals(void){
 			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_COVERT_OPS] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_LOCKDOWN] = 1;
-			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
 		}
 
-		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] > 0)){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_FACILITY] > 0)){
 			Broodwar->printf("Pase al estado 5 en el strategy manager");
 			estadoActual = 5;
 		}
-
 	}
 	else if (estadoActual == 5){	
 		if ((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 6)){
 			GoalUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 2;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 6;
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 45;
 			GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 2;
+		}
+
+		if (cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] > 1){
+			estadoActual = 6;
+		}
+	}
+	else if (estadoActual == 6){
+		if (cantUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] == 0){
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 45;
+			GoalUnidades[Utilidades::INDEX_GOAL_SCIENCE_VESSEL] = 1;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 6) && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3)){
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 15;

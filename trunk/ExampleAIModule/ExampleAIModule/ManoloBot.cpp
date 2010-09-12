@@ -22,7 +22,7 @@ ManoloBot::ManoloBot(void)
 
 void ManoloBot::checkGoals(void){
 
-	Graficos::dibujarCuadro(new TilePosition(0,0), 1, 1);
+	//Graficos::dibujarCuadro(new TilePosition(0,0), 1, 1);
 
 	if ((strategyManager != NULL) && (unitManager != NULL)){
 		if(latency >=50){
