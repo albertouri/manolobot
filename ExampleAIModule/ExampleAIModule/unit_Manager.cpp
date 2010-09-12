@@ -2336,7 +2336,6 @@ void unit_Manager::onUnitCreate(Unit *u){
 
 				if (magallanes != NULL)
 					magallanes->setExplorador(u);
-					//magallanes = new Scout(u, grf);
 				//Broodwar->printf("asigné a magallanes");
 
 				break;
