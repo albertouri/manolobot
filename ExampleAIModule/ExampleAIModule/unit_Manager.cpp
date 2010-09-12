@@ -733,7 +733,7 @@ void unit_Manager::ejecutarConstrucciones(){
 	//-- CHARON BOOSTERS
 	if (!researchDone[Utilidades::INDEX_GOAL_CHARON_BOOSTERS]){
 		// investigacion de modo asedio de tanques
-		if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_CHARON_BOOSTERS] == 1)){
+		if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] > 0) && (cantUnidades[Utilidades::INDEX_GOAL_ARMORY] > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_CHARON_BOOSTERS] == 1)){
 			Unit *u;
 
 			u = getUnit(Utilidades::ID_MACHINESHOP);
@@ -1705,7 +1705,7 @@ bool unit_Manager::isInsideRegion(AnalizadorTerreno *analizador, UnitType* U, Ti
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 	TilePosition* pos = NULL;
 	int i = 6;
-	if ((U->getID() == Utilidades::ID_FACTORY) || (U->getID() == Utilidades::ID_STARPORT))
+	if ((U->getID() == Utilidades::ID_FACTORY) || (U->getID() == Utilidades::ID_STARPORT) || ((U->getID()== Utilidades::ID_BARRACK)&&(Broodwar->self()->allUnitCount(Utilidades::ID_BARRACK)>1)))
 		i +=2;
 	Unit* worker = getWorker();
 	int x = centroComando->x();
