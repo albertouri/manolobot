@@ -45,7 +45,9 @@ public:
 	bool companiaAbordo();
 
 
-	void setBasesEnemigas(TilePosition* enemigo);
+
+	void onEnemyBuildingShow(Unit* enemyB);
+	void onEnemyBuildingDestroy(Unit* enemyB);
 
 
 	// retorna un puntero al comandante de la compañia
@@ -65,7 +67,7 @@ private:
 	Color c; // color especifico para resaltar las unidades de cada compañia, seteado en el constructor
 	Unit *comandante; // puntero al comandante de la compañia
 	AnalizadorTerreno* analizador; // puntero al analizador del terreno
-	TilePosition * posicionEnemigo;
+
 	bool esperar;
 
 	// listas de unidades de la compañia

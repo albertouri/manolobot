@@ -10,7 +10,7 @@ int turnoAsignacionGoliaths = 0;
 
 /*int goalLimiteSCV = 8;
 int goalLimiteBarracas = 1;*/
-
+std::set<TilePosition> setIDP;
 
 
 unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
@@ -2352,6 +2352,10 @@ void unit_Manager::onUnitDestroy(Unit *u){
 	// TODO: si un edificio por ejemplo la academia terran es destruido, y se tenia solo un edificio de ese tipo,
 	// se pierden todas las mejoras investigadas anteriormente, y se deberan investigar de nuevo
 	// Esto se debera actualizar solamente en el metodo onUnitDestroy de la clase unit_Manager
+	if ((Broodwar->self()->isEnemy(u->getPlayer())) && (u->getType().isBuilding()) && (Easy!=NULL)){
+		Easy->onEnemyBuildingDestroy(u);
+	}
+
 
 	if (grupoB1 != NULL)
 		grupoB1->onUnitDestroy(u);
@@ -2543,6 +2547,7 @@ void unit_Manager::onNukeDetect(Position p){
 
 
 void unit_Manager::onUnitShow(Unit *u){
+
 	// calcula la posicion donde esta ubicada la base enemiga, solamente realiza el calculo cuando la primer edificacion enemiga se hace visible
 	if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && (u->getType().isBuilding()) && (primerConstruccionDescubierta) && (analisisListo)){
 		primerConstruccionDescubierta = false;
@@ -2562,7 +2567,7 @@ void unit_Manager::onUnitShow(Unit *u){
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
 
 					if (Easy != NULL)
-						Easy->setBasesEnemigas(new TilePosition(regionBaseEnemiga->getCenter()));
+						Easy->onEnemyBuildingShow(u);
 				}
 				
 				// crea la compañia de transporte
@@ -2575,12 +2580,8 @@ void unit_Manager::onUnitShow(Unit *u){
 	}
 	if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && (u->getType().isBuilding()) && (!primerConstruccionDescubierta) && (analisisListo)){
 
-
-
-
-		// agregar codigo de actualizacion de Easy aca
-
-
+		
+		Easy->onEnemyBuildingShow(u);
 
 	}
 	else if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && ((u->isCloaked()) || (u->isBurrowed())) && (!u->isDetected())){
