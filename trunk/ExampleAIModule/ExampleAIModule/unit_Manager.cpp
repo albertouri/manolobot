@@ -73,6 +73,7 @@ unit_Manager::unit_Manager(AnalizadorTerreno *analizador)
 	primerConstruccionDescubierta = true;
 	baseEnemiga = NULL;
 	regionBaseEnemiga = NULL;
+	regionBasePrincipalEnemiga = NULL;
 	analisisListo = false;
 
 	estadoActual = 0;
@@ -108,7 +109,7 @@ void unit_Manager::executeActions(){
 			grupoB2->onFrame();
 		
 		//-- BUSCA LA REGION PARA EL SEGUNDO GRUPO DE BUNKERS
-		if (analizador->analisisListo() && (grupoB2 == NULL) && (estadoActual == 5) && (regionBaseEnemiga != NULL)){
+		if (analizador->analisisListo() && (grupoB2 == NULL) && (estadoActual == 5) && (/*regionBaseEnemiga*/regionBasePrincipalEnemiga != NULL)){
 			std::set<Region*>::const_iterator It = analizador->regionInicial()->getReachableRegions().begin();
 			Region *temp = NULL;
 
@@ -128,7 +129,7 @@ void unit_Manager::executeActions(){
 				Broodwar->printf("No hay lugar para una nueva base...");
 			else{
 				TilePosition* posB = new TilePosition((*temp->getBaseLocations().begin())->getTilePosition().x(), (*temp->getBaseLocations().begin())->getTilePosition().y());
-				grupoB2 = new GrupoBunkers(analizador, temp, regionBaseEnemiga);
+				grupoB2 = new GrupoBunkers(analizador, temp, /*regionBaseEnemiga*/regionBasePrincipalEnemiga);
 				delete posB;
 			}
 		}
@@ -2554,7 +2555,9 @@ void unit_Manager::onUnitShow(Unit *u){
 			if ((*It)->getPolygon().isInside(u->getPosition())){
 
 				regionBaseEnemiga = (*It);
-				// obtiene la posicion del centro de comando de esa region
+				regionBasePrincipalEnemiga = (*It); // se usa en grupoB2
+
+				// obtiene la posicion del centro de comando de esa region para usarla en el grupoB2 y en la compañia de transporte
 				if (!(*It)->getBaseLocations().empty()){
 					baseEnemiga = new Position((*(*It)->getBaseLocations().begin())->getPosition().x(), (*(*It)->getBaseLocations().begin())->getPosition().y());
 
@@ -2563,12 +2566,22 @@ void unit_Manager::onUnitShow(Unit *u){
 				}
 				
 				// crea la compañia de transporte
-				//ct = new CompaniaTransporte(baseEnemiga, regionBaseEnemiga, Easy);
+				//ct = new CompaniaTransporte(baseEnemiga, regionBasePrincipalEnemiga, Easy);
 
 				encontre = true;
 			}
 			It++;
 		}
+	}
+	if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && (u->getType().isBuilding()) && (!primerConstruccionDescubierta) && (analisisListo)){
+
+
+
+
+		// agregar codigo de actualizacion de Easy aca
+
+
+
 	}
 	else if ((u != NULL) && (u->exists()) && (Broodwar->self()->isEnemy(u->getPlayer())) && ((u->isCloaked()) || (u->isBurrowed())) && (!u->isDetected())){
 		// si la unidad que genero el evento es "invisible" o esta oculta debajo de la tierra realiza un scan de la posicion de esa unidad con el comsat station
