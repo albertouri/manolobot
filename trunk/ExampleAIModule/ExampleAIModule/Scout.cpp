@@ -312,8 +312,6 @@ Scout::Scout(Unit *unidad, Grafo *g){
 	//-- 
 
 
-
-
 	regActual = g->primerNodoNiveles();
 	grafo = g;
 	tiempoMax = 0;

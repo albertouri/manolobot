@@ -917,9 +917,12 @@ TilePosition* GrupoBunkers::posicionPrimerBunker2(Region* r, Chokepoint* c, bool
 
 TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int angulo, bool buscarHaciaAdentro){
 	int factorX, factorY;
-	int contX = 0, contY = 0;
+	//int contX = 0, contY = 0;
+	int contX = 3, contY = 3;
 	TilePosition *t, *res = NULL;
 	bool hayPosicion;
+
+	//TilePosition *turr1, *turr2;
 
 	UnitType *bunker = new UnitType(Utilidades::ID_BUNKER);
 	UnitType *missileTurret = new UnitType(Utilidades::ID_MISSILE_TURRET);
@@ -971,7 +974,7 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 		while (contY < /*10*/15){
 			//-- Posicion del bunker central
 			t = new TilePosition((p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
-			Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
+			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
 			//Broodwar->printf("horizontal");
 
 			//Broodwar->printf("Intento en x: %d - y: %d", (p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
@@ -998,7 +1001,8 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 			if (hayPosicion){
 				// verifico si puedo construir un misile turret detras del bunker derecho
 				delete t;
-				if ((cuadrante == 1) || (cuadrante == 2))
+				//if ((cuadrante == 1) || (cuadrante == 2))
+				if (p.y() > reg->getCenter().y())
 					t = new TilePosition((p.x() / TILE_SIZE) + 3 + contX + 1, (p.y() / TILE_SIZE) + contY * factorY - 2);
 				else
 					t = new TilePosition((p.x() / TILE_SIZE) + 3 + contX + 1, (p.y() / TILE_SIZE) + contY * factorY + 2);
@@ -1024,7 +1028,8 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 			//-- Posicion del misile turret izquierdo
 			if (hayPosicion){
 				delete t;
-				if ((cuadrante == 1) || (cuadrante == 2))
+				//if ((cuadrante == 1) || (cuadrante == 2))
+				if (p.y() > reg->getCenter().y())
 					t = new TilePosition((p.x() / TILE_SIZE) - 3 + contX, (p.y() / TILE_SIZE) + contY * factorY - 2);
 				else
 					t = new TilePosition((p.x() / TILE_SIZE) - 3 + contX, (p.y() / TILE_SIZE) + contY * factorY + 2);
@@ -1108,7 +1113,7 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 		while (contX < 10){
 			//-- Posicion del bunker central
 			t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + contY);
-			Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
+			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
 			//Broodwar->printf("Intento en x: %d - y: %d", (p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
 			//Broodwar->printf("VERTICAL");
 			hayPosicion = puedoConstruir2(*t, *bunker);
@@ -1121,19 +1126,20 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + 2 + contY);
 				hayPosicion = puedoConstruir2(*t, *bunker);
 			}
-			//else delete t;
 
 			//-- Posicion del misile turret inferior
 			if (hayPosicion){
 				delete t;
-				if ((cuadrante == 1) || (cuadrante == 3))
-					t = new TilePosition(p.x() / 32 + contX * factorX - 2, p.y() / 32 + 2 + contY);
+				//if ((cuadrante == 1) || (cuadrante == 3))
+				if (p.x() > reg->getCenter().x())
+					t = new TilePosition(p.x() / 32 + contX * factorX - 2, p.y() / 32 + 3 + contY);
 				else
-					t = new TilePosition(p.x() / 32 + contX * factorX + 3, p.y() / 32 + 2 + contY);
+					t = new TilePosition(p.x() / 32 + contX * factorX + 3, p.y() / 32 + 3 + contY);
 				
+				//turr1 = new TilePosition(t->x(), t->y());
+				//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, (t->x() + 2) * TILE_SIZE + 8, (t->y() + 2) * TILE_SIZE + 8, Colors::Red, false);
 				hayPosicion = puedoConstruir2(*t, *missileTurret);
 			}
-			//else delete t;
 
 			//-- Posicion del bunker superior
 			if (hayPosicion){
@@ -1142,16 +1148,17 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 				t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 - 2 + contY);
 				hayPosicion = puedoConstruir2(*t, *bunker);
 			}
-			//else delete t;
 
-			//-- Posicion del misile turret inferior
+			//-- Posicion del misile turret superior
 			if (hayPosicion){
 				delete t;
-				if ((cuadrante == 1) || (cuadrante == 3))
-					t = new TilePosition(p.x() / 32 + contX * factorX - 2, p.y() / 32 - 2 + contY);
+				if (p.x() > reg->getCenter().x())
+					t = new TilePosition(p.x() / 32 + contX * factorX - 2, p.y() / 32 - 3 + contY);
 				else
-					t = new TilePosition(p.x() / 32 + contX * factorX + 3, p.y() / 32 - 2 + contY);
+					t = new TilePosition(p.x() / 32 + contX * factorX + 3, p.y() / 32 - 3 + contY);
 				
+				//turr2 = new TilePosition(t->x(), t->y());
+				//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, (t->x() + 2) * TILE_SIZE + 8, (t->y() + 2) * TILE_SIZE + 8, Colors::Red, false);
 				hayPosicion = puedoConstruir2(*t, *missileTurret);
 			}
 
@@ -1159,6 +1166,9 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 				//-- SETEA EL ANGULO UTILIZADO POR EL GRUPO DE BUNKERS (VARIABLE GLOBAL)
 				anguloGrupo = 0;
 				delete t;
+
+				//Broodwar->drawBoxMap(turr1->x() * TILE_SIZE, turr1->y() * TILE_SIZE, (turr1->x() + 2) * TILE_SIZE + 8, (turr1->y() + 2) * TILE_SIZE + 8, Colors::Red, false);
+				//Broodwar->drawBoxMap(turr2->x() * TILE_SIZE, turr2->y() * TILE_SIZE, (turr2->x() + 2) * TILE_SIZE + 8, (turr2->y() + 2) * TILE_SIZE + 8, Colors::Red, false);
 
 				TilePosition *aux = res;
 				if ((cuadrante == 1) || (cuadrante == 3))

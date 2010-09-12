@@ -138,7 +138,7 @@ void GrupoAntiaereo::onFrame(){
 	if (tAba != NULL)
 		Graficos::dibujarCuadro(tAba, 2, 2, Colors::Cyan, false);
 
-	Broodwar->drawBox(CoordinateType::Map, regionDefender->getCenter().x(), regionDefender->getCenter().y(), regionDefender->getCenter().x() + 10, regionDefender->getCenter().y() + 10, Colors::Red, true);
+	//Broodwar->drawBox(CoordinateType::Map, regionDefender->getCenter().x(), regionDefender->getCenter().y(), regionDefender->getCenter().x() + 10, regionDefender->getCenter().y() + 10, Colors::Red, true);
 	
 }
 
