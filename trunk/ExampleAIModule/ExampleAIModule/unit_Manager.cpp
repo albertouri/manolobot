@@ -90,8 +90,11 @@ void unit_Manager::executeActions(){
 		if ((ct != NULL) && (estadoActual == 5))
 			ct->onFrame();
 
-		if (grf == NULL)
+		if (grf == NULL){
 			grf = new Grafo(BWTA::getRegions().size());
+
+
+		}
 		else{
 			if (magallanes == NULL)
 				magallanes = new Scout(getWorker(), grf);
@@ -2211,22 +2214,30 @@ void unit_Manager::onUnitCreate(Unit *u){
 
 		switch (u->getType().getID()){
 			case Utilidades::ID_ACADEMY:
-				if ((cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY]){
-					u->getBuildUnit()->haltConstruction();
-					u->getBuildUnit()->stop();
-					u->cancelConstruction();
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ACADEMY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ACADEMY]){
+					Unit *builder = u->getBuildUnit();
+
+					if ((builder != NULL) && builder->exists()){
+						builder->haltConstruction();
+						builder->stop();
+						u->cancelConstruction();
+					}
 				}
-				else
+				else*/
 					cantUnidades[Utilidades::INDEX_GOAL_ACADEMY]++;
 
 				break;
 			case Utilidades::ID_BARRACK:
-				if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK]){
-					u->getBuildUnit()->haltConstruction();
-					u->getBuildUnit()->stop();
-					u->cancelConstruction();
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_BARRACK] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_BARRACK]){
+					Unit *builder = u->getBuildUnit();
+
+					if ((builder != NULL) && builder->exists()){
+						builder->haltConstruction();
+						builder->stop();
+						u->cancelConstruction();
+					}
 				}
-				else
+				else*/
 					cantUnidades[Utilidades::INDEX_GOAL_BARRACK]++;
 
 				break;
@@ -2255,12 +2266,16 @@ void unit_Manager::onUnitCreate(Unit *u){
 				cantUnidades[Utilidades::INDEX_GOAL_SCV]++;
 				break;
 			case Utilidades::ID_FACTORY:
-				if ((cantUnidades[Utilidades::INDEX_GOAL_FACTORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_FACTORY]){
-					u->getBuildUnit()->haltConstruction();
-					u->getBuildUnit()->stop();
-					u->cancelConstruction();
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_FACTORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_FACTORY]){
+					Unit *builder = u->getBuildUnit();
+
+					if ((builder != NULL) && builder->exists()){
+						builder->haltConstruction();
+						builder->stop();
+						u->cancelConstruction();
+					}
 				}
-				else
+				else*/
 					cantUnidades[Utilidades::INDEX_GOAL_FACTORY]++;
 
 				break;	
@@ -2272,22 +2287,30 @@ void unit_Manager::onUnitCreate(Unit *u){
 				asignarUnidadACompania(u);
 				break;
 			case Utilidades::ID_ENGINEERING_BAY:
-				if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]){
-					u->getBuildUnit()->haltConstruction();
-					u->getBuildUnit()->stop();
-					u->cancelConstruction();
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]){
+					Unit *builder = u->getBuildUnit();
+
+					if ((builder != NULL) && builder->exists()){
+						builder->haltConstruction();
+						builder->stop();
+						u->cancelConstruction();
+					}
 				}
-				else
+				else*/
 					cantUnidades[Utilidades::INDEX_GOAL_ENGINEERING_BAY]++;
 
 				break;
 			case Utilidades::ID_ARMORY:
-				if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ARMORY]){
-					u->getBuildUnit()->haltConstruction();
-					u->getBuildUnit()->stop();
-					u->cancelConstruction();
+				/*if ((cantUnidades[Utilidades::INDEX_GOAL_ARMORY] + 1) > goalCantUnidades[Utilidades::INDEX_GOAL_ARMORY]){
+					Unit *builder = u->getBuildUnit();
+
+					if ((builder != NULL) && builder->exists()){
+						builder->haltConstruction();
+						builder->stop();
+						u->cancelConstruction();
+					}
 				}
-				else
+				else*/
 					cantUnidades[Utilidades::INDEX_GOAL_ARMORY]++;
 
 				break;

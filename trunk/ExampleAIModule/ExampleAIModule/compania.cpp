@@ -536,9 +536,9 @@ void compania::moverCompania(Position pos){
 				It1++;
 		}
 	}
-	else{
+	/*else{
 		Broodwar->printf("el comandante no está, el comandante se fue, el comandante se escapa de mi vida");
-	}
+	}*/
 }
 
 
