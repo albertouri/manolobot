@@ -294,8 +294,7 @@ Unit* CompaniaDefensiva::buscarObjetivosMarines(){
 
 		ItObj = Broodwar->enemy()->getUnits().begin();
 		while (ItObj != Broodwar->enemy()->getUnits().end()){
-			// busca una unidad mecanica que este dentro de la region defendida por el fantasma o una unidad mecanica que este atacando alguna unidad nuestra 
-			if ((*ItObj)->exists() && ((*ItObj)->isVisible()) && (!(*ItObj)->getType().isMechanical()) && (inicial->getPolygon().isInside((*ItObj)->getPosition()))){
+			if ((*ItObj)->exists() && ((*ItObj)->isVisible()) && ((*ItObj)->isDetected()) && (inicial->getPolygon().isInside((*ItObj)->getPosition()))){
 				if (objetivo == NULL){
 					objetivo = (*ItObj);
 					return objetivo;
