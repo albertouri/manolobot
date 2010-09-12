@@ -353,7 +353,7 @@ void Scout::explorar(void){
 
 		if (Broodwar->getFrameCount() % 23 == 0){
 			if ((/*regActual*/posActual != NULL) && (grafo != NULL)){
-				if ((explorer != NULL) && (explorer->exists()) && /*(explorer->getPosition().getDistance(regActual->getCenter())*/(explorer->getPosition().getAproxDistance(*posActual) < 30)){
+				if ((explorer != NULL) && (explorer->exists()) && /*(explorer->getPosition().getDistance(regActual->getCenter())*/(explorer->getPosition().getApproxDistance(*posActual) < 30)){
 					//regActual = grafo->siguienteNodoNiveles();
 					posActual = grafo->siguienteNodoNiveles();
 					tiempoMax = 0;
