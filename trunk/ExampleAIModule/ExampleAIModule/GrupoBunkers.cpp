@@ -1,6 +1,6 @@
 #include "GrupoBunkers.h"
 
-//Region *e = NULL;
+Region *e = NULL;
 
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 {
@@ -59,7 +59,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 
 GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemiga)
 {
-	//e = regionEnemiga;
+	e = regionEnemiga;
 	Chokepoint *chokeEnemigo = NULL;
 	Chokepoint *c2 = NULL;
 
@@ -918,7 +918,7 @@ TilePosition* GrupoBunkers::posicionPrimerBunker2(Region* r, Chokepoint* c, bool
 TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int angulo, bool buscarHaciaAdentro){
 	int factorX, factorY;
 	//int contX = 0, contY = 0;
-	int contX = 3, contY = 3;
+	int contX = 8, contY = 4;
 	TilePosition *t, *res = NULL;
 	bool hayPosicion;
 
@@ -971,7 +971,7 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 			contX = 2;
 
 
-		while (contY < /*10*/15){
+		while (contY < 20){
 			//-- Posicion del bunker central
 			t = new TilePosition((p.x() / TILE_SIZE) + contX, (p.y() / TILE_SIZE) + contY * factorY);
 			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
@@ -1110,7 +1110,7 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 
 		//-- FIN CODIGO GIRATORIO
 
-		while (contX < 10){
+		while (contX < 20){
 			//-- Posicion del bunker central
 			t = new TilePosition(p.x() / 32 + contX * factorX, p.y() / 32 + contY);
 			//Broodwar->drawBoxMap(t->x() * TILE_SIZE, t->y() * TILE_SIZE, t->x() * TILE_SIZE + 8, t->y() * TILE_SIZE + 8, Colors::Green, true);
