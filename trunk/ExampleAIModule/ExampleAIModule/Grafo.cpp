@@ -122,7 +122,7 @@ Region* Grafo::siguienteNodoNiveles(){
 }
 
 void Grafo::dibujarRegionesNiveles(){
-	/*std::list<Region*>::iterator It = niveles.begin();
+	std::list<Region*>::iterator It = niveles.begin();
 
 	while (It != niveles.end()){
 		Polygon p = (*It)->getPolygon();
@@ -134,7 +134,7 @@ void Grafo::dibujarRegionesNiveles(){
 		}
 
 		It++;
-	}*/
+	}
 
 
 	// une con una linea los centros de las regiones a visitar

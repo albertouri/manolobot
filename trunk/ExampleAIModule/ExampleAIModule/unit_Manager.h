@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include "Grafo.h"
 #include "CompaniaTransporte.h"
+#include "GrupoAntiaereo.h"
 
 using namespace BWAPI;
 using namespace BWTA;
@@ -82,6 +83,7 @@ private:
 
 	Grafo *grf;
 	CompaniaTransporte *ct;
+	GrupoAntiaereo *anti;
 
 	int latenciaScout;
 

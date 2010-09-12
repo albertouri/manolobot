@@ -297,7 +297,7 @@ void CompaniaDefensiva::defenderBaseGhosts(){
 			It = listGhosts.begin();
 			bool encontre = false;
 
-			Broodwar->printf("Fantasmas atacando");
+			//Broodwar->printf("Fantasmas atacando");
 
 			while ((It != listGhosts.end()) && (!encontre)){
 				if ((*It)->exists() && ((*It)->getEnergy() >= 100)){
