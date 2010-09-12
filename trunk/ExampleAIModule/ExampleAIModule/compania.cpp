@@ -309,7 +309,6 @@ void compania::onFrame(){
 	}
 	else{
 		if((setPosicionesEdificiosEnemigos.size()>0) && (regionActual== analizador->regionInicial()) && (Broodwar->getFrameCount()%30 == 15)){
-			Broodwar->printf("cambie a la region de al lado");
 			TilePosition* centroRegionActual = new TilePosition(analizador->regionInicial()->getCenter());
 			std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(*centroRegionActual, setPosicionesEdificiosEnemigos);
 			std::vector<BWAPI::TilePosition>::iterator It1;
@@ -336,11 +335,11 @@ void compania::onFrame(){
 
 
 
-	if ((comandante != NULL) && (comandante->exists())){
-		Graficos::resaltarUnidad(comandante, c);
+	//if ((comandante != NULL) && (comandante->exists())){
+	//	Graficos::resaltarUnidad(comandante, c);
 	//	Broodwar->printf("distancia %f  ----- rango %d", comandante->getDistance(analizador->regionInicial()->getCenter())/32 , comandante->getType().sightRange()/32);
 	//	Broodwar->drawCircleMap(comandante->getPosition().x(),comandante->getPosition().y(), comandante->getType().sightRange(), Colors::White, false);
-	}
+	//}
 
 	// ------------------------ verifica si el comandante esta seteado ------------------------
 	setComandantes();
@@ -431,7 +430,7 @@ void compania::onFrame(){
 					if (((*It1)->isLockedDown())||((*It1)->isParasited())||((*It1)->isEnsnared())||((*It1)->isBlind())||((*It1)->isPlagued()))
 						listaDeUnidadesAfectadas.push_back(*It1);
 					
-					Graficos::resaltarUnidad(*It1, c);
+	//				Graficos::resaltarUnidad(*It1, c);
 					It1++; 
 				}
 			}
@@ -452,7 +451,7 @@ void compania::onFrame(){
 						listaDeUnidadesAfectadas.push_back(*It1);
 					if(!(*It1)->isDefenseMatrixed())
 						listaDeUnidadesNotMatrixed.push_back(*It1);
-					Graficos::resaltarUnidad(*It1, c);
+	//				Graficos::resaltarUnidad(*It1, c);
 					It1++; 
 				}
 			}
@@ -961,7 +960,7 @@ void compania::setComandantes(void){
 
 			actualizarEstado(&listMarines);
 			if (listMarines.size() > 0){
-				if((BWTA::getRegion((*listMarines.begin())->getTilePosition()) == regionActual)||(atacando== false)){
+				if((BWTA::getRegion((*listMarines.begin())->getTilePosition()) == regionActual)){
 					comandante = *(listMarines.begin());
 				}
 			}
