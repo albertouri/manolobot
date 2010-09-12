@@ -13,20 +13,25 @@ public:
 
 	void agregarNodo(Nodo *n);
 
-	Region* primerNodoNiveles();
-	Region* siguienteNodoNiveles();
+	/*Region* primerNodoNiveles();
+	Region* siguienteNodoNiveles();*/
+	Position* primerNodoNiveles();
+	Position* siguienteNodoNiveles();
+
+	void dibujarPuntosVisitar();
 	
-	void dibujarRegionesNiveles();
+	//void dibujarRegionesNiveles();
 
 private:
 	// estructura de datos para almacenar el grafo (lista de adyacencia)
 	Nodo* listaAdy;
 	
 	// puntero para el recorrido por niveles, apunta al nodo que se esta recorriendo actualmente
-	//std::list<std::pair<Region*, bool>> niveles;
-	//std::list<std::pair<Region*, bool>>::iterator ItNiveles;
-	std::list<Region*> niveles;
-	std::list<Region*>::iterator ItNiveles;
+	//std::listRegiones<Region*> nivelesRegiones;
+	std::list<Position*> niveles;
+
+	//std::list<Region*>::iterator ItNivelesRegiones;
+	std::list<Position*>::iterator ItNiveles;
 
 	// devuelve el indice de la region pasada como parametro en la lista de adyacencia
 	int indiceRegion(Region *reg);

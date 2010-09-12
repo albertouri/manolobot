@@ -155,7 +155,7 @@ Scout::Scout(BWAPI::Unit *unidad)
 	cont++;
 
 	//-- NUEVO
-	regActual = NULL;
+	//regActual = NULL;
 	grafo = NULL;
 	tiempoMax = 0;
 }
@@ -312,7 +312,8 @@ Scout::Scout(Unit *unidad, Grafo *g){
 	//-- 
 
 
-	regActual = g->primerNodoNiveles();
+	//regActual = g->primerNodoNiveles();
+	posActual = g->primerNodoNiveles();
 	grafo = g;
 	tiempoMax = 0;
 	primeraExploracion = true;
@@ -333,6 +334,8 @@ void Scout::explorar(void){
 		dibujarGrilla();
 	}*/
 
+	//grafo->dibujarPuntosVisitar();
+
 	if (primeraExploracion){
 		if ((explorer != NULL) && (explorer->exists())){
 			if (cont < cantPosiciones){
@@ -348,37 +351,22 @@ void Scout::explorar(void){
 		//dibujarPosiciones();
 		tiempoMax++;
 
-		//-- dibuja la region que se esta explorando actualmente
-
-		/*if ((explorer != NULL) && (explorer->exists()) && (regActual != NULL)){
-			Polygon p = regActual->getPolygon();
-			for(int j=0;j<(int)p.size();j++)
-			{
-				Position point1=p[j];
-				Position point2=p[(j+1) % p.size()];
-				Broodwar->drawLine(CoordinateType::Map,point1.x(),point1.y(),point2.x(),point2.y(),Colors::Green);
-			}
-
-			Broodwar->drawLineMap(explorer->getPosition().x(), explorer->getPosition().y(), regActual->getCenter().x(), regActual->getCenter().y(), Colors::White);
-		}*/
-
-		//grafo->dibujarRegionesNiveles();
-
-		//--
-
-		if (Broodwar->getFrameCount() % 100 == 0){
-			if ((regActual != NULL) && (grafo != NULL)){
-				if ((explorer != NULL) && (explorer->exists()) && (explorer->getPosition().getDistance(regActual->getCenter()) < 30)){
-					regActual = grafo->siguienteNodoNiveles();
+		if (Broodwar->getFrameCount() % 23 == 0){
+			if ((/*regActual*/posActual != NULL) && (grafo != NULL)){
+				if ((explorer != NULL) && (explorer->exists()) && /*(explorer->getPosition().getDistance(regActual->getCenter())*/(explorer->getPosition().getAproxDistance(*posActual) < 30)){
+					//regActual = grafo->siguienteNodoNiveles();
+					posActual = grafo->siguienteNodoNiveles();
 					tiempoMax = 0;
 				}
 				else{
 					if (tiempoMax > 700){
 						tiempoMax = 0;
-						regActual = grafo->siguienteNodoNiveles();
+						//regActual = grafo->siguienteNodoNiveles();
+						posActual = grafo->siguienteNodoNiveles();
 					}
 					else{
-						explorer->move(regActual->getCenter());
+						//explorer->move(regActual->getCenter());
+						explorer->move(*posActual);
 						//tiempoMax++;
 					}
 				}
@@ -513,11 +501,14 @@ void Scout::setExplorador(Unit *unidad){
 	tiempoMax = 0;
 
 	if (grafo != NULL)
-		regActual = grafo->primerNodoNiveles();
+		//regActual = grafo->primerNodoNiveles();
+		posActual = grafo->primerNodoNiveles();
 	else
-		regActual = NULL;
+		//regActual = NULL;
+		posActual = NULL;
 
-	if (regActual != NULL){
+	//if (regActual != NULL){
+	if (posActual != NULL){
 		primeraExploracion = false;
 	}
 	else{

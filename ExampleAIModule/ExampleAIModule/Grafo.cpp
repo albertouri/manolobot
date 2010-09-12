@@ -40,7 +40,7 @@ Grafo::Grafo(int cantNodos)
 	crearListaNiveles();
 
 	//Broodwar->printf("El mapa tiene %d regiones", BWTA::getRegions().size());
-	//Broodwar->printf("La lista niveles tiene %d elementos", niveles.size());
+	Broodwar->printf("La lista niveles tiene %d elementos", niveles.size());
 
 
 }
@@ -59,42 +59,60 @@ int Grafo::indiceRegion(Region *reg){
 }
 
 void Grafo::crearListaNiveles(){
-	std::set<Region*> visitados;
-	//std::list<std::pair<Region*, bool>>::iterator ItLista;
-	std::list<Region*>::iterator ItLista;
-	std::set<Chokepoint*>::const_iterator ItChoke;
+	//-- NUEVO
+	std::list<Region*> nivelesRegiones;
+	std::list<Region*>::iterator ItNivelesRegiones;
+	//--
 
-	//std::pair<Region*, bool> par;
+	std::set<Region*> visitados;
+
+	//std::list<Region*>::iterator ItLista;
+	//std::list<Position*>::iterator ItLista;
+
+	std::set<Chokepoint*>::const_iterator ItChoke;
 
 	//--
 	// crea la lista para el recorrido por niveles
 	Region *inicio = BWTA::getStartLocation(Broodwar->self())->getRegion();
 
 	// inserta la region de inicio en la lista
-	//par = std::make_pair(listaAdy[indiceRegion(inicio)].getRegion(), false);
-	//niveles.push_back(par);
-	niveles.push_back(inicio);
+	nivelesRegiones.push_back(inicio);
+	niveles.push_back(new Position(inicio->getCenter().x(), inicio->getCenter().y()));
+	
 	visitados.insert(inicio);
 
-	ItLista = niveles.begin();
-	while (ItLista != niveles.end()){
+	ItNivelesRegiones = nivelesRegiones.begin();
+	while (ItNivelesRegiones != nivelesRegiones.end()){
 		// itera sobre los chokepoints para agregar las regiones adyacentes a la lista
-		//ItChoke = (*ItLista).first->getChokepoints().begin();
-		ItChoke = (*ItLista)->getChokepoints().begin();
+		ItChoke = (*ItNivelesRegiones)->getChokepoints().begin();
 
-		//while (ItChoke != (*ItLista).first->getChokepoints().end()){
-		while (ItChoke != (*ItLista)->getChokepoints().end()){
-			if ((*ItChoke)->getRegions().first != (*ItLista)){
-				//par = std::make_pair((*ItChoke)->getRegions().first, false);
+		while (ItChoke != (*ItNivelesRegiones)->getChokepoints().end()){
+			if ((*ItChoke)->getRegions().first != (*ItNivelesRegiones)){
+				
 				if (visitados.find((*ItChoke)->getRegions().first) == visitados.end()){
-					niveles.push_back((*ItChoke)->getRegions().first);
+					std::set<BaseLocation*>::const_iterator b = (*ItChoke)->getRegions().first->getBaseLocations().begin();
+					
+					nivelesRegiones.push_back((*ItChoke)->getRegions().first);
+
+					while (b != (*ItChoke)->getRegions().first->getBaseLocations().end()){
+						niveles.push_back(new Position((*b)->getPosition().x(), (*b)->getPosition().y()));
+						b++;
+					}
+
 					visitados.insert((*ItChoke)->getRegions().first);
 				}
 			}
 			else{
-				//par = std::make_pair((*ItChoke)->getRegions().second, false);
 				if (visitados.find((*ItChoke)->getRegions().second) == visitados.end()){
-					niveles.push_back((*ItChoke)->getRegions().second);
+					std::set<BaseLocation*>::const_iterator b = (*ItChoke)->getRegions().second->getBaseLocations().begin();
+
+					nivelesRegiones.push_back((*ItChoke)->getRegions().second);
+
+					while (b != (*ItChoke)->getRegions().second->getBaseLocations().end()){
+						niveles.push_back(new Position((*b)->getPosition().x(), (*b)->getPosition().y()));
+						b++;
+					}
+
 					visitados.insert((*ItChoke)->getRegions().second);
 				}
 			}
@@ -102,18 +120,18 @@ void Grafo::crearListaNiveles(){
 			ItChoke++;
 		}
 
-		ItLista++;
+		ItNivelesRegiones++;
 	}
 }
 
 
-Region* Grafo::primerNodoNiveles(){
+Position* Grafo::primerNodoNiveles(){
 	ItNiveles = niveles.begin();
 	return (*ItNiveles);
 }
 
 
-Region* Grafo::siguienteNodoNiveles(){
+Position* Grafo::siguienteNodoNiveles(){
 	ItNiveles++;
 	if (ItNiveles == niveles.end())
 		return NULL;
@@ -121,7 +139,17 @@ Region* Grafo::siguienteNodoNiveles(){
 		return (*ItNiveles);
 }
 
-void Grafo::dibujarRegionesNiveles(){
+void Grafo::dibujarPuntosVisitar(){
+	std::list<Position*>::iterator It = niveles.begin();
+
+	while (It != niveles.end()){
+		Broodwar->drawBoxMap((*It)->x(), (*It)->y(), (*It)->x() + 8, (*It)->y() + 8, Colors::White, true);
+		It++;
+	}
+	//Broodwar->printf("Dibuje los puntos en el mapa");
+}
+
+/*void Grafo::dibujarRegionesNiveles(){
 	std::list<Region*>::iterator It = niveles.begin();
 
 	while (It != niveles.end()){
@@ -152,4 +180,4 @@ void Grafo::dibujarRegionesNiveles(){
 		}
 	}
 
-}
+}*/

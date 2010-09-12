@@ -45,7 +45,7 @@ void ManoloBot::checkGoals(void){
 	
 
 	if ((analizador != NULL) && (analizador->analisisListo())){
-		//if ((analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 3) || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 4)/* || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 1)*/)
+		//if ((analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 2) || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 4)/* || (analizador->getCuadrante(BWTA::getStartLocation(Broodwar->self())->getPosition()) == 1)*/)
 		//	Broodwar->restartGame();
 		analizador->dibujarResultados();
 	}
