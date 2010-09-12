@@ -1708,7 +1708,7 @@ bool unit_Manager::isInsideRegion(AnalizadorTerreno *analizador, UnitType* U, Ti
 // Obtiene un TilePosition disponible en las cercanias del centro de comando
 TilePosition* unit_Manager::getTilePositionAviable(UnitType* U){
 	TilePosition* pos = NULL;
-	int i = 6;
+	int i = 7;
 	if ((U->getID() == Utilidades::ID_FACTORY) || (U->getID() == Utilidades::ID_STARPORT) || ((U->getID()== Utilidades::ID_BARRACK)&&(Broodwar->self()->allUnitCount(Utilidades::ID_BARRACK)>1)))
 		i +=2;
 	Unit* worker = getWorker();
