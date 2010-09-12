@@ -121,6 +121,7 @@ void strategy_manager::checkGoals(void){
 		else if (!ResearchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 			GoalResearch[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1] = 1;
 			GoalResearch[Utilidades::INDEX_GOAL_RESTORATION] = 1;
+			GoalResearch[Utilidades::INDEX_GOAL_CHARON_BOOSTERS] = 1;
 			GoalUnidades[Utilidades::INDEX_GOAL_MEDIC] = 7;
 			GoalUnidades[Utilidades::INDEX_GOAL_GOLIATH] = 4;
 			GoalUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] = 12;
@@ -146,7 +147,7 @@ void strategy_manager::checkGoals(void){
 		if ((cantUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] == 1) && (cantUnidades[Utilidades::INDEX_GOAL_BUNKER] < 6)){
 			GoalUnidades[Utilidades::INDEX_GOAL_COMMANDCENTER] = 2;
 			GoalUnidades[Utilidades::INDEX_GOAL_BUNKER] = 6;
-			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 30;
+			GoalUnidades[Utilidades::INDEX_GOAL_MARINE] = 45;
 			GoalUnidades[Utilidades::INDEX_GOAL_REFINERY] = 2;
 		}
 		else if ((cantUnidades[Utilidades::INDEX_GOAL_BUNKER] == 6) && (cantUnidades[Utilidades::INDEX_GOAL_TANKSIEGE] == 3)){

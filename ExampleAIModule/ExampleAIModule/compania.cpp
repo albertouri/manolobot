@@ -306,7 +306,7 @@ void compania::onFrame(){
 		}
 	}
 	else{
-		if((posicionEnemigo != NULL) && (regionActual== analizador->regionInicial())&&(Broodwar->getFrameCount()%12 == 10)){
+		if((posicionEnemigo != NULL) && (regionActual== analizador->regionInicial()) && (Broodwar->getFrameCount()%30 == 15)){
 			Broodwar->printf("cambie a la region de al lado");
 			TilePosition* centroRegionActual = new TilePosition(analizador->regionInicial()->getCenter());
 			std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(*centroRegionActual, *posicionEnemigo);
@@ -317,11 +317,10 @@ void compania::onFrame(){
 				if (BWTA::getRegion(*It1)!=analizador->regionInicial()){
 					regionActual = BWTA::getRegion(*It1);
 				}
-				else{
-					It1++;
-				}
+				It1++;
 			}
 		}
+		
 	}
 
 
@@ -985,8 +984,19 @@ void compania::setComandantes(void){
 }
 
 void compania::retirada(){
-	if (analizador->analisisListo() && (puntoDeRetirada!=analizador->regionInicial())){
-		TilePosition* posicionInicial = new TilePosition(analizador->regionInicial()->getCenter());
+	Region* ultimaBase = analizador->regionInicial();
+
+	if(Broodwar->self()->completedUnitCount(Utilidades::ID_COMMANDCENTER)>=2){
+		for(std::set<Unit*>::const_iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++){
+			if (((*i)->getType().getID()== Utilidades::ID_COMMANDCENTER)&& (BWTA::getRegion((*i)->getPosition())!= analizador->regionInicial())){
+				ultimaBase = BWTA::getRegion((*i)->getPosition());
+				break;
+			}	
+		}
+	}
+
+	if (analizador->analisisListo() && (puntoDeRetirada!=ultimaBase)){
+		TilePosition* posicionInicial = new TilePosition(ultimaBase->getCenter());
 		TilePosition* posicionRetirada = new TilePosition(puntoDeRetirada->getCenter());
 		std::vector<BWAPI::TilePosition> vectorPosiciones = BWTA::getShortestPath(*posicionRetirada, *posicionInicial);
 		std::vector<BWAPI::TilePosition>::iterator It1;
@@ -997,9 +1007,7 @@ void compania::retirada(){
 				puntoDeRetirada = BWTA::getRegion(*It1);
 				break;
 			}
-			else{
-				It1++;
-			}
+			It1++;
 		}
 		
 		if(listMarines.size()>0){

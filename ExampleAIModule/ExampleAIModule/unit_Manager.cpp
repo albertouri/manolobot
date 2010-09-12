@@ -730,6 +730,28 @@ void unit_Manager::ejecutarConstrucciones(){
 		}
 	}
 
+	//-- CHARON BOOSTERS
+	if (!researchDone[Utilidades::INDEX_GOAL_CHARON_BOOSTERS]){
+		// investigacion de modo asedio de tanques
+		if ((cantUnidades[Utilidades::INDEX_GOAL_MACHINESHOP] > 0) && (Broodwar->self()->minerals() > 150) && (Broodwar->self()->gas() > 150) && (goalResearch[Utilidades::INDEX_GOAL_CHARON_BOOSTERS] == 1)){
+			Unit *u;
+
+			u = getUnit(Utilidades::ID_MACHINESHOP);
+
+			if (u != NULL){
+
+				if ((u->isCompleted()) && (!u->isResearching()) && (!u->isUpgrading()) ){
+					Broodwar->printf("Investigando ampliación Charon Boosters");
+					UpgradeType *t = new UpgradeType(UpgradeTypes::Charon_Boosters);
+					u->upgrade(*t);
+					delete t;
+					
+					researchDone[Utilidades::INDEX_GOAL_CHARON_BOOSTERS] = true;
+				}
+			}
+		}
+	}
+
 	//-- INFANTRY WEAPONS LEVEL 1
 	if (!researchDone[Utilidades::INDEX_GOAL_INFANTRY_WEAPONS_LVL1]){
 		// mejora de armamento de marines nivel 1 (se investiga en bahia de ingenieria)
@@ -1078,7 +1100,7 @@ void unit_Manager::buildUnitAddOn(int id){
 										//owner->lift();
 									}
 									else{
-										if ((bunk!=NULL)&&(bunk->exists()))
+										if ((bunk!=NULL)&&(bunk->exists())&&((*It1)->exists()))
 											(*It1)->rightClick(bunk->getTilePosition());
 									}
 									It1++;
@@ -2311,10 +2333,10 @@ void unit_Manager::onUnitCreate(Unit *u){
 				break;
 			case Utilidades::ID_VULTURE:
 				cantUnidades[Utilidades::INDEX_GOAL_VULTURE]++;
+
 				if (magallanes != NULL)
 					magallanes->setExplorador(u);
 					//magallanes = new Scout(u, grf);
-
 				//Broodwar->printf("asigné a magallanes");
 
 				break;
