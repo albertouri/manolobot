@@ -40,7 +40,7 @@ Grafo::Grafo(int cantNodos)
 	crearListaNiveles();
 
 	//Broodwar->printf("El mapa tiene %d regiones", BWTA::getRegions().size());
-	Broodwar->printf("La lista niveles tiene %d elementos", niveles.size());
+	//Broodwar->printf("La lista niveles tiene %d elementos", niveles.size());
 
 
 }
