@@ -15,8 +15,8 @@ ManoloBot *agente;
 
 void ExampleAIModule::onStart()
 {
-	Broodwar->sendText("Hello world!");
-	Broodwar->printf("The map is %s, a %d player map",Broodwar->mapName().c_str(),Broodwar->getStartLocations().size());
+//	Broodwar->sendText("Hello world!");
+//	Broodwar->printf("The map is %s, a %d player map",Broodwar->mapName().c_str(),Broodwar->getStartLocations().size());
 
 	// Enable some cheat flags
 	//Broodwar->enableFlag(Flag::UserInput);
@@ -32,11 +32,11 @@ void ExampleAIModule::onStart()
 		}
 	}
 	else{
-		Broodwar->printf("The match up is %s v %s",
-		Broodwar->self()->getRace().getName().c_str(),
-		Broodwar->enemy()->getRace().getName().c_str());
+//		Broodwar->printf("The match up is %s v %s",
+//		Broodwar->self()->getRace().getName().c_str(),
+//		Broodwar->enemy()->getRace().getName().c_str());
 
-		Broodwar->setLocalSpeed(0);
+//		Broodwar->setLocalSpeed(0);
 
 		agente = new ManoloBot();
 	}
