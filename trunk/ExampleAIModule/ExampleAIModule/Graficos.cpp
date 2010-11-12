@@ -1,12 +1,5 @@
 #include "Graficos.h"
 
-/*Graficos::Graficos(void)
-{
-}
-
-Graficos::~Graficos(void)
-{
-}*/
 
 void Graficos::dibujarCuadro(TilePosition* p, int tilesAncho, int tilesAlto){
 	Broodwar->drawBox(CoordinateType::Map, p->x() * 32, p->y() * 32, p->x() * 32 + tilesAncho * 32, p->y() * 32 + tilesAlto * 32, Colors::Orange, false);

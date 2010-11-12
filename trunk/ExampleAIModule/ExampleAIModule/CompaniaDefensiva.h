@@ -14,41 +14,52 @@ public:
 	CompaniaDefensiva(Color ID);
 	~CompaniaDefensiva(void);
 
-	// metodo que se ejecuta en cada frame del juego
+	// Metodo que se ejecuta en cada frame del juego para realizar distintas tareas
 	void onFrame();
 
-	// elimina de la lista correspondiente las unidades destruidas, y retorna la cantidad de unidades vivas
+	// Elimina de la lista correspondiente las unidades destruidas, y retorna la cantidad de unidades vivas de la compañia defensiva
 	int countMarines(); 
 
-	// agrega una unidad a la compañia defensiva
+	// Agrega la unidad pasada como parametro a la compañia defensiva
 	void asignarUnidad(Unit *U);
 
-	// realiza un movimiento de ataque hacia la posicion pasada como parametro
+	// Ordena a la compañia atacar la unidad pasada como parametro
 	void atacar(Unit *u);
+	
+	// Realiza un movimiento de ataque hacia la posicion pasada como parametro
 	void atacar(Position p);
 
+	// Retorna true si en la compañia defensiva hay menos marines de los necesarios
 	bool faltanMarines();
+	
+	// Retorna true si en la compañia defensiva hay menos ghosts de los necesarios
 	bool faltanGhosts();
+	
+	// Retorna true si en la compañia defensiva hay menos medicos de los necesarios
 	bool faltanMedics();
 
 private:
-	// lista de marines de la compañia defensiva
+	// Listas de unidades de la compañia defensiva
 	std::list<Unit*> listMarines;
 	std::list<Unit*> listGhosts;
 	std::list<Unit*> listMedics;
 
-	// elimina de la lista correspondiente las unidades que no existan mas
+	// Elimina de la lista correspondiente las unidades que no existan mas
 	void controlarEliminados();
 
-	// color especifico para resaltar los soldados de cada compañia, seteado en el constructor
+	// Color especifico para resaltar los soldados de cada compañia, seteado en el constructor
 	Color c;
 
+	// Busqueda de objetivos para cada tipo de unidad de la compañia defensiva
 	Unit* buscarObjetivosGhost();
 	Unit* buscarObjetivosMedics();
 	Unit* buscarObjetivosMarines();
-
+	
+	// Busca objetivos para cada tipo de unidad y los ataca
 	void defenderBaseGhosts();
 	void defenderBaseMedics();
 	void defenderBaseMarines();
 
+	// Resalta las unidades de la compañia defensiva
+	void recuadrarUnidades();
 };
