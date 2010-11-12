@@ -31,6 +31,7 @@ AnalizadorTerreno::~AnalizadorTerreno(void)
 
 void AnalizadorTerreno::dibujarResultados(void){
 
+	// Descomentar para mostrar los resultados del analisis del terreno
 	//Graficos::dibujarTerreno(show_visibility_data, analyzed);
 
 	if (analysis_just_finished)
@@ -49,18 +50,17 @@ void AnalizadorTerreno::dibujarResultados(void){
 
 // Devuelve la posicion correspondiente al centro del chokepoint que es necesario defender. Por ahora retorna el 
 // chokepoint a defender a partir de la region donde se inicia el juego
-// Deberia pasarse como parametro una unidad para saber la region donde se quieren ubicar las defensas
 Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 	
-	//get the chokepoints linked to our home region
-	std::set<BWTA::Chokepoint*> chokepoints= home->getChokepoints();
+	/*// Obtiene los chokepoints adyacentes a la region de inicio
+	std::set<BWTA::Chokepoint*> chokepoints = home->getChokepoints();
 	double min_length=10000;
 	//double min_length = 0;
 	BWTA::Chokepoint* choke=NULL;
 
-	//iterate through all chokepoints and look for the one with the smallest gap (least width)
-	for(std::set<BWTA::Chokepoint*>::iterator c=chokepoints.begin();c!=chokepoints.end();c++){
-		double length=(*c)->getWidth();
+	// Itera a traves de todos los chokepoints y busca el que tenga menor ancho
+	for (std::set<BWTA::Chokepoint*>::iterator c = chokepoints.begin(); c != chokepoints.end(); c++) {
+		double length = (*c)->getWidth();
 
 		if (length < min_length || choke==NULL){
 
@@ -78,7 +78,7 @@ Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 					// inicialmente					
 				}
 				else{
-					choke=*c;
+					choke = *c;
 				}
 			}
 			else{
@@ -91,7 +91,7 @@ Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 					// inicialmente					
 				}
 				else{
-					choke=*c;
+					choke = *c;
 				}
 			}
 		}
@@ -100,25 +100,27 @@ Position * AnalizadorTerreno::obtenerCentroChokepoint(){
 	if (choke == NULL)
 		return NULL;
 	else
-		return( new Position(choke->getCenter().x(), choke->getCenter().y()));
+		return (new Position(choke->getCenter().x(), choke->getCenter().y()));
+		
+	*/
+	
+	return (new Position(obtenerChokepoint()->getCenter().x(), obtenerChokepoint()->getCenter().y()));
 }
 
 
 // Devuelve la posicion correspondiente al centro del chokepoint que es necesario defender. Por ahora retorna el 
 // chokepoint a defender a partir de la region donde se inicia el juego
-// Deberia pasarse como parametro una unidad para saber la region donde se quieren ubicar las defensas
 Chokepoint* AnalizadorTerreno::obtenerChokepoint(){
 	
-	//get the chokepoints linked to our home region
+	// Obtiene los chokepoints adyacentes a la region de inicio
 	std::set<BWTA::Chokepoint*> chokepoints= home->getChokepoints();
 
 	double min_length=10000;
-	//double min_length = 0;
 	BWTA::Chokepoint* choke=NULL;
 
-	//iterate through all chokepoints and look for the one with the smallest gap (least width)
-	for(std::set<BWTA::Chokepoint*>::iterator c=chokepoints.begin();c!=chokepoints.end();c++){
-		double length=(*c)->getWidth();
+	// Itera a traves de todos los chokepoints y busca el que tenga menor ancho
+	for (std::set<BWTA::Chokepoint*>::iterator c = chokepoints.begin(); c != chokepoints.end(); c++){
+		double length = (*c)->getWidth();
 
 		if (length < min_length || choke==NULL){
 
@@ -196,8 +198,7 @@ Region* AnalizadorTerreno::regionInicial(){
 }
 
 
-// retorna el angulo que forma una recta que une los dos puntos con respecto a la vertical
-//int AnalizadorTerreno::calcularAngulo(Position *p1, Position *p2){
+// Retorna el angulo que forma una recta que une los dos bordes del chokepoint con respecto a la vertical
 int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 	double angulo;
 	double division;
@@ -244,7 +245,8 @@ int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 	division = segmentoB / p1->getDistance(*p2);
 	angulo = asin(division) * 180.0 / PI;
 
-	//Broodwar->printf("el angulo es: %lf", angulo);
+	// Descomentar para mostrar por pantalla el angulo del chokepoint
+	// Broodwar->printf("El angulo del chokepoint es: %lf", angulo);
 
 	delete p1;
 	delete p2;
@@ -254,6 +256,8 @@ int AnalizadorTerreno::calcularAngulo(Chokepoint *c){
 
 
 int AnalizadorTerreno::getOrientacion(Chokepoint *c, Region *r){
+	/* Verifica la posicion del centro del chokepoint con respecto al centro de la region a defender para ubicar correctamente las defensas, ya que
+		las misile turrets van ubicadas detras de los bunkers */
 	if (r->getCenter().y() < c->getCenter().y()){
 		if (r->getCenter().x() < c->getCenter().x())
 			return 1;
@@ -269,7 +273,7 @@ int AnalizadorTerreno::getOrientacion(Chokepoint *c, Region *r){
 }
 
 int AnalizadorTerreno::getCuadrante(Position p){
-	
+	// Se divide al mapa en 4 cuadrantes, en este metodo se calcula en que cuadrante esta la posicion pasada como parametro
 	if (p.x() <= (Broodwar->mapWidth() * 32 / 2)){
 		if (p.y() <= (Broodwar->mapHeight() * 32 / 2))
 			return 1;
@@ -286,12 +290,11 @@ int AnalizadorTerreno::getCuadrante(Position p){
 
 int AnalizadorTerreno::calcularAnguloGrupo(int angulo){
 	int angulo1;
-
-	//Broodwar->printf("El angulo es: %d", angulo);
-
-	if ((angulo >= 112/*135*/) && (angulo <= 179))
+	/* Dependiendo del angulo del chokepoint pasado como parametro, el metodo calcula si el grupo de bunkers debe estar ubicado en forma
+		horizontal o vertical, a fin de defender el chokepoint de la mejor manera posible */
+	if ((angulo >= 112) && (angulo <= 179))
 		angulo1 = 0;
-	else if ((angulo <= 67/*45*/) && (angulo >= 0))
+	else if ((angulo <= 67) && (angulo >= 0))
 		angulo1 = 0;
 	else
 		angulo1 = 90;

@@ -8,9 +8,6 @@ using namespace BWAPI;
 class Graficos
 {
 public:
-	/*Graficos(void);
-	~Graficos(void);*/
-
 	// TODO: Agregar los metodos que dibujan de la clase Scout...
 
 	// Dibuja un recuadro alrededor de la unidad pasada como parametro

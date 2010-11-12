@@ -13,10 +13,17 @@ class CompaniaTransporte
 public:
 	CompaniaTransporte(Position* baseEnem, Region* regEnem, compania* c);
 	~CompaniaTransporte(void);
+	
+	// Metodo que se ejecuta en cada frame para realizar distintas tareas
 	void onFrame();
+	
+	// Agrega una unidad a la compañia de transporte
 	void asignarUnidad(Unit* u);
 
+	// Retorna true si hay menos dropships de los necesarios en la compañia
 	bool faltanDropships();
+	
+	// Retorna true si hay menos wraiths de los necesarios en la compañia
 	bool faltanWraiths();
 
 	// retorna true si la compañia de transporte esta lista a transportar las unidades
@@ -26,61 +33,75 @@ public:
 	void ejecutarTransporte();
 
 private:
+	// Lista de unidades de la compañia de transporte
 	std::list<Unit*> listDropships;
 	std::list<Unit*> listWraiths;
 	std::list<Position*> pathBaseEnemiga;
 
+	// Posicion donde va a desembarcar las unidades la compañia de transporte
 	Position *puntoDesembarco;
 
-	// puntero a la posicion del centro de comando enemigo
+	// Puntero a la posicion del centro de comando enemigo
 	Position *baseEnemiga;
+	// Region donde esta ubicada la base enemiga
 	Region *regionBaseEnemiga;
 
-	// puntero al punto de la region de la base enemiga mas lejano del chokepoint defendido
+	// Puntero al punto de la region de la base enemiga mas lejano del chokepoint defendido
 	//Position *bordeMasLejano;
 
+	// Dibuja el camino a la base enemiga
 	void dibujarPath();
+	
+	// Dibuja un recuadro sobre el lider de la formacion
+	void recuadrarUnidades();
+	
+	// Crea una lista de posiciones que representa el camino hacia la base enemiga
 	void crearPath();
+	
+	// Ejecuta el desembarco de las unidades transportadas por la compañia de transporte
 	void desembarcar();
 
+	// Controla las listas de unidades de la compañia defensiva y elimina de las mismas las unidades que hayan sido destruidas
 	void controlarEliminados();
 	
+	// Iterador de la lista de posiciones
 	std::list<Position*>::iterator ItPosiciones;
 	Unit *liderFormacion;
 
-	// variable que una vez que se hace true evita realizar un control mejorando la eficiencia, representa si la compañia de transporte esta lista para realizar el transporte
+	// Variable que una vez que se hace true evita realizar un control mejorando la eficiencia, representa si la compañia de transporte esta lista para realizar el transporte
 	bool ready;
 
-	// puntero a la compañia a transportar
+	// Puntero a la compañia a transportar
 	compania *aero;
 
-	// es true si el comandante fue cargado en una nave de transporte
+	// Es true si el comandante fue cargado en una nave de transporte
 	bool comandanteCargado;
 
-	//-- posibles estados de la compañia de transporte
+	//-- Posibles estados de la compañia de transporte
 	static const int ESPERANDO_CARGAR = 1;
 	static const int CARGANDO = 2;
 	static const int TRANSPORTANDO = 3;
 	static const int DESEMBARCANDO = 4;
 	static const int RETORNANDO_BASE = 5;
 
-	// variable que mantiene el estado actual de la compañia de transporte
+	// Variable que mantiene el estado actual de la compañia de transporte
 	int estadoActual;
 
 	//--
 
-	// retorna true si todos los dropships estan vacios
+	// Retorna true si todos los dropships estan vacios
 	bool desembarcoListo();
 
-	// manda los dropships de vuelta a la base
+	// Manda los dropships de vuelta a la base
 	void retornarBase();
 
-	// asigna un nuevo lider al grupo de transporte, si es que hay alguna unidad existente
+	// Asigna un nuevo lider al grupo de transporte, si es que hay alguna unidad existente
 	void reasignarLiderFormacion();
 
+	// Retorna true si el punto de desembarco fue seteado
 	bool seteadoPuntoDesembarco;
 
-	// contador que determina un tiempo maximo de espera para que se carguen todas las unidades en los transportes. Si se alcanza el tiempo maximo
+	// Contador que determina un tiempo maximo de espera para que se carguen todas las unidades en los transportes. Si se alcanza el tiempo maximo
 	// se envia a la compañia de transporte al ataque aunque no esten cargadas todas las unidades de la compañia
 	int esperaDeCarga;
 	static const int ESPERA_MAXIMA = 500;

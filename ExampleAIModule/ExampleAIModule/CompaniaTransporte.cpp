@@ -1,7 +1,10 @@
 #include "CompaniaTransporte.h"
 
 CompaniaTransporte::CompaniaTransporte(Position* baseEnem, Region* regEnem, compania* c){
+	// Posicion de la base enemiga
 	baseEnemiga = baseEnem;
+	
+	// Region donde esta ubicada la base enemiga
 	regionBaseEnemiga = regEnem;
 
 	puntoDesembarco = NULL;
@@ -29,11 +32,11 @@ CompaniaTransporte::~CompaniaTransporte(void)
 
 
 void CompaniaTransporte::crearPath(){
-	// region donde iniciamos el juego
+	// Region donde iniciamos el juego
 	Region *regInicial = BWTA::getStartLocation(Broodwar->self())->getRegion();
 	int ubicacionDefensa = 0;
 
-	// variables que mantienen si la base enemiga esta sobre alguno de los bordes de la pantalla, sobreDer sera true si la base enemiga esta sobre el borde derecho de la pantalla
+	// Variables que mantienen si la base enemiga esta sobre alguno de los bordes de la pantalla, sobreDer sera true si la base enemiga esta sobre el borde derecho de la pantalla
 	bool sobreDer = false, sobreIzq = false, sobreArr = false, sobreAba = false;
 
 	int CONST_DER = 2, CONST_ABA = 1, CONST_IZQ = 4, CONST_ARR = 3;
@@ -62,7 +65,7 @@ void CompaniaTransporte::crearPath(){
 		}
 	}
 
-
+	// posiciones mas arriba, mas abajo, mas derecha y mas izquierda de la region
 	int masArr = 0, masAba = 0, masDer = 0, masIzq = 0;
 
 	// calcula las bordes del mapa acotados desde el centro de la region
@@ -111,7 +114,7 @@ void CompaniaTransporte::crearPath(){
 			// empiezo arriba a la izquierda con respecto al enemigo
 			Broodwar->printf("empiezo arriba a la izquierda con respecto al enemigo");
 			if (ubicacionDefensa == CONST_ARR){
-				Broodwar->printf("Esta denfendido arriba");
+				Broodwar->printf("Esta defendido arriba");
 				//if (sobreAba){
 					// no se puede entrar por abajo, entro por la izquierda
 					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
@@ -126,7 +129,7 @@ void CompaniaTransporte::crearPath(){
 				//}
 			}
 			else if (ubicacionDefensa == CONST_IZQ){
-				Broodwar->printf("Esta denfendido izquierda");
+				Broodwar->printf("Esta defendido izquierda");
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
@@ -156,7 +159,7 @@ void CompaniaTransporte::crearPath(){
 				//}
 			}
 			else if (ubicacionDefensa == CONST_IZQ){
-				Broodwar->printf("Esta denfendido izquierda");
+				Broodwar->printf("Esta defendido izquierda");
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
@@ -176,7 +179,7 @@ void CompaniaTransporte::crearPath(){
 			Broodwar->printf("empiezo arriba a la derecha con respecto al enemigo");
 
 			if (ubicacionDefensa == CONST_ARR){
-				Broodwar->printf("Esta denfendido arriba");
+				Broodwar->printf("Esta defendido arriba");
 				//if (sobreAba){
 					// no se puede entrar por arriba, entro por la derecha
 					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
@@ -189,7 +192,7 @@ void CompaniaTransporte::crearPath(){
 				//}
 			}
 			else if (ubicacionDefensa == CONST_DER){
-				Broodwar->printf("Esta denfendido derecha");
+				Broodwar->printf("Esta defendido derecha");
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoArr].x(), regInicial->getCenter().y());
@@ -206,7 +209,7 @@ void CompaniaTransporte::crearPath(){
 
 			if (ubicacionDefensa == CONST_ABA){
 				//if (sobreAba){
-					Broodwar->printf("Esta denfendido abajo");
+					Broodwar->printf("Esta defendido abajo");
 					// no se puede entrar por abajo, entro por la derecha
 					Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 					Position *p2 = new Position(regInicial->getCenter().x(), p[acoDer].y());
@@ -218,7 +221,7 @@ void CompaniaTransporte::crearPath(){
 				//}
 			}
 			else if (ubicacionDefensa == CONST_DER){
-				Broodwar->printf("Esta denfendido derecha");
+				Broodwar->printf("Esta defendido derecha");
 
 				Position *p1 = new Position(regInicial->getCenter().x(), regInicial->getCenter().y());
 				Position *p2 = new Position(p[acoAba].x(), regInicial->getCenter().y());
@@ -238,9 +241,13 @@ void CompaniaTransporte::crearPath(){
 
 void CompaniaTransporte::dibujarPath(){
 	std::list<Position*>::iterator It;
+	
+	// La primer posicion a dibujar es el centro de la region donde inicia el juego el bot
 	Position *anterior = new Position(BWTA::getStartLocation(Broodwar->self())->getRegion()->getCenter().x(), BWTA::getStartLocation(Broodwar->self())->getRegion()->getCenter().y());
 
+	// Dibuja una linea entre la posicion anterior y la proxima posicion en el camino a la base enemiga
 	It = pathBaseEnemiga.begin();
+	
 	while (It != pathBaseEnemiga.end()){
 		Broodwar->drawLineMap(anterior->x(), anterior->y(), (*It)->x(), (*It)->y(), Colors::White);
 
@@ -255,59 +262,51 @@ void CompaniaTransporte::dibujarPath(){
 
 
 void CompaniaTransporte::onFrame(){
-	dibujarPath();
+	// Descomentar para dibujar el camino que recorrera la compañia de transporte hacia la base enemiga
+	//dibujarPath();
 
+	// Dependiendo del estado actual realiza diferentes acciones
 	if (estadoActual == CARGANDO)
-		esperaDeCarga++;
+		esperaDeCarga++; // Contador de frames que la compañia esta tardando en abordar los transportes
 
-	if ((liderFormacion != NULL) && (liderFormacion->exists()))
-		Graficos::resaltarUnidad(liderFormacion, Colors::Green);
+	// Descomentar para mostrar un recuadro sobre el lider de la formacion (si es que existe)
+	//recuadrarUnidades();
 
 	if ((Broodwar->getFrameCount() % 12 == 0)){
 		if ((liderFormacion == NULL) || (!liderFormacion->exists())){
 			controlarEliminados();
 
 			if (listDropships.empty() && listWraiths.empty() && ((estadoActual != ESPERANDO_CARGAR) || (comandanteCargado))){
+				// Si todas las unidades de la compañia de transporte fueron destruidas, se vuelve al estado inicial (ESPERANDO_CARGAR)
 				estadoActual = ESPERANDO_CARGAR;
 				comandanteCargado = false;
 				ItPosiciones = pathBaseEnemiga.begin();
-				esperaDeCarga = 0;
+				esperaDeCarga = 0; // }}
 			}
 			else
-				reasignarLiderFormacion();
+				reasignarLiderFormacion(); // Si hay alguna unidad viva en la compañia asigna un nuevo lider a la misma
 		}
 		
 		if (estadoActual == CARGANDO){
 			if (esperaDeCarga < ESPERA_MAXIMA){
+				// Si la compañia de ataque esta cargada, se inicia el transporte
 				if (aero->companiaAbordo()){
 					estadoActual = TRANSPORTANDO;
 					esperaDeCarga = 0;
 				}
 				else
-					aero->abordarTransporte(&listDropships);
+					aero->abordarTransporte(&listDropships); // Ordena a las unidades de la compañia de ataque que suban a los transportes
 			}
 			else{
-				Broodwar->printf("Se alcanzo la espera maxima, transportando");
+				// Si se alcanzo el tiempo maximo de espera de carga, la compañia de transporte comienza a movese, no importa si la compañia completa
+				// abordo los transportes
 				estadoActual = TRANSPORTANDO;
 			}
 		}
 	}
 	else if (Broodwar->getFrameCount() % 30 == 0){
-
-		/*if (estadoActual == CARGANDO)
-			Broodwar->printf("compañia de transporte CARGANDO");
-		else if (estadoActual == TRANSPORTANDO)
-			Broodwar->printf("compañia de transporte TRANSPORTANDO");
-		else if (estadoActual == DESEMBARCANDO)
-			Broodwar->printf("compañia de transporte DESEMBARCANDO");
-		else if (estadoActual == RETORNANDO_BASE)
-			Broodwar->printf("compañia de transporte RETORNANDO_BASE");
-		else if (estadoActual == ESPERANDO_CARGAR)
-			Broodwar->printf("compañia de transporte ESPERANDO_CARGAR");*/
-
-
+	
 		if (estadoActual == ESPERANDO_CARGAR){
-			//Broodwar->printf("tengo %d dropships, necesito %d  - tengo %d marines - %d medics - %d goliaths", listDropships.size(), aero->cantidadTransportes(), aero->countMarines(), aero->countMedics(), aero->countGoliaths());
 			if (listaTransportar())
 				estadoActual = CARGANDO;
 		}
@@ -331,9 +330,11 @@ void CompaniaTransporte::onFrame(){
 
 
 void CompaniaTransporte::asignarUnidad(Unit* u){
+	// Controla las unidades eliminadas de la compañia
 	controlarEliminados();
 
 	if ((u != NULL) && (u->exists())){
+		// Dependiendo del tipo de unidad recibida como parametro, se la agrega a una lista determinada
 		if (u->getType().getID() == Utilidades::ID_DROPSHIP){
 			listDropships.push_back(u);
 
@@ -342,7 +343,7 @@ void CompaniaTransporte::asignarUnidad(Unit* u){
 				comandanteCargado = true;
 			}
 		}
-		else if(u->getType().getID() == Utilidades::ID_WRAITH){
+		else if (u->getType().getID() == Utilidades::ID_WRAITH){
 			listWraiths.push_back(u);
 
 			if (liderFormacion == NULL)
@@ -353,20 +354,13 @@ void CompaniaTransporte::asignarUnidad(Unit* u){
 
 
 bool CompaniaTransporte::listaTransportar(){
-
-	/*if (aero->listaParaAtacar())
-		Broodwar->printf("compañia lista para atacar");
-	else
-		Broodwar->printf("compañia NO ESTA lista para atacar");
-
-	Broodwar->printf("----------------------------------------------");*/
-
-
+	// La compañia de transporte estara lista a transportar si hay suficientes dropships, wraiths y la compañia de ataque esta lista para atacar
 	return ((!faltanDropships()) && (!faltanWraiths()) && (aero->listaParaAtacar()));
 }
 
 
 bool CompaniaTransporte::faltanDropships(){
+	// La cantidad de dropships esta dada por la cantidad de transportes necesarios para cargar toda la compañia de ataque
 	return (listDropships.size() < aero->cantidadTransportes());
 }
 
@@ -385,7 +379,7 @@ void CompaniaTransporte::controlarEliminados(){
 		while (Itd != listDropships.end()){
 			if (!(*Itd)->exists()){
 				listDropships.erase(Itd);
-				Itd = listDropships.begin();
+				Itd = listDropships.begin(); // Si se borra esta linea el juego se cuelga
 			}
 			else{
 				Itd++;
@@ -400,7 +394,7 @@ void CompaniaTransporte::controlarEliminados(){
 		while (Itd != listWraiths.end()){
 			if (!(*Itd)->exists()){
 				listWraiths.erase(Itd);
-				Itd = listWraiths.begin();
+				Itd = listWraiths.begin(); // Si se borra esta linea el juego se cuelga
 			}
 			else{
 				Itd++;
@@ -413,8 +407,10 @@ void CompaniaTransporte::controlarEliminados(){
 void CompaniaTransporte::ejecutarTransporte(){
 	std::list<Unit*>::iterator It;
 
+	// En cada momento que el lider de la formacion quede en estado idle (no ejecuta ninguna accion), quiere decir que llego al siguiente punto
+	// de navegacion hacia la base enemiga, por lo tanto se actualiza al siguiente punto de navegacion y se ordena a todas las unidades moverse
+	// al mismo
 	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (ItPosiciones != pathBaseEnemiga.end())){
-		// falta armar la formacion
 
 		It = listWraiths.begin();
 		while (It != listWraiths.end()){
@@ -435,14 +431,14 @@ void CompaniaTransporte::ejecutarTransporte(){
 	}
 
 	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (puntoDesembarco != NULL)){
-		//Broodwar->printf("intento desembarcar, distancia %lf", liderFormacion->getPosition().getDistance((*puntoDesembarco)));
 
+		// Si se esta lo suficientemente cerca del punto de desembarco, se cambia el estado a DESEMBARCANDO y se ordena a los escoltas
+		// moverse hacia el centro de la region donde esta la base enemiga
 		if (liderFormacion->getPosition().getDistance(*puntoDesembarco) < 250.0){
 
 			It = listWraiths.begin();
 			while (It != listWraiths.end()){
 				if ((*It)->exists()){
-					//(*It)->attackMove(regionBaseEnemiga->getCenter());
 					(*It)->move(regionBaseEnemiga->getCenter());
 				}
 
@@ -455,13 +451,14 @@ void CompaniaTransporte::ejecutarTransporte(){
 		}
 	}
 	else if (puntoDesembarco == NULL)
-		Broodwar->printf("Garcamos, el punto de desembarco es NULL");
+		Broodwar->printf("Error: el punto de desembarco es NULL");
 }
 
 
 bool CompaniaTransporte::desembarcoListo(){
 	std::list<Unit*>::iterator It = listDropships.begin();
 
+	// Verifica si todas los dropships desembarcaron las unidades transportadas
 	while (It != listDropships.end()){
 		if ((*It)->exists() && (!(*It)->getLoadedUnits().empty()))
 			return false;
@@ -476,6 +473,7 @@ bool CompaniaTransporte::desembarcoListo(){
 void CompaniaTransporte::desembarcar(){
 	std::list<Unit*>::iterator It = listDropships.begin();
 
+	// Ordena a todos los dropships desembarcar las unidades transportadas
 	while (It != listDropships.end()){
 		if ((*It)->exists())
 			(*It)->unloadAll(*puntoDesembarco);
@@ -488,12 +486,13 @@ void CompaniaTransporte::desembarcar(){
 void CompaniaTransporte::retornarBase(){
 	std::list<Unit*>::iterator It;
 
+	// Si las unidades estan en una posicion que no es la de inicio, mueve todas las unidades hacia la posicion inicial
 	if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (ItPosiciones != pathBaseEnemiga.begin())){
 
 		It = listWraiths.begin();
 		while (It != listWraiths.end()){
 			if ((*It)->exists())
-				(*It)->move(*(*pathBaseEnemiga.begin()));/*(**ItPosiciones);*/
+				(*It)->move(*(*pathBaseEnemiga.begin()));
 
 			It++;
 		}
@@ -501,14 +500,14 @@ void CompaniaTransporte::retornarBase(){
 		It = listDropships.begin();
 		while (It != listDropships.end()){
 			if ((*It)->exists())
-				(*It)->move(*(*pathBaseEnemiga.begin()));/*(**ItPosiciones);*/
+				(*It)->move(*(*pathBaseEnemiga.begin()));
 
 			It++;
 		}
-		//ItPosiciones--;
 	}
 	else{
-		if ((liderFormacion != NULL) && (liderFormacion->isIdle()) && (liderFormacion->getPosition().getDistance(*(*(pathBaseEnemiga.begin()))) < 120.0)){
+		// Si las unidades estan suficientemente cerca de la posicion inicial, solamente vuelve al estado inicial
+		if ((liderFormacion != NULL) && (liderFormacion->exists()) && (liderFormacion->isIdle()) && (liderFormacion->getPosition().getDistance(*(*(pathBaseEnemiga.begin()))) < 120.0)){
 			estadoActual = ESPERANDO_CARGAR;
 			ItPosiciones = pathBaseEnemiga.begin();
 		}
@@ -548,4 +547,10 @@ void CompaniaTransporte::reasignarLiderFormacion(){
 			It++;
 		}
 	}
+}
+
+
+void CompaniaTransporte::recuadrarUnidades(){
+	if ((liderFormacion != NULL) && (liderFormacion->exists()))
+		Graficos::resaltarUnidad(liderFormacion, Colors::Green);	
 }
