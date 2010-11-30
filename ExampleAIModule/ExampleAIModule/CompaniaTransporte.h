@@ -36,9 +36,11 @@ private:
 	// Lista de unidades de la compañia de transporte
 	std::list<Unit*> listDropships;
 	std::list<Unit*> listWraiths;
+	
+	// Lista de posiciones que representa el camino a seguir por los transportes para llegar a la base enemiga
 	std::list<Position*> pathBaseEnemiga;
 
-	// Posicion donde va a desembarcar las unidades la compañia de transporte
+	// Posicion donde se va a desembarcar las unidades la compañia de transporte
 	Position *puntoDesembarco;
 
 	// Puntero a la posicion del centro de comando enemigo
@@ -66,15 +68,17 @@ private:
 	
 	// Iterador de la lista de posiciones
 	std::list<Position*>::iterator ItPosiciones;
+	
+	// Puntero a la unidad que es el lider de la formación
 	Unit *liderFormacion;
 
 	// Variable que una vez que se hace true evita realizar un control mejorando la eficiencia, representa si la compañia de transporte esta lista para realizar el transporte
 	bool ready;
 
-	// Puntero a la compañia a transportar
+	// Puntero a la compañía de ataque que será transportada por la compañía de transporte
 	compania *aero;
 
-	// Es true si el comandante fue cargado en una nave de transporte
+	// Variable cuyo valor representa si el comandante de la compañía de ataque esta cargado dentro de un transporte.
 	bool comandanteCargado;
 
 	//-- Posibles estados de la compañia de transporte
@@ -89,20 +93,23 @@ private:
 
 	//--
 
+	// Variable cuyo valor representa si el punto de desembarco fue seteado.
+	bool seteadoPuntoDesembarco;
+
+	// Contador que determina un tiempo maximo de espera para que se carguen todas las unidades en los transportes. Si se alcanza el tiempo maximo
+	// se envia a la compañia de transporte hacia la base enemiga aunque no esten cargadas todas las unidades de la compañia de ataque
+	int esperaDeCarga;
+	
+	// Cantidad maxima de frames que se esperará a cargar la compañia de ataque
+	static const int ESPERA_MAXIMA = 500;
+	
+	
 	// Retorna true si todos los dropships estan vacios
 	bool desembarcoListo();
 
-	// Manda los dropships de vuelta a la base
+	// Ordena a las unidades de la compañía de transporte retornar a la base
 	void retornarBase();
 
 	// Asigna un nuevo lider al grupo de transporte, si es que hay alguna unidad existente
 	void reasignarLiderFormacion();
-
-	// Retorna true si el punto de desembarco fue seteado
-	bool seteadoPuntoDesembarco;
-
-	// Contador que determina un tiempo maximo de espera para que se carguen todas las unidades en los transportes. Si se alcanza el tiempo maximo
-	// se envia a la compañia de transporte al ataque aunque no esten cargadas todas las unidades de la compañia
-	int esperaDeCarga;
-	static const int ESPERA_MAXIMA = 500;
 };

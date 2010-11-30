@@ -340,7 +340,8 @@ TilePosition *GrupoAntiaereo::encontrarPosicion(int orientacion, Position posCen
 
 TilePosition* GrupoAntiaereo::getPosicionMisileTurret(){
 
-	// recorre los elementos de la lista para ver si alguna de las unidades ya no existe mas, si ese es el caso, reutiliza el elemento de la lista actualizando el puntero de la unidad
+	// recorre los elementos de la lista para ver si alguna de las unidades ya no existe mas, si ese es el caso, 
+	// reutiliza el elemento de la lista actualizando el puntero de la unidad
 	if (!listMisileTurrets.empty()){
 		std::list<std::pair<TilePosition*, Unit*>>::iterator It;
 
@@ -451,6 +452,10 @@ void GrupoAntiaereo::agregarUnidad(Unit *u){
 
 	It = listMisileTurrets.begin();
 
+	// busca un misile turret que haya sido destruido y lo reemplaza en la lista por el misile turret nuevo que se va
+	// a agregar al grupo, por lo que se construira en la posición que estaba el misile turret antiguo.
+	// Si no encuentra ningún destruido, agrega el misile turret en una posicion nueva, y almacena una referencia al
+	// final de la lista.
 	while (It != listMisileTurrets.end()){
 		if (((*It).first->x() == u->getTilePosition().x()) && ((*It).first->y() == u->getTilePosition().y()) && (!(*It).second->exists())){
 			TilePosition *aux = (*It).first;

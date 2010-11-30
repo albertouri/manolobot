@@ -14,7 +14,7 @@ public:
 	static void resaltarUnidad(Unit *u);
 	static void resaltarUnidad(Unit *u, Color c);
 
-	// Dibuja un rectangulo con la posicion y dimensiones pasadas como parametro
+	// Dibuja un rectángulo en  la posición y con las dimensiones pasadas como parámetro
 	static void dibujarCuadro(TilePosition* p, int tilesAncho, int tilesAlto);
 	static void dibujarCuadro(TilePosition* p, int tilesAncho, int tilesAlto, Color c, bool relleno);
 	static void dibujarCirculo(TilePosition p, int tilesAncho, int tilesAlto);
