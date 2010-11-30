@@ -2,8 +2,7 @@
 
 Region *e = NULL;
 
-GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
-{
+GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r){
 	int cuadrante;
 
 	analizador = a;
@@ -57,8 +56,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Chokepoint *c, Region *r)
 }
 
 
-GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemiga)
-{
+GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemiga){
 	e = regionEnemiga;
 	Chokepoint *chokeEnemigo = NULL;
 	Chokepoint *c2 = NULL;
@@ -111,7 +109,7 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemig
 			if ((*It) != c2){
 				if (chokeEnemigo == NULL)
 					chokeEnemigo = (*It);
-				else{
+				else{		
 					if (Broodwar->mapName() == "| iCCup | Destination 1.1"){
 						if ((*It)->getCenter().x() > chokeEnemigo->getCenter().x())
 							chokeEnemigo = (*It);
@@ -184,13 +182,13 @@ GrupoBunkers::GrupoBunkers(AnalizadorTerreno *a, Region *r, Region *regionEnemig
 }
 
 
-GrupoBunkers::~GrupoBunkers(void)
-{
+GrupoBunkers::~GrupoBunkers(void){
 	if (posEncuentro != NULL)
 		delete posEncuentro;
 	delete choke;
 	delete reg;
 }
+
 
 void GrupoBunkers::agregarUnidad(Unit* u){
 	int cont = 0;
@@ -626,6 +624,7 @@ bool GrupoBunkers::rellenarPosicionTanque(Unit *u){
 	return false;
 }
 
+
 TilePosition* GrupoBunkers::posicionNuevoTanque(){
 	if (reg != NULL){
 		int cuadrante, angulo1;
@@ -800,13 +799,16 @@ bool GrupoBunkers::faltanMarines(){
 	return (getCantMarines() < 12);
 }
 
+
 bool GrupoBunkers::faltanTanques(){
 	return (getCantTanks() < 3);
 }
 
+
 bool GrupoBunkers::faltanMisileTurrets(){
 	return (getCantMisileTurrets() < 2);
 }
+
 
 void GrupoBunkers::moverSoldadosPosEncuentro(){
 	bool estanAtacando = false;
@@ -905,6 +907,8 @@ TilePosition* GrupoBunkers::posicionPrimerBunker2(Region* r, Chokepoint* c, bool
 			angulo1 = 90;
 	}
 	else{
+		// La base tiene mas de 2 entradas, la orientación del grupo de bunkers se calcula dependiendo si
+		// la base enemiga esta mas alejada del chokepoint respecto al eje X o al eje Y
 		if (abs(r->getCenter().x() - regionEnemiga->getCenter().x()) < abs(r->getCenter().y() - regionEnemiga->getCenter().y()))
 			angulo1 = 90;
 		else
@@ -963,7 +967,7 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 		// si no puede se mueve un tile en el eje Y, e intenta nuevamente
 		// contY lleva la cuenta de los tiles que se movio sobre el ejeY
 		// para cada posicion sobre el eje Y, prueba en 5 posiciones sobre el eje X:
-		// desde el centro del choquepoint - 2 buildtiles hasta el centro del choquepoint + 2 buildtiles
+		// desde el centro del chokepoint - 2 buildtiles hasta el centro del chokepoint + 2 buildtiles
 
 		if ((cuadrante == 1) || (cuadrante == 3))
 			contX = -2;
@@ -1082,6 +1086,8 @@ TilePosition* GrupoBunkers::encontrarPosicion2(int cuadrante, Position p, int an
 		contY = /*-3*/-10;
 
 		//-- CODIGO GIRATORIO
+		// (se utiliza este codigo cuando hay muy poco espacio entre el grupo de bunkers y el borde del 
+		// mapa, 
 		// busco el punto mas a la izquierda y mas a la derecha de la region
 		int i = 0, d = 0;
 
@@ -1489,9 +1495,11 @@ TilePosition* GrupoBunkers::getTileBunkerCentral(){
 	return bunkerCentral;
 }
 
+
 Chokepoint* GrupoBunkers::getChoke(){
 	return choke;
 }
+
 
 bool GrupoBunkers::perteneceMarine(Unit *u){
 	std::list<Unit*>::iterator It;
@@ -1506,13 +1514,16 @@ bool GrupoBunkers::perteneceMarine(Unit *u){
 	return false;
 }
 
+
 bool GrupoBunkers::faltanBunkers(){
 	return (getCantBunkers() < 3);
 }
 
+
 int GrupoBunkers::cantMaximaTurrets(){
 	return 2;
 }
+
 
 Region* GrupoBunkers::getRegion(){
 	return reg;

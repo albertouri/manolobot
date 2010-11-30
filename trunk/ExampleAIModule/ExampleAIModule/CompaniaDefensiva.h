@@ -23,7 +23,7 @@ public:
 	// Agrega la unidad pasada como parametro a la compañia defensiva
 	void asignarUnidad(Unit *U);
 
-	// Ordena a la compañia atacar la unidad pasada como parametro
+	// Ordena a los marines de la compañía atacar la unidad pasada como parámetro
 	void atacar(Unit *u);
 	
 	// Realiza un movimiento de ataque hacia la posicion pasada como parametro
@@ -44,11 +44,11 @@ private:
 	std::list<Unit*> listGhosts;
 	std::list<Unit*> listMedics;
 
-	// Elimina de la lista correspondiente las unidades que no existan mas
-	void controlarEliminados();
-
 	// Color especifico para resaltar los soldados de cada compañia, seteado en el constructor
 	Color c;
+
+	// Elimina de la lista correspondiente las unidades que no existan mas
+	void controlarEliminados();
 
 	// Busqueda de objetivos para cada tipo de unidad de la compañia defensiva
 	Unit* buscarObjetivosGhost();

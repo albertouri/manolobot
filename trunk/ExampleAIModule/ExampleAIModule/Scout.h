@@ -24,14 +24,16 @@ public:
 
 
 private:
-	void dibujarPosiciones(void);
-	void dibujarGrilla(void);
-
-	//Region *regActual;
-
 	Position* posActual; //-- nuevo
 
 	Grafo *grafo;
 	int tiempoMax;
 	bool primeraExploracion;
+	
+	
+
+	void dibujarPosiciones(void);
+	void dibujarGrilla(void);
+
+	//Region *regActual;
 };

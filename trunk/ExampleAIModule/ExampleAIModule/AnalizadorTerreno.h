@@ -19,7 +19,7 @@ static BWTA::Region* home;
 // Region donde el enemigo inicia el juego
 static BWTA::Region* enemy_base;
 
-// Thread que realiza el analisis del terreno
+// Metodo que realiza el analisis del terreno propiamente dicho, se ejecuta en un thread aparte.
 DWORD WINAPI AnalyzeThread();
 
 class AnalizadorTerreno
@@ -35,7 +35,7 @@ public:
 	Region* regionInicial(); 
 	
 	// Obtiene el chokepoint que se debe defender desde la posicion inicial donde se inicia el juego
-	Chokepoint* obtenerChokepoint(); 
+	Chokepoint* obtenerChokepoint();
 	
 	// Devuelve la posicion del centro del chokepoint inicial que se debe defender
 	Position * obtenerCentroChokepoint(); 

@@ -51,59 +51,6 @@ void AnalizadorTerreno::dibujarResultados(void){
 // Devuelve la posicion correspondiente al centro del chokepoint que es necesario defender. Por ahora retorna el 
 // chokepoint a defender a partir de la region donde se inicia el juego
 Position * AnalizadorTerreno::obtenerCentroChokepoint(){
-	
-	/*// Obtiene los chokepoints adyacentes a la region de inicio
-	std::set<BWTA::Chokepoint*> chokepoints = home->getChokepoints();
-	double min_length=10000;
-	//double min_length = 0;
-	BWTA::Chokepoint* choke=NULL;
-
-	// Itera a traves de todos los chokepoints y busca el que tenga menor ancho
-	for (std::set<BWTA::Chokepoint*>::iterator c = chokepoints.begin(); c != chokepoints.end(); c++) {
-		double length = (*c)->getWidth();
-
-		if (length < min_length || choke==NULL){
-
-			std::pair<BWTA::Region*, BWTA::Region*> p;
-
-			p = (*c)->getRegions();
-
-			if ((p.first->getCenter().x() == home->getCenter().x()) && (p.first->getCenter().y() == home->getCenter().y())){
-				// el primer elemento del par es la region que contiene al centro de comando
-
-				if (p.second->getChokepoints().size() == 1){
-					// la region cuyo limite con la region donde esta ubicado el centro de comando, es el chokepoint en 
-					// cuestion tiene un solo chokepoint, es decir que no se puede acceder por tierra a esa region sin 
-					// pasar por la region que contiene el centro de comando, por lo tanto no es necesario defenderla 
-					// inicialmente					
-				}
-				else{
-					choke = *c;
-				}
-			}
-			else{
-				// el segundo elemento del par es la region que contiene al centro de comando
-
-				if (p.first->getChokepoints().size() == 1){
-					// la region cuyo limite con la region donde esta ubicado el centro de comando, es el chokepoint en 
-					// cuestion tiene un solo chokepoint, es decir que no se puede acceder por tierra a esa region sin 
-					// pasar por la region que contiene el centro de comando, por lo tanto no es necesario defenderla 
-					// inicialmente					
-				}
-				else{
-					choke = *c;
-				}
-			}
-		}
-	}
-
-	if (choke == NULL)
-		return NULL;
-	else
-		return (new Position(choke->getCenter().x(), choke->getCenter().y()));
-		
-	*/
-	
 	return (new Position(obtenerChokepoint()->getCenter().x(), obtenerChokepoint()->getCenter().y()));
 }
 

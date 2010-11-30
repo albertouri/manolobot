@@ -21,7 +21,8 @@ public:
 	bool faltanMisileTurrets();
 	void agregarUnidad(Unit *u);
 
-	// devuelve el tilePosition donde debera ubicarse el proximo misileTurret (borrar el objeto retornado por este metodo despues de utilizarlo)
+	// devuelve el tilePosition donde debera ubicarse el proximo misileTurret (borrar el objeto retornado por 
+	// este metodo despues de utilizarlo)
 	TilePosition* getPosicionMisileTurret();
 
 	int cantMaximaTurrets();
@@ -30,17 +31,20 @@ public:
 
 private:
 	int cantidadNecesariaTurrets;
-	bool puedoConstruir(TilePosition t, UnitType tipo);
-	TilePosition *encontrarPosicion(int orientacion, Position posCentral);
-
 	Unit *objetivoActual;
-
-	int getCantMisileTurrets();
-
+	
 	static const int IZQUIERDA = 0;
 	static const int DERECHA = 1;
 	static const int ARRIBA = 2;
 	static const int ABAJO = 3;
 
 	std::list<std::pair<TilePosition*, Unit*>> listMisileTurrets;
+	
+	
+	bool puedoConstruir(TilePosition t, UnitType tipo);
+	TilePosition *encontrarPosicion(int orientacion, Position posCentral);
+
+	int getCantMisileTurrets();
+
+	
 };

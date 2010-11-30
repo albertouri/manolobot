@@ -336,6 +336,8 @@ void Scout::explorar(void){
 
 	//grafo->dibujarPuntosVisitar();
 
+	// Recorre todas las posiciones donde un jugador puede iniciar el juego. Asegura asi encontrar la posicion de 
+	// inicio del enemigo
 	if (primeraExploracion){
 		if ((explorer != NULL) && (explorer->exists())){
 			if (cont < cantPosiciones){
@@ -348,6 +350,7 @@ void Scout::explorar(void){
 		}
 	}
 	else{
+		// Recorre las regiones alcanzables en el orden dado por el recorrido por niveles del grafo de regiones
 		//dibujarPosiciones();
 		tiempoMax++;
 
