@@ -9,7 +9,7 @@ Position *uno, *dos;
 
 AnalizadorTerreno::AnalizadorTerreno(void)
 {
-	//read map information into BWTA so terrain analysis can be done in another thread
+	//read map information into BWTA so terrain analysis can be done in another thread 
 	BWTA::readMap();
 	analyzed=false;
 	analysis_just_finished=false;
